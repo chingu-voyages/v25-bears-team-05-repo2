@@ -1,5 +1,5 @@
 import { Document, Model, model, Schema } from "mongoose";
-
+import { IPost } from "./post";
 /**
  * Interface to model the User Schema for TypeScript.
  * @param email:string
@@ -10,6 +10,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   avatar: string;
+  posts: Array<IPost["_id"]>
 }
 
 const userSchema: Schema = new Schema({
@@ -28,6 +29,9 @@ const userSchema: Schema = new Schema({
   date: {
     type: Date,
     default: Date.now
+  },
+  posts: {
+    type: [Schema.Types.ObjectId], default: []
   }
 });
 
