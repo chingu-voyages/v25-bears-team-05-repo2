@@ -1,5 +1,5 @@
 import { Document, Model, model, Schema } from "mongoose";
-import { IUser } from "./User";
+import { IUserDocument } from "./user/user.types";
 
 /**
  * Interface to model the Profile Schema for TypeScript.
@@ -9,7 +9,7 @@ import { IUser } from "./User";
  * @param username:string
  */
 export interface IProfile extends Document {
-  user: IUser["_id"];
+  user: IUserDocument["_id"];
   firstName: string;
   lastName: string;
   username: string;
