@@ -23,10 +23,10 @@ const UserSchema: Schema = new Schema({
   connections: {},
   connectionOf: {},
   threads: {
-    started:{},
+    started: {},
     commented: {},
     liked: {},
-    shared:{}
+    shared: {}
   }
 });
 

@@ -16,7 +16,7 @@ export interface IUser extends Document {
     commented: {},
     liked: {},
     shared: {},
-  }
+  };
 }
 
 export interface IUserDocument extends IUser, Document {}
