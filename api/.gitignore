@@ -4,3 +4,5 @@ package-lock.json
 .vscode
 api/.env
 .env
+.eslintrc.json
+babel.config.js
