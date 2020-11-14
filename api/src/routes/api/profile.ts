@@ -5,7 +5,8 @@ import HttpStatusCodes from "http-status-codes";
 import auth from "../../middleware/auth";
 import Profile, { IProfile } from "../../models/Profile";
 import Request from "../../types/Request";
-import User, { IUser } from "../../models/User";
+import { UserModel } from "../../models/user/user.model";
+import { IUserDocument } from "../../models/user/user.types"
 
 const router: Router = Router();
 
@@ -64,7 +65,7 @@ router.post(
     };
 
     try {
-      let user: IUser = await User.findOne({ _id: req.userId });
+      let user: IUserDocument = await UserModel.findOne({ _id: req.userId });
 
       if (!user) {
         return res.status(HttpStatusCodes.BAD_REQUEST).json({
@@ -148,7 +149,7 @@ router.delete("/", auth, async (req: Request, res: Response) => {
     // Remove profile
     await Profile.findOneAndRemove({ user: req.userId });
     // Remove user
-    await User.findOneAndRemove({ _id: req.userId });
+    await UserModel.findOneAndRemove({ _id: req.userId });
 
     res.json({ msg: "User removed" });
   } catch (err) {

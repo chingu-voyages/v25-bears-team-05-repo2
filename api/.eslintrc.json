@@ -1,0 +1,26 @@
+{	
+  "env": {	
+      "browser": true,	
+      "es6": true,	
+      "node": true	
+  },	
+  "extends": [	
+      "google"	
+  ],	
+  "globals": {	
+      "Atomics": "readonly",	
+      "SharedArrayBuffer": "readonly"	
+  },	
+  "parserOptions": {	
+      "ecmaVersion": 2018,	
+      "sourceType": "module"	
+  },	
+  "rules": {	
+    "linebreak-style": 0,	
+    "max-len": ["error", {"code": 100}],	
+    "object-curly-spacing": [2, "always", {	
+      "objectsInObjects": true,	
+      "arraysInObjects": true	
+    }]
+  }
+}
