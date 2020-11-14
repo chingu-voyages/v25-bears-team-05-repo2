@@ -12,7 +12,6 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-console.log(process.env.SERVER_PORT);
 // Express configuration
 app.set("port", process.env.SERVER_PORT || 7000);
 app.use(bodyParser.json());
