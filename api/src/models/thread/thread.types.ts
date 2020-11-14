@@ -14,13 +14,13 @@ export enum ThreadVisibility {
 }
 
 export interface IThread extends Document {
-  postedByUser: IUserDocument["_id"];
+  postedByUserId: string;
   threadType: ThreadType;
   visibility: ThreadVisibility;
   content: {
     html: string,
-    hashtags: [string],
-    attachments: [string]
+    hashTags: Array<string>,
+    attachments: Array<string>
   };
   comments: {};
   likes: {};
