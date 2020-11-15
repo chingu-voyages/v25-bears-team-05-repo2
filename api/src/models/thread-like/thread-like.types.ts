@@ -6,7 +6,7 @@ export enum ThreadLikeTypeTitle {
   Love = "love"
 }
 
-export interface IThreadLike extends Document {
+export interface IThreadLike {
   postedByUserId: string;
   threadLikeType: {
     emoji: string,

@@ -13,7 +13,7 @@ export enum ThreadVisibility {
   Connections = 1
 }
 
-export interface IThread extends Document {
+export interface IThread {
   postedByUserId: string;
   threadType: ThreadType;
   visibility: ThreadVisibility;

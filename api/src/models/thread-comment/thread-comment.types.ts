@@ -10,5 +10,5 @@ export interface IThreadComment {
   attachments?: Array<IAttachmentType>;
 }
 
-export interface IThreadCommentDocument extends IAttachmentType , Document {}
+export interface IThreadCommentDocument extends IThreadComment, Document {}
 export interface IThreadCommentModel extends Model<IThreadCommentDocument> {}

@@ -1,10 +1,10 @@
 import { Document, Model } from "mongoose";
 
-interface Avatar {
+export interface Avatar {
   url: string;
 }
 
-export interface IUserConnection extends Document {
+export interface IUserConnection {
   firstName: string;
   lastName: string;
   avatar: Array<Avatar>;
