@@ -2,7 +2,7 @@ import { IUser } from "../user.types";
 
 /**
  *
- * @param numberOfUser number of fake users to create for testing
+ * @param numberOfUsers number of fake users to create for testing
  */
 export function createTestUsers (numberOfUsers: number = 1): Array<IUser> {
   const fakeUsers: Array<IUser> = [];
