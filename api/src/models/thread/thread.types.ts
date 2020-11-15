@@ -1,5 +1,7 @@
 import { Document, Model } from "mongoose";
-import { IUserDocument } from "../user/user.types";
+import { IThreadComment, IThreadCommentModel } from "../thread-comment/thread-comment.types";
+import { IThreadLike } from "../thread-like/thread-like.types";
+import { IThreadShare } from "../thread-share/thread-share.types";
 
 export enum ThreadType {
   Post = 0,
@@ -22,9 +24,9 @@ export interface IThread {
     hashTags: Array<string>,
     attachments: Array<string>
   };
-  comments: {};
-  likes: {};
-  shares: {};
+  comments: { [keyof: string]: IThreadComment };
+  likes: { [keyof: string]: IThreadLike };
+  shares: { [keyof: string]: IThreadShare };
 }
 
 export interface IThreadDocument extends IThread, Document {}

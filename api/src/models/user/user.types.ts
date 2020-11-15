@@ -1,4 +1,8 @@
 import { Document, Model } from "mongoose";
+import { IThreadComment } from "../thread-comment/thread-comment.types";
+import { IThreadLike } from "../thread-like/thread-like.types";
+import { IThreadShare } from "../thread-share/thread-share.types";
+import { IThread } from "../thread/thread.types";
 
 export interface IUser {
   firstName: string;
@@ -12,10 +16,10 @@ export interface IUser {
   connections: any;
   connectionOf: any;
   threads: {
-    started: {},
-    commented: {},
-    liked: {},
-    shared: {},
+    started: { [keyof: string]: IThread },
+    commented: { [keyof: string]: IThreadComment },
+    liked: { [keyof: string]: IThreadLike },
+    shared: { [keyof: string]: IThreadShare },
   };
 }
 
