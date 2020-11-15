@@ -8,7 +8,8 @@ const ThreadShareSchema: Schema = new Schema({
   content: {
     thread: ThreadSchema,
     html: { type: String },
-    hashTags: { type: [String], required: false, default: []}
+    hashTags: { type: [String], default: [] },
+    attachments: { type: [String], default: [] }
   },
   comments: {},
   likes: {},
