@@ -8,6 +8,7 @@ export interface IUser {
   firstName: string;
   lastName: string;
   auth: {
+    googleId?: string,
     email?: string,
     password?: string,
     oauth?: string,

@@ -4,6 +4,10 @@ const UserSchema: Schema = new Schema({
   firstName: String,
   lastName: String,
   auth: {
+    googleId: {
+      type: String,
+      required: false,
+    },
     email: {
       type: String,
       required: false

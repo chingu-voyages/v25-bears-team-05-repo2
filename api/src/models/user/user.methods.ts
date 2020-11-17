@@ -1,1 +1,5 @@
-// Placeholder for future methods
+import { IUserDocument } from "./user.types";
+
+export async function findOrCreateById(this: IUserDocument, id: string) {
+
+}
