@@ -13,7 +13,7 @@ export interface IUser {
     password?: string,
     oauth?: string,
   };
-  avatar: [ { url: string } ];
+  avatar: Array<{ url: string }>;
   connections: any;
   connectionOf: any;
   threads: {
@@ -25,4 +25,6 @@ export interface IUser {
 }
 
 export interface IUserDocument extends IUser, Document {}
-export interface IUserModel extends Model<IUserDocument> {}
+export interface IUserModel extends Model<IUserDocument> {
+  findOrCreate: (this: IUserModel, data: IUser) => Promise<IUserDocument>;
+}
