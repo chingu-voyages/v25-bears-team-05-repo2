@@ -1,9 +1,9 @@
 import { IUser, IUserModel } from "./user.types";
 
 /**
- * Searches for a document by googleId, if not found, creates
- * @param this
- * @param id GoogleId
+ *
+ * @param this *
+ * @param data User data
  */
 export async function findOrCreate(this: IUserModel, data: IUser) {
   const documents = await this.find({ googleId: data.auth.googleId });
