@@ -1,4 +1,5 @@
 import { Schema } from "mongoose";
+import { findByGoogleId, findOneOrCreateByGoogleAuth } from "./user.methods";
 
 const UserSchema: Schema = new Schema({
   firstName: String,
@@ -34,4 +35,6 @@ const UserSchema: Schema = new Schema({
   }
 });
 
+UserSchema.statics.findOneOrCreateByGoogleAuth = findOneOrCreateByGoogleAuth;
+UserSchema.statics.findByGoogleId = findByGoogleId;
 export default UserSchema;

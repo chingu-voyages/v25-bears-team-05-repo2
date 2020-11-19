@@ -26,5 +26,6 @@ export interface IUser {
 
 export interface IUserDocument extends IUser, Document {}
 export interface IUserModel extends Model<IUserDocument> {
-  findOrCreate: (this: IUserModel, data: IUser) => Promise<IUserDocument>;
+  findOneOrCreateByGoogleAuth: (this: IUserModel, data: IUser) => Promise<IUserDocument>;
+  findByGoogleId: (this: IUserModel, id: string) => Promise<IUserDocument>;
 }

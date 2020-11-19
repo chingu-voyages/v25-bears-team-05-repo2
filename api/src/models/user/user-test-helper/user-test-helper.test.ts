@@ -8,4 +8,15 @@ describe("createTestUsers helper function tests", () => {
     expect(result[4].lastName).toBe("testUser4LastName");
     expect(result[0].avatar[0].url).toBe("testUser0AvatarUrl");
   });
+  test("googleIds are assigned properly with same number of ids as test users", () => {
+    const result = createTestUsers(2, ["123", "456"]);
+    expect(result[0].auth.googleId).toBe("123");
+    expect(result[1].auth.googleId).toBe("456");
+  });
+
+  test("googleIds are assigned properly with different number of ids", () => {
+    const result = createTestUsers(2, ["123"]);
+    expect(result[0].auth.googleId).toBe("123");
+    expect(result[1].auth.googleId).toBe(undefined);
+  });
 });
