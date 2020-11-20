@@ -8,6 +8,7 @@ describe("createTestUsers helper function tests", () => {
     expect(result[4].lastName).toBe("testUser4LastName");
     expect(result[0].avatar[0].url).toBe("testUser0AvatarUrl");
   });
+
   test("googleIds are assigned properly with same number of ids as test users", () => {
     const result = createTestUsers(2, ["123", "456"]);
     expect(result[0].auth.googleId).toBe("123");

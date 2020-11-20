@@ -7,7 +7,7 @@ export function createUserFromGoogleData (profile: IGoogleOauthProfile): IUser {
       lastName: profile.name.familyName,
       auth: {
         googleId: profile.id,
-        email: profile.emails[0].value,
+        email: profile.emails[0].value.toLowerCase(),
         oauth: profile.accessToken
       },
       avatar: profile.photos.map((photo) => {

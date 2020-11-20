@@ -9,7 +9,7 @@ export interface IUser {
   lastName: string;
   auth: {
     googleId?: string,
-    email?: string,
+    email: string,
     password?: string,
     oauth?: string,
   };
@@ -23,9 +23,18 @@ export interface IUser {
     shared: { [keyof: string]: IThreadShare },
   };
 }
+export interface IUserRegistrationDetails {
+  // This is all the info we need to create a user
+  email: string;
+  plainTextPassword: string;
+  firstName: string;
+  lastName: string;
+
+}
 
 export interface IUserDocument extends IUser, Document {}
 export interface IUserModel extends Model<IUserDocument> {
-  findOneOrCreateByGoogleAuth: (this: IUserModel, data: IUser) => Promise<IUserDocument>;
+  findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;
   findByGoogleId: (this: IUserModel, id: string) => Promise<IUserDocument>;
+  registerUser: (this: IUserModel, details: IUserRegistrationDetails) => Promise<IUserDocument>;
 }

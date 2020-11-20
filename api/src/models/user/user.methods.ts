@@ -1,11 +1,13 @@
-import { IUser, IUserDocument, IUserModel } from "./user.types";
-
+import { IUser, IUserDocument,
+  IUserModel, IUserRegistrationDetails } from "./user.types";
+import bcrypt from "bcryptjs";
 /**
- *
+ * Find user by googleId, if not found, create user, populating with google
+ * profile data
  * @param this *
  * @param data User data
  */
-export async function findOneOrCreateByGoogleAuth(this: IUserModel, data: IUser): Promise<IUserDocument> {
+export async function findOneOrCreateByGoogleId(this: IUserModel, data: IUser): Promise<IUserDocument> {
   const documents = await this.find({ "auth.googleId": data.auth.googleId });
   if (documents && documents.length > 0) {
     return documents[0];
@@ -30,4 +32,35 @@ export async function findByGoogleId(this: IUserModel, id: string): Promise<IUse
   } catch (err) {
     console.log(err);
   }
+}
+
+/**
+ *  Registers user. Checks to ensure e-mail address is unique
+ */
+export async function registerUser(this: IUserModel, details: IUserRegistrationDetails) {
+    const users = await this.find({ "auth.email" : details.email });
+    if (users && users.length > 0) {
+      throw new Error(`User with email ${details.email} already exists`);
+    } else {
+      // Create
+      const hashedPassword = await bcrypt.hash( details.plainTextPassword, 10);
+      const newUser = await this.create({
+        firstName: details.firstName,
+        lastName: details.lastName,
+        auth: {
+          email: details.email.toLowerCase(),
+          password: hashedPassword
+        },
+        avatar: [{ url: "defaultAvatar"}],
+        connections: {},
+        connectionOf: {},
+        threads: {
+          started: {},
+          commented: {},
+          liked: {},
+          shared: {}
+        }
+      });
+      return newUser;
+    }
 }

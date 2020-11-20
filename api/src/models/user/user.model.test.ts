@@ -3,7 +3,8 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 let mongoServer: any;
 import { UserModel } from "./user.model";
 import { createTestUsers } from "./user-test-helper/user-test-helper";
-import { IUserModel } from "./user.types";
+import { IUserRegistrationDetails } from "./user.types";
+import bcrypt from "bcryptjs";
 
 const options: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
@@ -12,7 +13,7 @@ const options: mongoose.ConnectionOptions = {
   useUnifiedTopology: true,
 };
 
-beforeAll(async () => {
+beforeEach(async () => {
   mongoServer = new MongoMemoryServer();
   const mongoUri = await mongoServer.getUri();
   await mongoose.connect(mongoUri, options, (err) => {
@@ -20,7 +21,7 @@ beforeAll(async () => {
   });
 });
 
-afterAll(async () => {
+afterEach(async () => {
   await mongoose.disconnect();
   await mongoServer.stop();
 });
@@ -53,7 +54,7 @@ describe("CRUD operations for User model", () => {
     const [user1, user2] = createTestUsers(2, ["123456789", "987654321", "55544323"]);
     // Put the test models in the collection.
     await UserModel.create([user1, user2]);
-    const result = await UserModel.findOneOrCreateByGoogleAuth(user1);
+    const result = await UserModel.findOneOrCreateByGoogleId(user1);
     expect(result.auth.googleId).toBe("123456789");
   });
 
@@ -61,7 +62,7 @@ describe("CRUD operations for User model", () => {
     const [user1, user2] = createTestUsers(2, ["123456789", "987654321"]);
     // Put the test document in the collection.
     await UserModel.create(user1);
-    const result = await UserModel.findOneOrCreateByGoogleAuth(user2);
+    const result = await UserModel.findOneOrCreateByGoogleId(user2);
     expect(result.auth.googleId).toBe("987654321");
   });
 
@@ -78,4 +79,46 @@ describe("CRUD operations for User model", () => {
   });
 });
 
+describe("register user tests", () => {
+  test("register user function throws error if duplicate email address", async() => {
+    const testUsers = createTestUsers(3, [], ["password0", "password1", "password2"]);
+    await UserModel.create(testUsers);
 
+    const newTestUser: IUserRegistrationDetails = {
+      firstName: "testUser0FirstName",
+      lastName: "testUser0LastName",
+      email: "testUser0@test.com",
+      plainTextPassword: "somePwd",
+    };
+    await expect(() => UserModel.registerUser(newTestUser)).rejects.toThrow();
+  });
+
+  test("register user function does not throw if unique e-mail", async() => {
+    const testUsers = createTestUsers(3, [], ["password0", "password1", "password2"]);
+    await UserModel.create(testUsers);
+
+    const newTestUser: IUserRegistrationDetails = {
+      firstName: "testUser0FirstName",
+      lastName: "testUser0LastName",
+      email: "testUser5@test.com",
+      plainTextPassword: "somePwd",
+    };
+    await expect(() => UserModel.registerUser(newTestUser)).resolves;
+  });
+
+  test("registers user into database and info is stored properly", async () => {
+    const newTestUser: IUserRegistrationDetails = {
+      firstName: "Mary-Beth",
+      lastName: "Evans",
+      email: "drKaylaBrady@email.com",
+      plainTextPassword: "somePwd",
+    };
+
+    const newUser = await UserModel.registerUser(newTestUser);
+    expect(newUser.auth.email).toBe("drkaylabrady@email.com");
+    expect(newUser.firstName).toBe("Mary-Beth");
+
+    const passwordMatches = await bcrypt.compare("somePwd", newUser.auth.password);
+    expect(passwordMatches).toBe(true);
+  });
+});

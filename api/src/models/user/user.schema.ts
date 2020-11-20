@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import { findByGoogleId, findOneOrCreateByGoogleAuth } from "./user.methods";
+import { findByGoogleId, findOneOrCreateByGoogleId, registerUser } from "./user.methods";
 
 const UserSchema: Schema = new Schema({
   firstName: String,
@@ -7,15 +7,15 @@ const UserSchema: Schema = new Schema({
   auth: {
     googleId: {
       type: String,
-      required: false,
+      required: false
     },
     email: {
       type: String,
-      required: false
+      required: true
     },
     password: {
       type: String,
-      required: false,
+      required: false
     },
     oauth: {
       type: String,
@@ -35,6 +35,7 @@ const UserSchema: Schema = new Schema({
   }
 });
 
-UserSchema.statics.findOneOrCreateByGoogleAuth = findOneOrCreateByGoogleAuth;
+UserSchema.statics.findOneOrCreateByGoogleId = findOneOrCreateByGoogleId;
 UserSchema.statics.findByGoogleId = findByGoogleId;
+UserSchema.statics.registerUser = registerUser;
 export default UserSchema;

@@ -17,18 +17,19 @@ passport.deserializeUser((id: string, done) => {
   });
 });
 
-const GooglePassportStrategy = new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: process.env.DEV_AUTH_CALLBACK_URL
-}, async (_accessToken: any, _refreshToken: any, profile: IGoogleOauthProfile, done: any) => {
+async function authenticateUser(_accessToken: any, _refreshToken: any, profile: IGoogleOauthProfile, done: any) {
   try {
-    const user = await UserModel.findOneOrCreateByGoogleAuth(createUserFromGoogleData(profile));
+    const user = await UserModel.findOneOrCreateByGoogleId(createUserFromGoogleData(profile));
     done(undefined, user);
   } catch (err) {
     done(err, undefined);
   }
 }
-);
+
+const GooglePassportStrategy = new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: process.env.DEV_AUTH_CALLBACK_URL
+}, authenticateUser);
 
 export default GooglePassportStrategy;
