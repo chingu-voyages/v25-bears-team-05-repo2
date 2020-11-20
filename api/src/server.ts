@@ -2,6 +2,7 @@ require("dotenv").config();
 const cors = require("cors");
 import bodyParser from "body-parser";
 import authRouter from "./routes/auth";
+import localRegistrationRouter from "./routes/register-local";
 import express from "express";
 import passport from "passport";
 
@@ -29,6 +30,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/auth", authRouter);
+app.use("/register/local", localRegistrationRouter);
 
 app.get("/", (_req, res) => {
   res.send("API Running");

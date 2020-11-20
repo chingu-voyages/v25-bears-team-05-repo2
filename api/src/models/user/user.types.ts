@@ -29,7 +29,6 @@ export interface IUserRegistrationDetails {
   plainTextPassword: string;
   firstName: string;
   lastName: string;
-
 }
 
 export interface IUserDocument extends IUser, Document {}
