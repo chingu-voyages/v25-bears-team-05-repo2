@@ -5,9 +5,8 @@ import { IUserRegistrationDetails } from "../models/user/user.types";
 import { validatePassword } from "../middleware/password-validator";
 import { body, validationResult } from "express-validator/check";
 import passport from "passport";
-
 import LocalPassportStrategy from "../authentication-strategies/local-passport-strategy";
-import { isNamedExportBindings } from "typescript";
+
 passport.use("local", LocalPassportStrategy);
 
 const sanitizationObject = [ body("email").isEmail().normalizeEmail(),

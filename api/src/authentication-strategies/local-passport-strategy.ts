@@ -9,7 +9,6 @@ passport.serializeUser((user: any, done: any) => {
 });
 
 passport.deserializeUser((id: string, done: any) => {
-  // done(undefined, user.id);
   UserModel.findById(id).then((user) => {
     done(undefined, user);
   }).catch((err) => {

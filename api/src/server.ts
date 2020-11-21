@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import authRouter from "./routes/auth";
 import localRegistrationRouter from "./routes/register-local";
 import localLoginRouter from "./routes/login-local";
+import logOutRouter from "./routes/logout";
 import express from "express";
 import passport from "passport";
 
@@ -33,6 +34,7 @@ app.use(passport.session());
 app.use("/auth", authRouter);
 app.use("/register/local", localRegistrationRouter);
 app.use("/login/local", localLoginRouter);
+app.use("/logout", logOutRouter);
 
 app.get("/", (_req, res) => {
   res.send("API Running");
