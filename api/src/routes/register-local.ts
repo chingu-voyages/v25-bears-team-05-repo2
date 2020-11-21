@@ -6,6 +6,7 @@ import { validatePassword } from "../middleware/password-validator";
 import { body, validationResult } from "express-validator/check";
 import passport from "passport";
 import LocalPassportStrategy from "../authentication-strategies/local-passport-strategy";
+import { checkNotAuthenticated } from "../middleware/login-validator";
 
 passport.use("local", LocalPassportStrategy);
 
@@ -17,7 +18,7 @@ const sanitizationObject = [ body("email").isEmail().normalizeEmail(),
 const router = express.Router();
 
 // POIJ Will be deleted
-router.get("/", (req, res) => {
+router.get("/", (_req, res) => {
   res.status(200).send("you've reached the register/local get route");
 });
 
@@ -28,7 +29,7 @@ router.get("/success", (req, res) => {
   res.status(200).send({ status: "registration successful", data: req.user}); // Reg successful // client should navigate to sign in page?
 });
 
-router.post("/", sanitizationObject, validatePassword,
+router.post("/", checkNotAuthenticated, sanitizationObject, validatePassword,
   async(req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -44,7 +45,6 @@ router.post("/", sanitizationObject, validatePassword,
 
     try {
       const result = await UserModel.registerUser(userDetails);
-      // console.log("User entry", result);
       if (result) {
        req.logIn(result, (err) => {
          if (err) { console.log(err); }
@@ -52,7 +52,6 @@ router.post("/", sanitizationObject, validatePassword,
        });
       }
     } catch (err) {
-      console.log("Line 50", err);
       res.status(400).send({
         errors: [{ location: "error", message: err.message, param: "password" }] }
       );
