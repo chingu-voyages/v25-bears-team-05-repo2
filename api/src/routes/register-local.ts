@@ -25,7 +25,6 @@ router.get("/", (_req, res) => {
 // POIJ: to be deleted
 router.get("/success", (req, res) => {
   // The user should have a cookie at this point
-  console.log("User success register line 26,", req.user);
   res.status(200).send({ status: "registration successful", data: req.user}); // Reg successful // client should navigate to sign in page?
 });
 
