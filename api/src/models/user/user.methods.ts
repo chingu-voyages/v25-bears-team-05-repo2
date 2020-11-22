@@ -39,7 +39,7 @@ export async function findByGoogleId(this: IUserModel, id: string): Promise<IUse
  *  Registers user. Checks to ensure e-mail address is unique
  */
 export async function registerUser(this: IUserModel, details: IUserRegistrationDetails) {
-    const users = await this.findByEncryptedEmail(details.encryptedEmail); // This won't work
+    const users = await this.findByEncryptedEmail(details.encryptedEmail);
     if (users && users.length > 0) {
       throw new Error(`User with email ${decrypt(details.encryptedEmail)} already exists`);
     } else {
@@ -77,13 +77,10 @@ export async function findByEncryptedEmail (this: IUserModel, encryptedEmail: st
 export async function findOneByEncryptedEmail (this: IUserModel, encryptedEmail: string) {
   const decryptedEmail = decrypt(encryptedEmail);
   const allRecords = await this.find();
-  const filteredRecords = allRecords.filter((records) => {
-    return decrypt(records.auth.email) === decryptedEmail;
-  });
 
-  if (filteredRecords.length > 0) {
-    return filteredRecords[0];
-  } else {
-    return undefined;
+  for (let i = 0; i < allRecords.length; i++) {
+    if (decrypt(allRecords[i].auth.email) === decryptedEmail) {
+      return allRecords[i];
+    }
   }
 }
