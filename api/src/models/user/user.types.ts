@@ -8,11 +8,12 @@ export interface IUser {
   firstName: string;
   lastName: string;
   auth: {
-    email?: string,
+    googleId?: string,
+    email: string,
     password?: string,
     oauth?: string,
   };
-  avatar: [ { url: string } ];
+  avatar: Array<{ url: string }>;
   connections: any;
   connectionOf: any;
   threads: {
@@ -22,6 +23,19 @@ export interface IUser {
     shared: { [keyof: string]: IThreadShare },
   };
 }
+export interface IUserRegistrationDetails {
+  // This is all the info we need to create a user
+  encryptedEmail: string;
+  plainTextPassword: string;
+  firstName: string;
+  lastName: string;
+}
 
 export interface IUserDocument extends IUser, Document {}
-export interface IUserModel extends Model<IUserDocument> {}
+export interface IUserModel extends Model<IUserDocument> {
+  findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;
+  findByGoogleId: (this: IUserModel, id: string) => Promise<IUserDocument>;
+  registerUser: (this: IUserModel, details: IUserRegistrationDetails) => Promise<IUserDocument>;
+  findByEncryptedEmail: (this: IUserModel, encryptedEmail: string ) => Promise<IUserDocument[]>;
+  findOneByEncryptedEmail: (this: IUserModel, encryptedEmail: string ) => Promise<IUserDocument>;
+}

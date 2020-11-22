@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 import { ConnectionOptions, connect } from "mongoose";
 
 const connectDB = async () => {
@@ -20,4 +20,3 @@ const connectDB = async () => {
 };
 
 export default connectDB;
-console.log(process.env.DEV_MONGO_DB_URI)

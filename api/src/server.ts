@@ -1,11 +1,15 @@
 require("dotenv").config();
+const cors = require("cors");
 import bodyParser from "body-parser";
+import authRouter from "./routes/auth";
+import localRegistrationRouter from "./routes/register-local";
+import localLoginRouter from "./routes/login-local";
+import logOutRouter from "./routes/logout";
 import express from "express";
+import passport from "passport";
 
 import connectDB from "../config/database";
-import auth from "./routes/api/auth";
-import user from "./routes/api/user";
-import profile from "./routes/api/profile";
+const cookieSession = require("cookie-session");
 
 const app = express();
 
@@ -16,18 +20,29 @@ connectDB();
 app.set("port", process.env.SERVER_PORT || 7000);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cors());
 
-// @route   GET /
-// @desc    Test Base API
-// @access  Public
+app.use(cookieSession({
+  maxAge: 24 * 60 * 60 * 1000, // Day
+  name: "synced-up",
+  keys: [process.env.COOKIE_KEY_1, process.env.COOKIE_KEY_2]
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use("/auth", authRouter);
+app.use("/register/local", localRegistrationRouter);
+app.use("/login/local", localLoginRouter);
+app.use("/logout", logOutRouter);
+
 app.get("/", (_req, res) => {
   res.send("API Running");
 });
 
-app.use("/api/auth", auth);
-app.use("/api/user", user);
-app.use("/api/profile", profile);
-
+app.get("/success", (req, res) => {
+  res.send("authenticated successfully");
+});
 const port = app.get("port");
 const server = app.listen(port, () =>
   console.log(`Server started on port ${port}`)
