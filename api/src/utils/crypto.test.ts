@@ -21,4 +21,5 @@ describe("encryption function", () => {
     const encryptedText = encrypt("hellotest123", "customPassphrase");
     expect(decrypt(encryptedText)).toBe("");
   });
+
 });

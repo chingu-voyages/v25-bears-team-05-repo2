@@ -7,10 +7,11 @@ import { body, validationResult } from "express-validator/check";
 import passport from "passport";
 import LocalPassportStrategy from "../authentication-strategies/local-passport-strategy";
 import { checkNotAuthenticated } from "../middleware/login-validator";
+import { encrypt } from "../utils/crypto";
 
 passport.use("local", LocalPassportStrategy);
 
-const sanitizationObject = [ body("email").isEmail().normalizeEmail(),
+const sanitizationObject = [ body("email").isEmail().normalizeEmail({ all_lowercase: true }),
   body("password").isLength({ min: 8}).trim().escape(),
   body("firstName").trim().escape(),
   body("lastName").trim().escape() ];
@@ -38,7 +39,7 @@ router.post("/", checkNotAuthenticated, sanitizationObject, validatePassword,
     const userDetails: IUserRegistrationDetails = {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
-      email: req.body.email,
+      encryptedEmail: encrypt(req.body.email),
       plainTextPassword: req.body.password
     };
 

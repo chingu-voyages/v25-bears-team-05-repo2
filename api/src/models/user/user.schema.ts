@@ -1,5 +1,10 @@
 import { Schema } from "mongoose";
-import { findByGoogleId, findOneOrCreateByGoogleId, registerUser } from "./user.methods";
+import { findByGoogleId,
+  findOneOrCreateByGoogleId,
+  registerUser,
+  findByEncryptedEmail,
+  findOneByEncryptedEmail }
+  from "./user.methods";
 
 const UserSchema: Schema = new Schema({
   firstName: String,
@@ -32,10 +37,12 @@ const UserSchema: Schema = new Schema({
     commented: {},
     liked: {},
     shared: {}
-  }
-});
+  },
+}, { timestamps: {}});
 
 UserSchema.statics.findOneOrCreateByGoogleId = findOneOrCreateByGoogleId;
 UserSchema.statics.findByGoogleId = findByGoogleId;
 UserSchema.statics.registerUser = registerUser;
+UserSchema.statics.findByEncryptedEmail = findByEncryptedEmail;
+UserSchema.statics.findOneByEncryptedEmail = findOneByEncryptedEmail;
 export default UserSchema;

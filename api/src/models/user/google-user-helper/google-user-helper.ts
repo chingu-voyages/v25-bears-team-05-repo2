@@ -1,6 +1,6 @@
 import { IGoogleOauthProfile } from "google-oath-profile";
 import { IUser } from "../user.types";
-import cryptoJs from "crypto-js/sha256";
+import { encrypt } from "../../../utils/crypto";
 
 export function createUserFromGoogleData (profile: IGoogleOauthProfile): IUser {
   return {
@@ -8,7 +8,7 @@ export function createUserFromGoogleData (profile: IGoogleOauthProfile): IUser {
       lastName: profile.name.familyName,
       auth: {
         googleId: profile.id,
-        email: profile.emails[0].value.toLowerCase(),
+        email: encrypt(profile.emails[0].value.toLowerCase()),
         oauth: profile.accessToken
       },
       avatar: profile.photos.map((photo) => {

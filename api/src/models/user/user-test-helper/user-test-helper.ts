@@ -1,10 +1,10 @@
 import { IUser } from "../user.types";
-
+import { encrypt } from "../../../utils/crypto";
 /**
  *
- * @param numberOfUsers number of fake users to create for testing
+ * @param numberOfUsers number of fake users to create for testing.
  */
-export function createTestUsers (numberOfUsers: number = 1, googleIds?: Array<string>, passwords?: Array<string>): Array<IUser> {
+export function createTestUsers (numberOfUsers: number = 1, googleIds?: Array<string>, plainTextPasswords?: Array<string>): Array<IUser> {
 
   const fakeUsers: Array<IUser> = [];
   for (let i = 0; i < numberOfUsers; i++) {
@@ -12,9 +12,9 @@ export function createTestUsers (numberOfUsers: number = 1, googleIds?: Array<st
       firstName: `testUser${i.toString()}FirstName`,
       lastName: `testUser${i.toString()}LastName`,
       auth: {
-        password: passwords && passwords[i],
+        password: plainTextPasswords && plainTextPasswords[i],
         googleId: googleIds && googleIds[i],
-        email: `testUser${i.toString()}@test.com`,
+        email: encrypt(`testUser${i.toString()}@test.com`),
       },
       avatar: [ {url: `testUser${i.toString()}AvatarUrl`} ],
       connections: {},

@@ -5,6 +5,7 @@ import { UserModel } from "./user.model";
 import { createTestUsers } from "./user-test-helper/user-test-helper";
 import { IUserRegistrationDetails } from "./user.types";
 import bcrypt from "bcryptjs";
+import { encrypt, decrypt } from "../../utils/crypto";
 
 const options: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
@@ -32,7 +33,7 @@ describe("CRUD operations for User model", () => {
       firstName: "testFirstName",
       lastName: "testLastName",
       auth: {
-        email: "test@test.com",
+        email: encrypt("test@test.com"),
       },
       avatar: [ {url: "testUrl01"} ],
       connections: {},
@@ -45,7 +46,7 @@ describe("CRUD operations for User model", () => {
       }
     };
     const result = await UserModel.create(testUserData);
-    expect(result.auth.email).toBe("test@test.com");
+    expect(decrypt(result.auth.email)).toBe("test@test.com");
     expect(result.lastName).toBe("testLastName");
     expect(result.avatar[0].url).toBe("testUrl01");
   });
@@ -87,7 +88,7 @@ describe("register user tests", () => {
     const newTestUser: IUserRegistrationDetails = {
       firstName: "testUser0FirstName",
       lastName: "testUser0LastName",
-      email: "testUser0@test.com",
+      encryptedEmail: encrypt("testUser0@test.com"),
       plainTextPassword: "somePwd",
     };
     await expect(() => UserModel.registerUser(newTestUser)).rejects.toThrow();
@@ -100,7 +101,7 @@ describe("register user tests", () => {
     const newTestUser: IUserRegistrationDetails = {
       firstName: "testUser0FirstName",
       lastName: "testUser0LastName",
-      email: "testUser5@test.com",
+      encryptedEmail: encrypt("testUser5@test.com"),
       plainTextPassword: "somePwd",
     };
     await expect(() => UserModel.registerUser(newTestUser)).resolves;
@@ -110,12 +111,12 @@ describe("register user tests", () => {
     const newTestUser: IUserRegistrationDetails = {
       firstName: "Mary-Beth",
       lastName: "Evans",
-      email: "drKaylaBrady@email.com",
+      encryptedEmail: encrypt("drkaylabrady@email.com"),
       plainTextPassword: "somePwd",
     };
 
     const newUser = await UserModel.registerUser(newTestUser);
-    expect(newUser.auth.email).toBe("drkaylabrady@email.com");
+    expect(decrypt(newUser.auth.email)).toBe("drkaylabrady@email.com");
     expect(newUser.firstName).toBe("Mary-Beth");
 
     const passwordMatches = await bcrypt.compare("somePwd", newUser.auth.password);

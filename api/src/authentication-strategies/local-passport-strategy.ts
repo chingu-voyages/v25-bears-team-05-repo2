@@ -3,6 +3,7 @@ import passport from "passport";
 const LocalStrategy = require("passport-local").Strategy;
 import { UserModel } from "../models/user/user.model";
 import bcrypt from "bcryptjs";
+import { decrypt, encrypt } from "../utils/crypto";
 
 passport.serializeUser((user: any, done: any) => {
   done(undefined, user.id);
@@ -18,7 +19,8 @@ passport.deserializeUser((id: string, done: any) => {
 
 async function authenticateUser(email: string, password: string, done: any) {
   try {
-    UserModel.findOne({ "auth.email" : email}).then((user) => {
+    const encryptedEmail = encrypt(email);
+    UserModel.findOne({ "auth.email" : email }).then((user) => {
       if (!user) {
         return done(undefined, false, { message: `User with ${email} not found`});
       }

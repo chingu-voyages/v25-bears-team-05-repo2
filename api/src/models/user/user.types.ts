@@ -25,7 +25,7 @@ export interface IUser {
 }
 export interface IUserRegistrationDetails {
   // This is all the info we need to create a user
-  email: string;
+  encryptedEmail: string;
   plainTextPassword: string;
   firstName: string;
   lastName: string;
@@ -36,4 +36,6 @@ export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;
   findByGoogleId: (this: IUserModel, id: string) => Promise<IUserDocument>;
   registerUser: (this: IUserModel, details: IUserRegistrationDetails) => Promise<IUserDocument>;
+  findByEncryptedEmail: (this: IUserModel, encryptedEmail: string ) => Promise<IUserDocument[]>;
+  findOneByEncryptedEmail: (this: IUserModel, encryptedEmail: string ) => Promise<IUserDocument>;
 }
