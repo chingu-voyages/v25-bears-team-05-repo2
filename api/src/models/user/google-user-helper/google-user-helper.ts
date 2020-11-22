@@ -1,5 +1,6 @@
 import { IGoogleOauthProfile } from "google-oath-profile";
 import { IUser } from "../user.types";
+import cryptoJs from "crypto-js/sha256";
 
 export function createUserFromGoogleData (profile: IGoogleOauthProfile): IUser {
   return {
