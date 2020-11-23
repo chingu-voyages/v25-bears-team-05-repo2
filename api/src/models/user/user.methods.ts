@@ -98,6 +98,7 @@ export async function addConnectionToUser (this: IUserDocument, objId: string, i
 
 }
 
+
 function transformUserDataToConnection(userData: IUserDocument, isTeamMate?: boolean): IUserConnection {
   return {
     firstName: userData.firstName,
