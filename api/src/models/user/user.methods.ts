@@ -2,6 +2,8 @@ import { IUser, IUserDocument,
   IUserModel, IUserRegistrationDetails } from "./user.types";
 import bcrypt from "bcryptjs";
 import { decrypt } from "../../utils/crypto";
+import { UserModel } from "./user.model";
+import { IUserConnection } from "../user-connection/user-connection.types";
 /**
  * Find user by googleId, if not found, create user, populating with google
  * profile data
@@ -83,4 +85,24 @@ export async function findOneByEncryptedEmail (this: IUserModel, encryptedEmail:
       return allRecords[i];
     }
   }
+}
+
+/**
+ *  Adds a connection object to user's profile
+ * @param this *
+ * @param objId object id
+ */
+export async function addConnectionToUser (this: IUserDocument, objId: string, isTeamMate?: boolean) {
+  // This assumes we already have the home user document in context with "this"
+  const targetUser = await UserModel.findById(objId);
+
+}
+
+function transformUserDataToConnection(userData: IUserDocument, isTeamMate?: boolean): IUserConnection {
+  return {
+    firstName: userData.firstName,
+    lastName: userData.lastName,
+    avatar: userData.avatar,
+    isTeamMate: isTeamMate || false,
+  };
 }

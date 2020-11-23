@@ -9,6 +9,10 @@ import { findByGoogleId,
 const UserSchema: Schema = new Schema({
   firstName: String,
   lastName: String,
+  jobTitle: {
+    type: String,
+    required: false,
+  },
   auth: {
     googleId: {
       type: String,
