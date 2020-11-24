@@ -5,9 +5,20 @@ import { checkNotAuthenticated } from "../middleware/login-validator";
 const router = express.Router();
 passport.use("local", LocalPassportStrategy);
 
-router.post("/", checkNotAuthenticated,
-passport.authenticate("local",
-{ successRedirect: "/success",
-failureRedirect: "/"}), (_req, _res) => {
+router.post("/", checkNotAuthenticated, (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      res.status(401).send(err);
+      return next(err);
+    }
+    if (!user) {
+      return res.status(401).send(info);
+    }
+    req.logIn(user, (done) => {
+      res.status(200).send({ message: "Local authentication successful", id: user.id});
+      done();
+    });
+  }) (req, res, next);
 });
+
 export default router;

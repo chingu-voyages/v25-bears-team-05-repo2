@@ -4,7 +4,8 @@ import { findByGoogleId,
   registerUser,
   findByEncryptedEmail,
   findOneByEncryptedEmail,
-  addConnectionToUser }
+  addConnectionToUser,
+  deleteConnectionFromUser }
   from "./user.methods";
 
 const UserSchema: Schema = new Schema({
@@ -59,4 +60,6 @@ UserSchema.statics.registerUser = registerUser;
 UserSchema.statics.findByEncryptedEmail = findByEncryptedEmail;
 UserSchema.statics.findOneByEncryptedEmail = findOneByEncryptedEmail;
 UserSchema.methods.addConnectionToUser = addConnectionToUser;
+UserSchema.methods.deleteConnectionFromUser = deleteConnectionFromUser;
+
 export default UserSchema;

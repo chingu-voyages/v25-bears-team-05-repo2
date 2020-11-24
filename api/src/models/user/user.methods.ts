@@ -93,8 +93,10 @@ export async function findOneByEncryptedEmail (this: IUserModel, encryptedEmail:
  * @param this *
  * @param objId object id
  */
-export async function addConnectionToUser (this: IUserDocument, objId: string, isTeamMate?: boolean): Promise<[IUserDocument, IUserDocument]> {
+export async function addConnectionToUser (this: IUserDocument, objId: string, isTeamMate?: boolean): Promise<IUserDocument> {
   // This assumes we already have the home user document in context with "this"
+  // Since this is a method on an instance of IUserDocument, originator isn't going
+  // to reflect the updated
   try {
     const targetUser = await UserModel.findById(objId);
     if (targetUser) {
@@ -105,17 +107,42 @@ export async function addConnectionToUser (this: IUserDocument, objId: string, i
       targetUser["connectionOf"][this._id] = originatorConnection;
 
       // Saves the changes
-      const originator = await UserModel.findByIdAndUpdate(this.id, this);
-      await UserModel.findByIdAndUpdate(objId, targetUser);
+      await this.save();
+      await targetUser.save();
+      // const originator = await UserModel.findByIdAndUpdate(this.id, this);
+      // await UserModel.findByIdAndUpdate(objId, targetUser);
 
       // Returns the new documents
-      return [originator, targetUser];
+      return targetUser;
+    } else {
+      throw new Error("User id not found");
     }
   } catch (err) {
     console.log(err);
   }
 }
 
+/**
+ *
+ * @param this
+ * @param objId
+ */
+export async function deleteConnectionFromUser(this: IUserDocument, objId: string): Promise<IUserDocument> {
+  try {
+    const targetUser = await UserModel.findById(objId);
+    if (targetUser) {
+      delete this["connections"][targetUser._id];
+      delete targetUser["connectionOf"][this._id];
+      await this.save();
+      await targetUser.save();
+      return targetUser;
+    } else {
+      throw new Error("User id not found");
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
 /**
  *
  * @param userData A user document to transform
