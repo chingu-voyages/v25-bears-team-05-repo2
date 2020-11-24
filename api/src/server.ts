@@ -11,7 +11,6 @@ import passport from "passport";
 
 import connectDB from "../config/database";
 import { createError } from "./utils/errors";
-import { decrypt } from "./utils/crypto";
 const cookieSession = require("cookie-session");
 
 const app = express();

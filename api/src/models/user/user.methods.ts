@@ -68,7 +68,12 @@ export async function registerUser(this: IUserModel, details: IUserRegistrationD
     }
 }
 
-export async function findByEncryptedEmail (this: IUserModel, encryptedEmail: string) {
+/**
+ * Finds all instances of records with matching e-mail
+ * @param this reference to IUserModel object
+ * @param encryptedEmail e-mail in encrypted format
+ */
+export async function findByEncryptedEmail (this: IUserModel, encryptedEmail: string): Promise<IUserDocument[]> {
   const decryptedEmail = decrypt(encryptedEmail);
   const allRecords = await this.find();
   return allRecords.filter((records) => {
@@ -76,6 +81,11 @@ export async function findByEncryptedEmail (this: IUserModel, encryptedEmail: st
   });
 }
 
+/**
+ * Returns first instance of record with matching e-mail
+ * @param this reference to IUserModel object
+ * @param encryptedEmail e-mail in encrypted format
+ */
 export async function findOneByEncryptedEmail (this: IUserModel, encryptedEmail: string) {
   const decryptedEmail = decrypt(encryptedEmail);
   const allRecords = await this.find();
@@ -95,8 +105,6 @@ export async function findOneByEncryptedEmail (this: IUserModel, encryptedEmail:
  */
 export async function addConnectionToUser (this: IUserDocument, objId: string, isTeamMate?: boolean): Promise<IUserDocument> {
   // This assumes we already have the home user document in context with "this"
-  // Since this is a method on an instance of IUserDocument, originator isn't going
-  // to reflect the updated
   try {
     const targetUser = await UserModel.findById(objId);
     if (targetUser) {
@@ -109,10 +117,6 @@ export async function addConnectionToUser (this: IUserDocument, objId: string, i
       // Saves the changes
       await this.save();
       await targetUser.save();
-      // const originator = await UserModel.findByIdAndUpdate(this.id, this);
-      // await UserModel.findByIdAndUpdate(objId, targetUser);
-
-      // Returns the new documents
       return targetUser;
     } else {
       throw new Error("User id not found");
@@ -123,7 +127,7 @@ export async function addConnectionToUser (this: IUserDocument, objId: string, i
 }
 
 /**
- *
+ * Removes connection from user and any subsequent users affected. 
  * @param this
  * @param objId
  */
