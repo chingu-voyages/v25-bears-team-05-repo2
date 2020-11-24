@@ -11,6 +11,7 @@ import passport from "passport";
 
 import connectDB from "../config/database";
 import { createError } from "./utils/errors";
+import { decrypt } from "./utils/crypto";
 const cookieSession = require("cookie-session");
 
 const app = express();
@@ -43,8 +44,8 @@ app.get("/", (_req, res) => {
   res.send("API Running");
 });
 
-app.get("/success", (req, res) => {
-  res.send("authenticated successfully");
+app.get("/success", (req: any, res) => {
+  res.status(200).send(`authenticated successfully`);
 });
 
 app.get("/fail", (req, res) => {
