@@ -10,6 +10,7 @@ import express from "express";
 import passport from "passport";
 
 import connectDB from "../config/database";
+import { createError } from "./utils/errors";
 const cookieSession = require("cookie-session");
 
 const app = express();
@@ -44,6 +45,10 @@ app.get("/", (_req, res) => {
 
 app.get("/success", (req, res) => {
   res.send("authenticated successfully");
+});
+
+app.get("/fail", (req, res) => {
+  res.status(400).send({ errors: [{...createError("google-oauth", "Authentication error", "na")}]});
 });
 const port = app.get("port");
 const server = app.listen(port, () =>

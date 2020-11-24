@@ -2,6 +2,7 @@ import passport from "passport";
 import LocalPassportStrategy from "../authentication-strategies/local-passport-strategy";
 import * as express from "express";
 import { checkNotAuthenticated } from "../middleware/login-validator";
+import { createError } from "../utils/errors";
 const router = express.Router();
 passport.use("local", LocalPassportStrategy);
 
@@ -12,7 +13,7 @@ router.post("/", checkNotAuthenticated, (req, res, next) => {
       return next(err);
     }
     if (!user) {
-      return res.status(401).send(info);
+      return res.status(401).send({ errors: [{ ...createError("local-login", info, "username and/or password" )}]});
     }
     req.logIn(user, (done) => {
       res.status(200).send({ message: "Local authentication successful", id: user.id});

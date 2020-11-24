@@ -4,6 +4,7 @@ import { getProfileById } from "../db/utils/get-profile-by-id";
 import { routeProtector } from "../middleware/route-protector";
 import { body, param, validationResult } from "express-validator/check";
 import { UserModel } from "../models/user/user.model";
+import { createError } from "../utils/errors";
 
 const router = express.Router();
 
@@ -40,7 +41,7 @@ async (req: any, res: Response) => {
         res.status(200).send(otherUser.connections);
       }
     } catch (err) {
-      res.status(400).send(err.Message);
+      res.status(400).send({errors: [{ ...createError("get connections", `database error. ${err.Message}`, "id")} ]});
     }
   }
 });

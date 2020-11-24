@@ -10,7 +10,7 @@ passport.use("google", GooglePassportStrategy);
 
 router.get("/google", checkNotAuthenticated, passport.authenticate("google", { scope: ["profile", "email"]}));
 
-router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/"}), (_req: Request, res: Response) => {
+router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/fail"}), (_req: Request, res: Response) => {
   res.redirect("/success");
 });
 
