@@ -59,3 +59,53 @@ describe("findOneByEncryptedEmail function tests", () => {
     expect(result).toBeUndefined();
   });
 });
+
+describe("user add connection tests", () => {
+  test("connections added correctly", async() => {
+    // Setup - load a bunch of dummy users into the db
+    const testUsers = createTestUsers(90, undefined, undefined);
+    const dummyUserModels = await UserModel.create(testUsers);
+
+    // User #1 will be the originator/requester, and user #2 will be target/receiver
+    const targetUserId1 = dummyUserModels[2].id;
+    const firstResult = await dummyUserModels[0].addConnectionToUser(targetUserId1, true);
+
+    // Refresh from the database to test that values are saved properly
+    const checkResults = await UserModel.findById(firstResult[0].id);
+    const checkResults2 = await UserModel.findById(targetUserId1);
+
+    expect(checkResults.connections).toHaveProperty(targetUserId1);
+    expect(checkResults2.connectionOf).toHaveProperty(dummyUserModels[0].id);
+  });
+
+  test("multiple connections save correctly", async() => {
+    const testUsers = createTestUsers(10, undefined, undefined);
+    const dummyUserModels = await UserModel.create(testUsers);
+
+    // create a bunch of connections for the first user and save them
+    await Promise.all(dummyUserModels.map((dummyUserModel) => {
+      return dummyUserModels[0].addConnectionToUser(dummyUserModel.id);
+    }));
+
+    // Retrieve the saved originator. Its connections property should
+    // be populated by the ids of our dummy models
+    const checkResults = await UserModel.findById(dummyUserModels[0].id);
+    dummyUserModels.forEach((model) => {
+      expect(checkResults.connections).toHaveProperty(model.id);
+      expect(checkResults.connections[model.id].firstName).toBeDefined();
+    });
+
+    const originalId = dummyUserModels[0].id; // Grab the originator's id
+    // Check that each recipient has the originator in their connectionOf object
+    const [_, ...filteredModels] = dummyUserModels;
+
+    // Get a list of refreshed recipient from the database
+    const recipientModels = await Promise.all(filteredModels.map((filteredModel) => {
+      return UserModel.findById(filteredModel.id);
+    }));
+
+    recipientModels.forEach((model) => {
+      expect(model.connectionOf).toHaveProperty(originalId);
+    });
+  });
+});

@@ -33,7 +33,9 @@ export interface IUserRegistrationDetails {
   lastName: string;
 }
 
-export interface IUserDocument extends IUser, Document {}
+export interface IUserDocument extends IUser, Document {
+  addConnectionToUser: (this: IUserDocument,  objId: string, isTeamMate?: boolean) => Array<IUserDocument>;
+}
 export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;
   findByGoogleId: (this: IUserModel, id: string) => Promise<IUserDocument>;

@@ -88,17 +88,39 @@ export async function findOneByEncryptedEmail (this: IUserModel, encryptedEmail:
 }
 
 /**
- *  Adds a connection object to user's profile
+ *  Adds a connection object to user's profile and updates the connectionOf property
+ * on the target.
  * @param this *
  * @param objId object id
  */
-export async function addConnectionToUser (this: IUserDocument, objId: string, isTeamMate?: boolean) {
+export async function addConnectionToUser (this: IUserDocument, objId: string, isTeamMate?: boolean): Promise<[IUserDocument, IUserDocument]> {
   // This assumes we already have the home user document in context with "this"
-  const targetUser = await UserModel.findById(objId);
+  try {
+    const targetUser = await UserModel.findById(objId);
+    if (targetUser) {
+      const targetUserConnection = transformUserDataToConnection(targetUser, isTeamMate); // Adds to originator's connections object
+      const originatorConnection = transformUserDataToConnection(this, isTeamMate); // Adds to target;s connectionsOf object
 
+      this["connections"][targetUser._id] = targetUserConnection;
+      targetUser["connectionOf"][this._id] = originatorConnection;
+
+      // Saves the changes
+      const originator = await UserModel.findByIdAndUpdate(this.id, this);
+      await UserModel.findByIdAndUpdate(objId, targetUser);
+
+      // Returns the new documents
+      return [originator, targetUser];
+    }
+  } catch (err) {
+    console.log(err);
+  }
 }
 
-
+/**
+ *
+ * @param userData A user document to transform
+ * @param isTeamMate optional flag to indicate if teammate.
+ */
 function transformUserDataToConnection(userData: IUserDocument, isTeamMate?: boolean): IUserConnection {
   return {
     firstName: userData.firstName,
