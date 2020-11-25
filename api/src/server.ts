@@ -44,7 +44,7 @@ app.get("/", (_req, res) => {
 });
 
 app.get("/success", (req: any, res) => {
-  res.status(200).send(`authenticated successfully`);
+  res.send(`<script>window.close()</script>`);
 });
 
 app.get("/fail", (req, res) => {

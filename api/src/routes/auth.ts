@@ -7,11 +7,12 @@ import passport from "passport";
 import GooglePassportStrategy from "../authentication-strategies/google-passport-strategy";
 
 passport.use("google", GooglePassportStrategy);
-
 router.get("/google", checkNotAuthenticated, passport.authenticate("google", { scope: ["profile", "email"]}));
 
-router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/fail"}), (_req: Request, res: Response) => {
+router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/"}), (_req: Request, res: Response) => {
   res.redirect("/success");
 });
+
+router.get("/", routeProtector, (req, res) => { res.status(200).send(); })
 
 export default router;
