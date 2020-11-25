@@ -98,4 +98,8 @@ router.delete("/connections/:id", routeProtector, [ param("id").not().isEmpty().
   }
 });
 
+router.patch("/:id", (req, res) => {
+  
+})
+
 export default router;

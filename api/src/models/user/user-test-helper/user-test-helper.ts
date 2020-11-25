@@ -11,6 +11,7 @@ export function createTestUsers (numberOfUsers: number = 1, googleIds?: Array<st
     fakeUsers.push({
       firstName: `testUser${i.toString()}FirstName`,
       lastName: `testUser${i.toString()}LastName`,
+      jobTitle: `testUser${i.toString()}JobTitle`,
       auth: {
         password: plainTextPasswords && plainTextPasswords[i],
         googleId: googleIds && googleIds[i],

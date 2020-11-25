@@ -120,3 +120,33 @@ describe("delete user connection tests", () => {
     expect(target2.connectionOf).not.toHaveProperty(dummyUserDocuments[0].id);
   });
 });
+
+describe("Profile update tests", () => {
+  test("profile update requests single field updates correctly", async() => {
+    const testUser = createTestUsers(1, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUser);
+    await dummyUserDocuments[0].updateUserProfile({
+      firstName: "updatedFirstName",
+    });
+
+    // Expect only the requested field to save. Other fields should remain intact
+    expect(dummyUserDocuments[0].firstName).toBe("updatedFirstName");
+    expect(dummyUserDocuments[0].lastName).toBe("testUser0LastName");
+    expect(dummyUserDocuments[0].jobTitle).toBe("testUser0JobTitle");
+  });
+
+  test("profile update requests all provided fields update correctly", async() => {
+    const testUser = createTestUsers(1, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUser);
+    await dummyUserDocuments[0].updateUserProfile({
+      firstName: "uFirstName",
+      jobTitle: "designer",
+      lastName: "newLastName"
+    });
+
+    // Expect only the requested field to save. Other fields should remain intact
+    expect(dummyUserDocuments[0].firstName).toBe("uFirstName");
+    expect(dummyUserDocuments[0].lastName).toBe("newLastName");
+    expect(dummyUserDocuments[0].jobTitle).toBe("designer");
+  });
+});
