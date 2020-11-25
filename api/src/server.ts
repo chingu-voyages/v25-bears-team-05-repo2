@@ -5,10 +5,12 @@ import authRouter from "./routes/auth";
 import localRegistrationRouter from "./routes/register-local";
 import localLoginRouter from "./routes/login-local";
 import logOutRouter from "./routes/logout";
+import usersRoute from "./routes/users";
 import express from "express";
 import passport from "passport";
 
 import connectDB from "../config/database";
+import { createError } from "./utils/errors";
 const cookieSession = require("cookie-session");
 
 const app = express();
@@ -35,13 +37,18 @@ app.use("/auth", authRouter);
 app.use("/register/local", localRegistrationRouter);
 app.use("/login/local", localLoginRouter);
 app.use("/logout", logOutRouter);
+app.use("/users", usersRoute);
 
 app.get("/", (_req, res) => {
   res.send("API Running");
 });
 
-app.get("/success", (req, res) => {
-  res.send("authenticated successfully");
+app.get("/success", (req: any, res) => {
+  res.status(200).send(`authenticated successfully`);
+});
+
+app.get("/fail", (req, res) => {
+  res.status(400).send({ errors: [{...createError("google-oauth", "Authentication error", "na")}]});
 });
 const port = app.get("port");
 const server = app.listen(port, () =>

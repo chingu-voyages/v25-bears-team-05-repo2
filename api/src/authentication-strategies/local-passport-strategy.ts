@@ -20,7 +20,7 @@ passport.deserializeUser((id: string, done: any) => {
 async function authenticateUser(email: string, password: string, done: any) {
   try {
     const encryptedEmail = encrypt(email);
-    UserModel.findOne({ "auth.email" : email }).then((user) => {
+    UserModel.findOneByEncryptedEmail(encryptedEmail).then((user) => {
       if (!user) {
         return done(undefined, false, { message: `User with ${email} not found`});
       }
@@ -29,7 +29,7 @@ async function authenticateUser(email: string, password: string, done: any) {
       if (result === true) {
         return done(undefined, user);
       } else {
-        return done(undefined, undefined, { message: "Invalid username or password"});
+        return done({ error: "Invalid username or password" }, undefined, { message: "Invalid username or password"});
       }
      }).catch((err) => {
        return done(err, undefined, {message: "Unable to authenticate user"});

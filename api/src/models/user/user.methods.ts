@@ -2,6 +2,8 @@ import { IUser, IUserDocument,
   IUserModel, IUserRegistrationDetails } from "./user.types";
 import bcrypt from "bcryptjs";
 import { decrypt } from "../../utils/crypto";
+import { UserModel } from "./user.model";
+import { IUserConnection } from "../user-connection/user-connection.types";
 /**
  * Find user by googleId, if not found, create user, populating with google
  * profile data
@@ -66,7 +68,12 @@ export async function registerUser(this: IUserModel, details: IUserRegistrationD
     }
 }
 
-export async function findByEncryptedEmail (this: IUserModel, encryptedEmail: string) {
+/**
+ * Finds all instances of records with matching e-mail
+ * @param this reference to IUserModel object
+ * @param encryptedEmail e-mail in encrypted format
+ */
+export async function findByEncryptedEmail (this: IUserModel, encryptedEmail: string): Promise<IUserDocument[]> {
   const decryptedEmail = decrypt(encryptedEmail);
   const allRecords = await this.find();
   return allRecords.filter((records) => {
@@ -74,6 +81,11 @@ export async function findByEncryptedEmail (this: IUserModel, encryptedEmail: st
   });
 }
 
+/**
+ * Returns first instance of record with matching e-mail
+ * @param this reference to IUserModel object
+ * @param encryptedEmail e-mail in encrypted format
+ */
 export async function findOneByEncryptedEmail (this: IUserModel, encryptedEmail: string) {
   const decryptedEmail = decrypt(encryptedEmail);
   const allRecords = await this.find();
@@ -83,4 +95,68 @@ export async function findOneByEncryptedEmail (this: IUserModel, encryptedEmail:
       return allRecords[i];
     }
   }
+}
+
+/**
+ *  Adds a connection object to user's profile and updates the connectionOf property
+ * on the target.
+ * @param this *
+ * @param objId object id
+ */
+export async function addConnectionToUser (this: IUserDocument, objId: string, isTeamMate?: boolean): Promise<IUserDocument> {
+  // This assumes we already have the home user document in context with "this"
+  try {
+    const targetUser = await UserModel.findById(objId);
+    if (targetUser) {
+      const targetUserConnection = transformUserDataToConnection(targetUser, isTeamMate); // Adds to originator's connections object
+      const originatorConnection = transformUserDataToConnection(this, isTeamMate); // Adds to target;s connectionsOf object
+
+      this["connections"][targetUser._id] = targetUserConnection;
+      targetUser["connectionOf"][this._id] = originatorConnection;
+
+      // Saves the changes
+      await this.save();
+      await targetUser.save();
+      return targetUser;
+    } else {
+      throw new Error("User id not found");
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * Removes connection from user and any subsequent users affected. 
+ * @param this
+ * @param objId
+ */
+export async function deleteConnectionFromUser(this: IUserDocument, objId: string): Promise<IUserDocument> {
+  try {
+    const targetUser = await UserModel.findById(objId);
+    if (targetUser) {
+      delete this["connections"][targetUser._id];
+      delete targetUser["connectionOf"][this._id];
+      await this.save();
+      await targetUser.save();
+      return targetUser;
+    } else {
+      throw new Error("User id not found");
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+/**
+ *
+ * @param userData A user document to transform
+ * @param isTeamMate optional flag to indicate if teammate.
+ */
+function transformUserDataToConnection(userData: IUserDocument, isTeamMate?: boolean): IUserConnection {
+  return {
+    firstName: userData.firstName,
+    lastName: userData.lastName,
+    avatar: userData.avatar,
+    isTeamMate: isTeamMate || false,
+  };
 }

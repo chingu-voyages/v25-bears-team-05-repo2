@@ -1,14 +1,20 @@
-import { Schema } from "mongoose";
+import { Schema, SchemaType } from "mongoose";
 import { findByGoogleId,
   findOneOrCreateByGoogleId,
   registerUser,
   findByEncryptedEmail,
-  findOneByEncryptedEmail }
+  findOneByEncryptedEmail,
+  addConnectionToUser,
+  deleteConnectionFromUser }
   from "./user.methods";
 
 const UserSchema: Schema = new Schema({
   firstName: String,
   lastName: String,
+  jobTitle: {
+    type: String,
+    required: false,
+  },
   auth: {
     googleId: {
       type: String,
@@ -30,19 +36,30 @@ const UserSchema: Schema = new Schema({
   avatar: {
     type: [{url: String}],
   },
-  connections: {},
-  connectionOf: {},
+  connections: {
+    type: Schema.Types.Mixed,
+    required: true,
+    default: {}
+  },
+  connectionOf: {
+    type: Schema.Types.Mixed,
+    required: true,
+    default: {}
+  },
   threads: {
     started: {},
     commented: {},
     liked: {},
     shared: {}
   },
-}, { timestamps: {}});
+}, { timestamps: {}, strict: false}, );
 
 UserSchema.statics.findOneOrCreateByGoogleId = findOneOrCreateByGoogleId;
 UserSchema.statics.findByGoogleId = findByGoogleId;
 UserSchema.statics.registerUser = registerUser;
 UserSchema.statics.findByEncryptedEmail = findByEncryptedEmail;
 UserSchema.statics.findOneByEncryptedEmail = findOneByEncryptedEmail;
+UserSchema.methods.addConnectionToUser = addConnectionToUser;
+UserSchema.methods.deleteConnectionFromUser = deleteConnectionFromUser;
+
 export default UserSchema;
