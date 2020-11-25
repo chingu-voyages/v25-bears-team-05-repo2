@@ -32,11 +32,11 @@ export interface IUserRegistrationDetails {
   firstName: string;
   lastName: string;
 }
-
 export interface IProfileData {
   firstName?: string;
   lastName?: string;
   jobTitle?: string;
+  avatarUrl?: string;
 }
 export interface IUserDocument extends IUser, Document {
   addConnectionToUser: (this: IUserDocument,  objId: string, isTeamMate?: boolean) => Promise<IUserDocument>;

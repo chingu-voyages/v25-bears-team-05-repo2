@@ -153,10 +153,18 @@ export async function updateUserProfile(this: IUserDocument, profileData: IProfi
     this.firstName = profileData.firstName;
   }
   if (profileData.lastName) {
-    this.lastName = profileData.lastName &&= profileData.lastName;
+    this.lastName = profileData.lastName;
   }
   if (profileData.jobTitle) {
-    this.jobTitle = profileData.jobTitle &&= profileData.jobTitle;
+    this.jobTitle = profileData.jobTitle;
+  }
+  if (profileData.avatarUrl) {
+    const elementExists = this.avatar.find((element) => {
+      return element.url === profileData.avatarUrl;
+    });
+    if (!elementExists) {
+      this.avatar.push( { url: profileData.avatarUrl} );
+    }
   }
   try {
     return await this.save();
@@ -164,6 +172,7 @@ export async function updateUserProfile(this: IUserDocument, profileData: IProfi
     console.log(err);
   }
 }
+
 /**
  *
  * @param userData A user document to transform
@@ -177,3 +186,4 @@ function transformUserDataToConnection(userData: IUserDocument, isTeamMate?: boo
     isTeamMate: isTeamMate || false,
   };
 }
+

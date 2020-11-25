@@ -5,6 +5,7 @@ import { routeProtector } from "../middleware/route-protector";
 import { body, param, validationResult } from "express-validator/check";
 import { UserModel } from "../models/user/user.model";
 import { createError } from "../utils/errors";
+import { IProfileData } from "../models/user/user.types";
 
 const router = express.Router();
 
@@ -98,8 +99,37 @@ router.delete("/connections/:id", routeProtector, [ param("id").not().isEmpty().
   }
 });
 
-router.patch("/:id", (req, res) => {
-  
-})
+router.patch("/:id", routeProtector, [body("firstName").trim().escape(),
+  body("lastName").trim().escape(),
+  body("avatar").isURL()] ,
+  body("jobTitle").trim().escape(),
+  param("id").not().isEmpty().trim().escape(),
+  async (req: any, res: Response) => {
+    if (req.params.id !== "me") {
+      res.status(400).send({errors: [{
+        "location": "Patch profile update",
+        "msg": `Bad request`,
+        "param": "id"
+      }]});
+    }
+    const profileUpdateRequest: IProfileData = {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      jobTitle: req.body.jobTitle,
+      avatarUrl: req.body.avatar
+    };
+
+    try {
+      await req.user.updateUserProfile(profileUpdateRequest);
+      res.status(200).send({ firstName: req.user.firstName,
+        lastName: req.user.lastName, jobTitle: req.user.jobTitle });
+    } catch (err) {
+      return res.status(500).send({errors: [{
+        "location": "patch profile update",
+        "msg": `Unable to complete. ${err.Message}`,
+        "param": "null"
+      }]});
+    }
+});
 
 export default router;
