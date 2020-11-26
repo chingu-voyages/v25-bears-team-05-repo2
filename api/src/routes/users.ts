@@ -3,6 +3,7 @@ import { Response } from "express";
 import { getProfileById } from "../db/utils/get-profile-by-id";
 import { routeProtector } from "../middleware/route-protector";
 import { body, param, validationResult } from "express-validator/check";
+import { sanitizeBody, sanitizeParam } from "express-validator/filter";
 import { UserModel } from "../models/user/user.model";
 import { createError } from "../utils/errors";
 import { IProfileData } from "../models/user/user.types";
@@ -105,8 +106,23 @@ router.delete("/connections/:id", routeProtector, [ param("id").not().isEmpty().
 
 
 router.patch("/:id", routeProtector, [body("firstName").trim().escape(),
-body("lastName").trim().escape(),
-body("avatar").isURL().trim(),
+body("lastName").trim().escape(), body("avatar").custom((value) => {
+  if (value) {
+    console.log("110", value);
+    try {
+      new URL(value);
+      return true;
+    } catch (err) {
+      console.log("Error formatting avatar url");
+      return false;
+    }
+  } else {
+    return true;
+  }
+}),
+sanitizeBody("avatar").customSanitizer((value) => {
+  return value.trim();
+}),
 body("jobTitle").trim().escape(),
 param("id").not().isEmpty().trim().escape()],
   async (req: any, res: Response) => {
