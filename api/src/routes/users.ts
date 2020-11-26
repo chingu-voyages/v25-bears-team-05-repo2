@@ -108,12 +108,10 @@ router.delete("/connections/:id", routeProtector, [ param("id").not().isEmpty().
 router.patch("/:id", routeProtector, [body("firstName").trim().escape(),
 body("lastName").trim().escape(), body("avatar").custom((value) => {
   if (value) {
-    console.log("110", value);
     try {
       new URL(value);
       return true;
     } catch (err) {
-      console.log("Error formatting avatar url");
       return false;
     }
   } else {
