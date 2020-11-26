@@ -43,5 +43,6 @@ describe("get profile tests", () => {
     expect(result).toHaveProperty("threads");
     expect(result).toHaveProperty("avatar");
     expect(result).toHaveProperty("id");
+    expect(result).toHaveProperty("jobTitle");
   });
 });

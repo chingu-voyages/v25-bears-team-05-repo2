@@ -32,7 +32,7 @@ async function authenticateUser(email: string, password: string, done: any) {
         return done({ error: "Invalid username or password" }, undefined, { message: "Invalid username or password"});
       }
      }).catch((err) => {
-       return done(err, undefined, {message: "Unable to authenticate user"});
+       console.log(err);
      });
     });
   } catch (err) {

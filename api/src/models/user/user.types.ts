@@ -32,10 +32,16 @@ export interface IUserRegistrationDetails {
   firstName: string;
   lastName: string;
 }
-
+export interface IProfileData {
+  firstName?: string;
+  lastName?: string;
+  jobTitle?: string;
+  avatarUrl?: string;
+}
 export interface IUserDocument extends IUser, Document {
   addConnectionToUser: (this: IUserDocument,  objId: string, isTeamMate?: boolean) => Promise<IUserDocument>;
   deleteConnectionFromUser: (this: IUserDocument,  objId: string) => Promise<IUserDocument>;
+  updateUserProfile: (this: IUserDocument, profileData: IProfileData) => Promise<IUserDocument>;
 }
 export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;
