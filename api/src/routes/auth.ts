@@ -23,9 +23,8 @@ router.post("/local", checkNotAuthenticated, (req, res, next) => {
     if (!user) {
       return res.status(401).send({ errors: [{ ...createError("local-login", info, "username and/or password" )}]});
     }
-    req.logIn(user, (done) => {
-      res.status(200).send({ message: "Local authentication successful", id: user.id});
-      done();
+    req.logIn(user, () => {
+       res.status(200).send({ message: "Local authentication successful", id: user.id});
     });
   }) (req, res, next);
 });
