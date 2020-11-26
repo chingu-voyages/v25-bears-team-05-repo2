@@ -43,7 +43,9 @@ async (req: any, res: Response) => {
         res.status(200).send(otherUser.connections);
       }
     } catch (err) {
-      res.status(400).send({errors: [{ ...createError("get connections", `database error. ${err.Message}`, "id")} ]});
+      res.status(400).send({errors: [{ ...createError("get connections",
+      `database error. ${err.Message}`,
+      "id")} ]});
     }
   }
 });
@@ -76,7 +78,8 @@ async(req: any, res: Response) => {
   }
 });
 
-router.delete("/connections/:id", routeProtector, [ param("id").not().isEmpty().trim().escape()], async (req: any, res: Response) => {
+router.delete("/connections/:id", routeProtector, [ param("id").not().isEmpty().trim().escape()],
+  async (req: any, res: Response) => {
   if (req.params.id === "me") {
     return res.status(400).send({ errors: [{
       "location": "param",
@@ -103,15 +106,20 @@ router.delete("/connections/:id", routeProtector, [ param("id").not().isEmpty().
 
 router.patch("/:id", routeProtector, [body("firstName").trim().escape(),
 body("lastName").trim().escape(),
-body("avatar").isURL().trim()] ,
+body("avatar").isURL().trim(),
 body("jobTitle").trim().escape(),
-param("id").not().isEmpty().trim().escape(),
+param("id").not().isEmpty().trim().escape()],
   async (req: any, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ errors: errors.array() });
+    }
+    console.log(req.params.id);
     if (req.params.id !== "me") {
       return res.status(400).send({errors: [{
         "location": "Patch profile update",
         "msg": `Bad request`,
-        "param": "id"
+        "param": req.params.id
       }]});
     }
     const profileUpdateRequest: IProfileData = {
@@ -124,7 +132,10 @@ param("id").not().isEmpty().trim().escape(),
     try {
       await req.user.updateUserProfile(profileUpdateRequest);
       res.status(200).send({ firstName: req.user.firstName,
-        lastName: req.user.lastName, jobTitle: req.user.jobTitle, email: decrypt(req.user.auth.email) });
+        lastName: req.user.lastName,
+        jobTitle: req.user.jobTitle,
+        avatar: req.body.avatar,
+        email: decrypt(req.user.auth.email) });
     } catch (err) {
       return res.status(500).send({errors: [{
         "location": "server error: profile update",
