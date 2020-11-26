@@ -1,5 +1,5 @@
 import * as express from "express";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { getProfileById } from "../db/utils/get-profile-by-id";
 import { routeProtector } from "../middleware/route-protector";
 import { body, param, validationResult } from "express-validator/check";
