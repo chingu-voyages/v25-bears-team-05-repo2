@@ -131,7 +131,7 @@ param("id").not().isEmpty().trim().escape()],
 
     try {
       await req.user.updateUserProfile(profileUpdateRequest);
-      res.status(200).send({ firstName: req.user.firstName,
+      return res.status(200).send({ firstName: req.user.firstName,
         lastName: req.user.lastName,
         jobTitle: req.user.jobTitle,
         avatar: req.body.avatar,
