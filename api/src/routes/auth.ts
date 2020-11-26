@@ -5,6 +5,7 @@ import { checkNotAuthenticated } from "../middleware/login-validator";
 const router = express.Router();
 import passport from "passport";
 import GooglePassportStrategy from "../authentication-strategies/google-passport-strategy";
+import { createError } from "../utils/errors";
 
 passport.use("google", GooglePassportStrategy);
 router.get("/google", checkNotAuthenticated, passport.authenticate("google", { scope: ["profile", "email"]}));
@@ -12,6 +13,23 @@ router.get("/google", checkNotAuthenticated, passport.authenticate("google", { s
 router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/"}), (_req: Request, res: Response) => {
   res.redirect("/success");
 });
+
+router.post("/local", checkNotAuthenticated, (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      res.status(401).send(err);
+      return next(err);
+    }
+    if (!user) {
+      return res.status(401).send({ errors: [{ ...createError("local-login", info, "username and/or password" )}]});
+    }
+    req.logIn(user, (done) => {
+      res.status(200).send({ message: "Local authentication successful", id: user.id});
+      done();
+    });
+  }) (req, res, next);
+});
+
 
 router.get("/", routeProtector, (req, res) => { res.status(200).send(); })
 

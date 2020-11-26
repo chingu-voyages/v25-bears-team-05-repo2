@@ -3,7 +3,6 @@ const cors = require("cors");
 import bodyParser from "body-parser";
 import authRouter from "./routes/auth";
 import localRegistrationRouter from "./routes/register-local";
-import localLoginRouter from "./routes/login-local";
 import logOutRouter from "./routes/logout";
 import usersRoute from "./routes/users";
 import express from "express";
@@ -35,7 +34,6 @@ app.use(passport.session());
 
 app.use("/auth", authRouter);
 app.use("/register/local", localRegistrationRouter);
-app.use("/login/local", localLoginRouter);
 app.use("/logout", logOutRouter);
 app.use("/users", usersRoute);
 
