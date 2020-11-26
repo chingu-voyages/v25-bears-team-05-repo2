@@ -114,7 +114,7 @@ param("id").not().isEmpty().trim().escape()],
     if (!errors.isEmpty()) {
       return res.status(400).send({ errors: errors.array() });
     }
-    console.log(req.params.id);
+
     if (req.params.id !== "me") {
       return res.status(400).send({errors: [{
         "location": "Patch profile update",
