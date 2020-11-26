@@ -12,6 +12,6 @@ const ThreadSchema: Schema = new Schema({
   comments: {},
   likes: {},
   shares: {}
-});
+}, { timestamps: {}} );
 
 export default ThreadSchema;
