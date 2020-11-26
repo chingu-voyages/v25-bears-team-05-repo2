@@ -6,6 +6,7 @@ import { body, param, validationResult } from "express-validator/check";
 import { UserModel } from "../models/user/user.model";
 import { createError } from "../utils/errors";
 import { IProfileData } from "../models/user/user.types";
+import { decrypt } from "../utils/crypto";
 
 const router = express.Router();
 
@@ -99,14 +100,15 @@ router.delete("/connections/:id", routeProtector, [ param("id").not().isEmpty().
   }
 });
 
+
 router.patch("/:id", routeProtector, [body("firstName").trim().escape(),
-  body("lastName").trim().escape(),
-  body("avatar").isURL()] ,
-  body("jobTitle").trim().escape(),
-  param("id").not().isEmpty().trim().escape(),
+body("lastName").trim().escape(),
+body("avatar").isURL().trim()] ,
+body("jobTitle").trim().escape(),
+param("id").not().isEmpty().trim().escape(),
   async (req: any, res: Response) => {
     if (req.params.id !== "me") {
-      res.status(400).send({errors: [{
+      return res.status(400).send({errors: [{
         "location": "Patch profile update",
         "msg": `Bad request`,
         "param": "id"
@@ -122,10 +124,10 @@ router.patch("/:id", routeProtector, [body("firstName").trim().escape(),
     try {
       await req.user.updateUserProfile(profileUpdateRequest);
       res.status(200).send({ firstName: req.user.firstName,
-        lastName: req.user.lastName, jobTitle: req.user.jobTitle });
+        lastName: req.user.lastName, jobTitle: req.user.jobTitle, email: decrypt(req.user.auth.email) });
     } catch (err) {
       return res.status(500).send({errors: [{
-        "location": "patch profile update",
+        "location": "server error: profile update",
         "msg": `Unable to complete. ${err.Message}`,
         "param": "null"
       }]});

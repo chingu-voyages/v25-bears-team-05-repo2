@@ -14,6 +14,7 @@ const UserSchema: Schema = new Schema({
   lastName: String,
   jobTitle: {
     type: String,
+    default: "",
     required: false,
   },
   auth: {
