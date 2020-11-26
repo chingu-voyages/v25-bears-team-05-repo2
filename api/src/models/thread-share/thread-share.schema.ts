@@ -14,6 +14,6 @@ const ThreadShareSchema: Schema = new Schema({
   comments: {},
   likes: {},
   shares: {},
-}, { timestamps: {}, strict: false});
+}, { timestamps: {}});
 
 export default ThreadShareSchema;
