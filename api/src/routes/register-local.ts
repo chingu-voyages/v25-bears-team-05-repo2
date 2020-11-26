@@ -6,7 +6,6 @@ import { validatePassword } from "../middleware/password-validator";
 import { body, validationResult } from "express-validator/check";
 import passport from "passport";
 import LocalPassportStrategy from "../authentication-strategies/local-passport-strategy";
-import { checkNotAuthenticated } from "../middleware/login-validator";
 import { encrypt } from "../utils/crypto";
 
 passport.use("local", LocalPassportStrategy);
@@ -29,7 +28,7 @@ router.get("/success", (req, res) => {
   res.status(200).send({ status: "registration successful", data: req.user}); // Reg successful // client should navigate to sign in page?
 });
 
-router.post("/", checkNotAuthenticated, sanitizationObject, validatePassword,
+router.post("/", sanitizationObject, validatePassword,
   async(req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -52,11 +51,14 @@ router.post("/", checkNotAuthenticated, sanitizationObject, validatePassword,
        });
       }
     } catch (err) {
-      res.status(400).send({
-        errors: [{ location: "error", message: err.message, param: "password" }] }
-      );
+      if (err.toString().match(/Error: User with email \w*/)) {
+        res.status(409).send(err);
+      }
+      else {
+        res.status(400).send(err);
+      }
+      
     }
 });
-
 
 export default router;
