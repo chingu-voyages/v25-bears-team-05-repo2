@@ -6,6 +6,7 @@ import { IThread } from "../models/thread/thread.types";
 export interface IProfile {
   firstName: string;
   lastName: string;
+  jobTitle: string;
   avatar: Array<{ url: string}>;
   connections: any;
   connectionOf: any;
