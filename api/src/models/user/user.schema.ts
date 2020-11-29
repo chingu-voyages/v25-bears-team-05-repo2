@@ -1,4 +1,4 @@
-import { Schema, SchemaType } from "mongoose";
+import { Schema } from "mongoose";
 import { findByGoogleId,
   findOneOrCreateByGoogleId,
   registerUser,
@@ -6,7 +6,8 @@ import { findByGoogleId,
   findOneByEncryptedEmail,
   addConnectionToUser,
   deleteConnectionFromUser,
-  updateUserProfile }
+  updateUserProfile,
+  createAndPostThread }
   from "./user.methods";
 
 const UserSchema: Schema = new Schema({
@@ -64,5 +65,6 @@ UserSchema.statics.findOneByEncryptedEmail = findOneByEncryptedEmail;
 UserSchema.methods.addConnectionToUser = addConnectionToUser;
 UserSchema.methods.deleteConnectionFromUser = deleteConnectionFromUser;
 UserSchema.methods.updateUserProfile = updateUserProfile;
+UserSchema.methods.createAndPostThread = createAndPostThread;
 
 export default UserSchema;

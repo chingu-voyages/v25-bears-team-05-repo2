@@ -3,12 +3,11 @@ import { Response } from "express";
 import { getProfileById } from "../db/utils/get-profile-by-id";
 import { routeProtector } from "../middleware/route-protector";
 import { body, param, validationResult } from "express-validator/check";
-import { sanitizeBody, sanitizeParam } from "express-validator/filter";
+import { sanitizeBody } from "express-validator/filter";
 import { UserModel } from "../models/user/user.model";
 import { createError } from "../utils/errors";
 import { IProfileData } from "../models/user/user.types";
 import { decrypt } from "../utils/crypto";
-
 const router = express.Router();
 
 router.get("/:id", routeProtector, [ param("id").not().isEmpty().trim().escape()], async (req: any, res: Response) => {

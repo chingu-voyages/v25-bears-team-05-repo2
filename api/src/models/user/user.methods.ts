@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import { decrypt } from "../../utils/crypto";
 import { UserModel } from "./user.model";
 import { IUserConnection } from "../user-connection/user-connection.types";
+import { IThread, IThreadPostDetails } from "../thread/thread.types";
+import { ThreadModel } from "../thread/thread.model";
 /**
  * Find user by googleId, if not found, create user, populating with google
  * profile data
@@ -171,6 +173,31 @@ export async function updateUserProfile(this: IUserDocument, profileData: IProfi
   } catch (err) {
     console.log(err);
   }
+}
+
+/**
+ *
+ * @param this instance of IUserDocument
+ * @param threadDetails data used to make a thread
+ */
+export async function createAndPostThread(this: IUserDocument, threadDetails: IThreadPostDetails) {
+  const userThread: IThread = {
+    threadType: threadDetails.threadType,
+    visibility: threadDetails.visibility,
+    postedByUserId: this.id,
+    content: {
+      html: threadDetails.html,
+      attachments: threadDetails.attachments,
+      hashTags: threadDetails.hashTags
+    },
+    comments: {},
+    likes: {},
+    shares: {}
+  };
+
+  const newlyCreatedThread = await ThreadModel.create(userThread);
+  this.threads.started[`${newlyCreatedThread.id.toString()}`] = newlyCreatedThread;
+  return await this.save();
 }
 
 /**

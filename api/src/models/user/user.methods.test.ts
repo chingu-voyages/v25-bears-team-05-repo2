@@ -3,6 +3,7 @@ import { createTestUsers } from "./user-test-helper/user-test-helper";
 import { UserModel } from "./user.model";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
+import { ThreadModel } from "../thread/thread.model";
 let mongoServer: any;
 
 const options: mongoose.ConnectionOptions = {
@@ -173,5 +174,21 @@ describe("Profile update tests", () => {
 
     expect(dummyUserDocuments[0].avatar).toHaveLength(5);
     expect(dummyUserDocuments[0].avatar[4].url).toBe("http://new-fake-url");
+  });
+});
+
+describe("User creating thread tests", () => {
+  test("User creates thread. Thread is saved in threads collection and document is saved in user document", async() => {
+    const testUser = createTestUsers(1, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUser);
+    await dummyUserDocuments[0].createAndPostThread({
+      html: "test-html",
+    });
+
+    const newThread = await ThreadModel.findOne({ postedByUserId: dummyUserDocuments[0].id });
+    expect(newThread.postedByUserId.toString()).toEqual(dummyUserDocuments[0].id.toString());
+    expect(newThread.content.html).toBe("test-html");
+    expect(dummyUserDocuments[0].threads.started[newThread.id.toString()]).toBeDefined();
+    expect(dummyUserDocuments[0].threads.started[newThread.id.toString()].content.html).toBe("test-html");
   });
 });

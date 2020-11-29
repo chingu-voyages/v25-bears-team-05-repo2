@@ -1,7 +1,7 @@
-import { Schema } from "mongoose";
+import { Schema, SchemaType, Types } from "mongoose";
 
 const ThreadSchema: Schema = new Schema({
-  postedByUserId: { type: String, required: true },
+  postedByUserId: { type: Types.ObjectId, required: true },
   threadType: { type: Number, default: 0},
   visibility: { type: Number, default: 0 },
   content: {
