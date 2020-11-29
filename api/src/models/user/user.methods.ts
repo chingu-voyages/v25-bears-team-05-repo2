@@ -163,7 +163,7 @@ export async function updateUserProfile(this: IUserDocument, profileData: IProfi
       return element.url === profileData.avatarUrl;
     });
     if (!elementExists) {
-      this.avatar.push( { url: profileData.avatarUrl} );
+      this.avatar.unshift( { url: profileData.avatarUrl} );
     }
   }
   try {
