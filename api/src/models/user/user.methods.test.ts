@@ -190,8 +190,8 @@ describe("User creating thread tests", () => {
     expect(newThread.content.html).toBe("test-html");
     expect(dummyUserDocuments[0].threads.started[newThread.id.toString()]).toBeDefined();
     expect(dummyUserDocuments[0].threads.started[newThread.id.toString()].content.html).toBe("test-html");
-    expect(results[0]).toBeDefined();
-    expect(results[1]).toBeDefined();
+    expect(results.userData).toBeDefined();
+    expect(results.threadData).toBeDefined();
 
   });
 });

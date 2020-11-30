@@ -1,4 +1,5 @@
-import { Schema, SchemaType } from "mongoose";
+import { Schema, SchemaType, SchemaTypes } from "mongoose";
+import ThreadSchema from "../thread/thread.schema";
 import { findByGoogleId,
   findOneOrCreateByGoogleId,
   registerUser,
@@ -71,7 +72,7 @@ const UserSchema: Schema = new Schema({
       default: {},
     }
   },
-}, { timestamps: {}, strict: false}, );
+}, { timestamps: {}, strict: false, typePojoToMixed: false}, );
 
 UserSchema.statics.findOneOrCreateByGoogleId = findOneOrCreateByGoogleId;
 UserSchema.statics.findByGoogleId = findByGoogleId;

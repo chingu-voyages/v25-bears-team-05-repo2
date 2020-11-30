@@ -158,4 +158,32 @@ param("id").not().isEmpty().trim().escape()],
     }
 });
 
+/**
+ * This gets threads object for user with id. If id=me, gets own thread object
+ */
+router.get("/:id/threads", routeProtector, [param("id").not().isEmpty().trim().escape() ], async(req: any, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+  if (req.params.id === "me") {
+    return res.status(200).send({ id: req.user.id, threads: req.user.threads});
+  }
+
+  try {
+    const targetUser = await UserModel.findById(req.params.id);
+    // POIJ: We have to consider thread visibility at some point
+    if (targetUser) {
+      return res.status(200).send({id: targetUser.id.toString(), threads: targetUser.threads});
+    }
+  } catch (err) {
+    return res.status(404).send({errors: [{
+      "location": "Server",
+      "msg": `User not found ${err.Message}`,
+      "param": "id"
+    }]});
+  }
+
+});
+
 export default router;

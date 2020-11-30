@@ -4,6 +4,7 @@ import { body } from "express-validator/check";
 import { IThreadPostDetails } from "../models/thread/thread.types";
 import { routeProtector } from "../middleware/route-protector";
 import { createError } from "../utils/errors";
+import { UserModel } from "../models/user/user.model";
 const router = express.Router();
 
 router.post("/", routeProtector, [body("htmlContent").not().isEmpty()], async(req: any, res: Response) => {
@@ -15,8 +16,9 @@ router.post("/", routeProtector, [body("htmlContent").not().isEmpty()], async(re
     attachments: req.body.attachments
   };
   try {
-    const results = await req.user.createAndPostThread(threadDetails);
-    return res.status(200).send(results[1]);
+    const user = await UserModel.findById(req.user.id);
+    const newData = await user.createAndPostThread(threadDetails);
+    return res.status(200).send(newData.threadData);
   } catch (err) {
     res.status(400).send({errors: [{ ...createError("create thread POST request",
     `database error. ${err.Message}`,

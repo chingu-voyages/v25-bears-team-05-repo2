@@ -196,9 +196,10 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
   };
   try {
     const newlyCreatedThread = await ThreadModel.create(userThread);
-    this.threads.started[`${newlyCreatedThread.id.toString()}`] = newlyCreatedThread;
+    this["threads"]["started"][`${newlyCreatedThread.id.toString()}`] = newlyCreatedThread;
     await this.save();
-    return [this, newlyCreatedThread];
+    console.log("200 Started!", this.threads.started);
+    return {userData: this, threadData: newlyCreatedThread};
   } catch (err) {
     console.log(err);
   }
