@@ -194,10 +194,15 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
     likes: {},
     shares: {}
   };
+  try {
+    const newlyCreatedThread = await ThreadModel.create(userThread);
+    this.threads.started[`${newlyCreatedThread.id.toString()}`] = newlyCreatedThread;
+    await this.save();
+    return [this, newlyCreatedThread];
+  } catch (err) {
+    console.log(err);
+  }
 
-  const newlyCreatedThread = await ThreadModel.create(userThread);
-  this.threads.started[`${newlyCreatedThread.id.toString()}`] = newlyCreatedThread;
-  return await this.save();
 }
 
 /**

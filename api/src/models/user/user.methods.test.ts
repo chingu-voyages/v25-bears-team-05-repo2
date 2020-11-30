@@ -149,7 +149,7 @@ describe("Profile update tests", () => {
     expect(dummyUserDocuments[0].firstName).toBe("uFirstName");
     expect(dummyUserDocuments[0].lastName).toBe("newLastName");
     expect(dummyUserDocuments[0].jobTitle).toBe("designer");
-    expect(dummyUserDocuments[0].avatar[1].url).toBe("http://avatarurl.com");
+    expect(dummyUserDocuments[0].avatar[0].url).toBe("http://avatarurl.com");
   });
 
   test("avatar url - ensures only adds unique url", async() => {
@@ -173,7 +173,7 @@ describe("Profile update tests", () => {
     });
 
     expect(dummyUserDocuments[0].avatar).toHaveLength(5);
-    expect(dummyUserDocuments[0].avatar[4].url).toBe("http://new-fake-url");
+    expect(dummyUserDocuments[0].avatar[0].url).toBe("http://new-fake-url");
   });
 });
 
@@ -181,7 +181,7 @@ describe("User creating thread tests", () => {
   test("User creates thread. Thread is saved in threads collection and document is saved in user document", async() => {
     const testUser = createTestUsers(1, undefined, undefined);
     const dummyUserDocuments = await UserModel.create(testUser);
-    await dummyUserDocuments[0].createAndPostThread({
+    const results = await dummyUserDocuments[0].createAndPostThread({
       html: "test-html",
     });
 
@@ -190,5 +190,8 @@ describe("User creating thread tests", () => {
     expect(newThread.content.html).toBe("test-html");
     expect(dummyUserDocuments[0].threads.started[newThread.id.toString()]).toBeDefined();
     expect(dummyUserDocuments[0].threads.started[newThread.id.toString()].content.html).toBe("test-html");
+    expect(results[0]).toBeDefined();
+    expect(results[1]).toBeDefined();
+
   });
 });

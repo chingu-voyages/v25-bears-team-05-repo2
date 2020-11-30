@@ -11,9 +11,21 @@ const ThreadShareSchema: Schema = new Schema({
     hashTags: { type: [String], default: [] },
     attachments: { type: [String], default: [] }
   },
-  comments: {},
-  likes: {},
-  shares: {},
+  comments: {
+    type: Schema.Types.Mixed,
+    default: {},
+    required: true,
+  },
+  likes: {
+    type: Schema.Types.Mixed,
+    default: {},
+    required: true,
+  },
+  shares: {
+    type: Schema.Types.Mixed,
+    default: {},
+    required: true,
+  },
 }, { timestamps: {}});
 
 export default ThreadShareSchema;

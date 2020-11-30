@@ -9,9 +9,21 @@ const ThreadSchema: Schema = new Schema({
       hashtags: [String],
       attachments: [String]
   },
-  comments: {},
-  likes: {},
-  shares: {}
+  comments: {
+    type: Schema.Types.Mixed,
+    default: {},
+    required: true,
+  },
+  likes: {
+    type: Schema.Types.Mixed,
+    default: {},
+    required: true,
+  },
+  shares: {
+    type: Schema.Types.Mixed,
+    default: {},
+    required: true,
+  }
 }, { timestamps: {}} );
 
 export default ThreadSchema;

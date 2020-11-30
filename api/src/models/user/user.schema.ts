@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import { Schema, SchemaType } from "mongoose";
 import { findByGoogleId,
   findOneOrCreateByGoogleId,
   registerUser,
@@ -50,10 +50,26 @@ const UserSchema: Schema = new Schema({
     default: {}
   },
   threads: {
-    started: {},
-    commented: {},
-    liked: {},
-    shared: {}
+    started: {
+      type: Schema.Types.Mixed,
+      required: true,
+      default: {},
+    },
+    commented: {
+      type: Schema.Types.Mixed,
+      required: true,
+      default: {},
+    },
+    liked: {
+      type: Schema.Types.Mixed,
+      required: true,
+      default: {},
+    },
+    shared: {
+      type: Schema.Types.Mixed,
+      required: true,
+      default: {},
+    }
   },
 }, { timestamps: {}, strict: false}, );
 
