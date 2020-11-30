@@ -197,6 +197,8 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
   try {
     const newlyCreatedThread = await ThreadModel.create(userThread);
     this["threads"]["started"][`${newlyCreatedThread.id.toString()}`] = newlyCreatedThread;
+    // Forces the parent object to update: there may be a better way
+    this.markModified("threads");
     await this.save();
     console.log("200 Started!", this.threads.started);
     return {userData: this, threadData: newlyCreatedThread};
