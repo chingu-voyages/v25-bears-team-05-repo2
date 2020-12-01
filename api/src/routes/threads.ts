@@ -44,29 +44,41 @@ body("visibility").not().isEmpty().isNumeric(), body("hashTags").custom((value) 
   }
 });
 
-router.delete("/:id", routeProtector,
-[ param("id").not().isEmpty().trim().escape()],
-async (req: any, res: Response) => {
-  // A user can only delete a thread node on their own profile
-  try {
-    const user = await UserModel.findById(req.user.id);
-    if (user) {
-      // What to do about threadShares that reference a deleted `source` thread?
-      delete user.threads.started[req.params.id];
-      await user.save();
-      return res.status(200).send(user.threads); // Not sure if this is what we want to return?
-    } else {
-      return res.status(400).send({errors: [{ ...createError("delete thread request",
-      `User not found`,
-      "n/a")} ]});
-    }
-  } catch (err) {
-    console.log(err);
-    return res.status(400).send({errors: [{ ...createError("delete thread request",
-      `Bad request. ${err}`,
-      "n/a")} ]});
-  }
-});
+// POIJ to be implemented in subsequent version
+
+// router.delete("/:id", routeProtector,
+// [ param("id").not().isEmpty().trim().escape()],
+// async (req: any, res: Response) => {
+//   // A user can only delete a thread node on their own profile
+//   console.log(req.params.id);
+//   try {
+//     const user = await UserModel.findById(req.user.id);
+//     if (user) {
+//       // What to do about threadShares that reference a deleted `source` thread?
+//       if (user.threads.started[req.params.id]) {
+//         delete user.threads.started[req.params.id];
+//         user.markModified("threads");
+//         await user.save();
+//         return res.status(200).send(user.threads); // Not sure if this is what we want to return?
+//       } else {
+//         // if the thread with the id isn't found
+//         return res.status(400).send({errors: [{ ...createError("delete thread request",
+//         `Thread not found for user ${user.id}`,
+//         `thread ${req.params.id}`)} ]});
+//       }
+
+//     } else {
+//       return res.status(400).send({errors: [{ ...createError("delete thread request",
+//       `User not found`,
+//       "n/a")} ]});
+//     }
+//   } catch (err) {
+//     console.log(err);
+//     return res.status(400).send({errors: [{ ...createError("delete thread request",
+//       `Bad request. ${err}`,
+//       "n/a")} ]});
+//   }
+// });
 
 router.post("/:id/comments", async(req: any, res: Response) => {
   res.send(200);

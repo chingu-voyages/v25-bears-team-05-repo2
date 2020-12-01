@@ -206,6 +206,9 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
   }
 }
 
+export async function deleteUserThreadByThreadId(this: IUserDocument, threadId: string) {
+
+}
 /**
  *
  * @param userData A user document to transform
