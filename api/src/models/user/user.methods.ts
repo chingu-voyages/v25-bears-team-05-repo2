@@ -115,7 +115,9 @@ export async function addConnectionToUser (this: IUserDocument, objId: string, i
 
       this["connections"][targetUser._id] = targetUserConnection;
       targetUser["connectionOf"][this._id] = originatorConnection;
-
+      
+      this.markModified("connections");
+      targetUser.markModified("connectionOf");
       // Saves the changes
       await this.save();
       await targetUser.save();
