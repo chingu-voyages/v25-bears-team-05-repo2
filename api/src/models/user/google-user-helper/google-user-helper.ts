@@ -22,5 +22,7 @@ export function createUserFromGoogleData (profile: IGoogleOauthProfile): IUser {
         liked: {},
         shared: {},
       },
+      createdAt: new Date(),
+      updatedAt: new Date()
   };
 }

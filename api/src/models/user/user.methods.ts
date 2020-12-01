@@ -115,7 +115,7 @@ export async function addConnectionToUser (this: IUserDocument, objId: string, i
 
       this["connections"][targetUser._id] = targetUserConnection;
       targetUser["connectionOf"][this._id] = originatorConnection;
-      
+
       this.markModified("connections");
       targetUser.markModified("connectionOf");
       // Saves the changes
@@ -220,7 +220,10 @@ function transformUserDataToConnection(userData: IUserDocument, isTeamMate?: boo
   return {
     firstName: userData.firstName,
     lastName: userData.lastName,
+    jobTitle: userData.jobTitle,
     avatar: userData.avatar,
+    userId: userData.id.toString(),
+    dateTimeConnected: userData.createdAt,
     isTeamMate: isTeamMate || false,
   };
 }

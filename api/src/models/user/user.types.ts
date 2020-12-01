@@ -24,6 +24,8 @@ export interface IUser {
   connections: { [keyof: string]: IUserConnection };
   connectionOf: { [keyof: string]: IUserConnection };
   threads: IUserThread;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
 }
 export interface IUserRegistrationDetails {
   // This is all the info we need to create a user
