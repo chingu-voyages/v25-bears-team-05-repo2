@@ -197,7 +197,6 @@ router.get("/:id/threads", routeProtector, [param("id").not().isEmpty().trim().e
       "param": req.params.id
     }]});
   }
-
 });
 
 export default router;

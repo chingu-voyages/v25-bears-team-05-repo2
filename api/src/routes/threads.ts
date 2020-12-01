@@ -1,13 +1,31 @@
 import * as express from "express";
 import { Response } from "express";
-import { body } from "express-validator/check";
+import { body, param, validationResult } from "express-validator/check";
 import { IThreadPostDetails } from "../models/thread/thread.types";
 import { routeProtector } from "../middleware/route-protector";
 import { createError } from "../utils/errors";
 import { UserModel } from "../models/user/user.model";
+import { sanitizeBody } from "express-validator/filter";
 const router = express.Router();
 
-router.post("/", routeProtector, [body("htmlContent").not().isEmpty()], async(req: any, res: Response) => {
+router.post("/", routeProtector, [body("htmlContent").not().isEmpty().trim(), // Unsure whether or not to escape here?
+body("threadType").isNumeric().not().isEmpty(),
+body("visibility").not().isEmpty().isNumeric(), body("hashTags").custom((value) => {
+  if (!value) {
+    return true;
+  }
+  return Array.isArray(value);
+}), body("attachments").custom((value) => {
+  if (!value) {
+    return true;
+  }
+  return Array.isArray(value);
+}), sanitizeBody("hashTags"), sanitizeBody("htmlContent"), sanitizeBody("attachments")], async(req: any, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+
   const threadDetails: IThreadPostDetails = {
     html: req.body.htmlContent,
     hashTags: req.body.hashTags,
@@ -26,11 +44,35 @@ router.post("/", routeProtector, [body("htmlContent").not().isEmpty()], async(re
   }
 });
 
-// router.post("/:id/comments", async(req: any, res: Response) => {
+router.delete("/:id", routeProtector,
+[ param("id").not().isEmpty().trim().escape()],
+async (req: any, res: Response) => {
+  // A user can only delete a thread node on their own profile
+  try {
+    const user = await UserModel.findById(req.user.id);
+    if (user) {
+      // What to do about threadShares that reference a deleted `source` thread?
+      delete user.threads.started[req.params.id];
+      await user.save();
+      return res.status(200).send(user.threads); // Not sure if this is what we want to return?
+    } else {
+      return res.status(400).send({errors: [{ ...createError("delete thread request",
+      `User not found`,
+      "n/a")} ]});
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send({errors: [{ ...createError("delete thread request",
+      `Bad request. ${err}`,
+      "n/a")} ]});
+  }
+});
 
-// });
+router.post("/:id/comments", async(req: any, res: Response) => {
+  res.send(200);
+});
 
-// router.get("/:id/comments", routeProtector, (req, res) => {
-
-// });
+router.get("/:id/comments", routeProtector, (req, res) => {
+  res.send(200);
+});
 export default router;
