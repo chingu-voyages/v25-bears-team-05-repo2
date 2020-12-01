@@ -2,9 +2,9 @@ import { Document, Model } from "mongoose";
 import { IThreadComment } from "../thread-comment/thread-comment.types";
 import { IThreadLike } from "../thread-like/thread-like.types";
 import { IThread, ThreadVisibility } from "../thread/thread.types";
-
-export interface IThreadShare {
-  postedByUserId: string;
+import mongoose from "mongoose";
+export interface IThreadShare extends IThread {
+  postedByUserId: mongoose.Types.ObjectId;
   threadShareType: string;
   visibility: ThreadVisibility;
   content: {

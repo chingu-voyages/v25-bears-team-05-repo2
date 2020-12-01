@@ -200,12 +200,10 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
     // Forces the parent object to update: there may be a better way
     this.markModified("threads");
     await this.save();
-    console.log("200 Started!", this.threads.started);
     return {userData: this, threadData: newlyCreatedThread};
   } catch (err) {
     console.log(err);
   }
-
 }
 
 /**

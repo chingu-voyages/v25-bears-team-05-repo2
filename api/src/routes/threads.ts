@@ -26,11 +26,11 @@ router.post("/", routeProtector, [body("htmlContent").not().isEmpty()], async(re
   }
 });
 
-router.post("/:id/comments", async(req: any, res: Response) => {
+// router.post("/:id/comments", async(req: any, res: Response) => {
 
-});
+// });
 
-router.get("/:id/comments", routeProtector, (req, res) => {
+// router.get("/:id/comments", routeProtector, (req, res) => {
 
-});
+// });
 export default router;

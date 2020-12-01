@@ -1,5 +1,4 @@
-import { Schema, SchemaType, SchemaTypes } from "mongoose";
-import ThreadSchema from "../thread/thread.schema";
+import { Schema } from "mongoose";
 import { findByGoogleId,
   findOneOrCreateByGoogleId,
   registerUser,

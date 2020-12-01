@@ -8,6 +8,7 @@ import { UserModel } from "../models/user/user.model";
 import { createError } from "../utils/errors";
 import { IProfileData } from "../models/user/user.types";
 import { decrypt } from "../utils/crypto";
+import { getVisibleThreads } from "../db/utils/get-visible-threads";
 const router = express.Router();
 
 router.get("/:id", routeProtector, [ param("id").not().isEmpty().trim().escape()], async (req: any, res: Response) => {
@@ -172,15 +173,28 @@ router.get("/:id/threads", routeProtector, [param("id").not().isEmpty().trim().e
 
   try {
     const targetUser = await UserModel.findById(req.params.id);
-    // POIJ: We have to consider thread visibility at some point
     if (targetUser) {
-      return res.status(200).send({id: targetUser.id.toString(), threads: targetUser.threads});
+      // If user is a connection, return all threads
+      // If not a connection, only return threads with a "anyone" visibility
+      if (targetUser.connections[req.user.id] !== undefined) {
+        return res.status(200).send({id: targetUser.id.toString(), threads: targetUser.threads});
+      } else {
+        const onlyVisibleThreads = getVisibleThreads(targetUser.threads);
+        return res.status(200).send({ id: targetUser.id.toString(), threads: onlyVisibleThreads});
+      }
+    } else {
+      return res.status(400).send({errors: [{
+        "location": "Server",
+        "msg": `Bad request. User not found`,
+        "param": "id"
+      }]});
     }
   } catch (err) {
+    console.log(err);
     return res.status(404).send({errors: [{
       "location": "Server",
-      "msg": `User not found ${err.Message}`,
-      "param": "id"
+      "msg": `${err}`,
+      "param": req.params.id
     }]});
   }
 

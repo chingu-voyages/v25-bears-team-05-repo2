@@ -194,4 +194,31 @@ describe("User creating thread tests", () => {
     expect(results.threadData).toBeDefined();
 
   });
+
+  test("multiple threads save correctly in user document", async() => {
+    const testUser = createTestUsers(1, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUser);
+    const thread1 = await dummyUserDocuments[0].createAndPostThread({
+      html: "thread-1-test",
+    });
+    const thread2 = await dummyUserDocuments[0].createAndPostThread({
+      html: "thread-2-test",
+    });
+    const thread3 = await dummyUserDocuments[0].createAndPostThread({
+      html: "thread-3-test",
+    });
+    const thread4 = await dummyUserDocuments[0].createAndPostThread({
+      html: "thread-4-test",
+    });
+
+    expect(dummyUserDocuments[0].threads.started).toHaveProperty(thread1.threadData.id);
+    expect(dummyUserDocuments[0].threads.started).toHaveProperty(thread2.threadData.id);
+    expect(dummyUserDocuments[0].threads.started).toHaveProperty(thread3.threadData.id);
+    expect(dummyUserDocuments[0].threads.started).toHaveProperty(thread4.threadData.id);
+
+    expect(dummyUserDocuments[0].threads.started[`${thread1.threadData.id}`].content.html).toBe("thread-1-test");
+    expect(dummyUserDocuments[0].threads.started[`${thread4.threadData.id}`].content.html).toBe("thread-4-test");
+    expect(Object.keys(dummyUserDocuments[0].threads.started)).toHaveLength(4);
+  });
+
 });

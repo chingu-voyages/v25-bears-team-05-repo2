@@ -4,7 +4,12 @@ import { IThreadLike } from "../thread-like/thread-like.types";
 import { IThreadShare } from "../thread-share/thread-share.types";
 import { IThread, IThreadDocument, IThreadPostDetails } from "../thread/thread.types";
 import { IUserConnection } from "../user-connection/user-connection.types";
-import mongoose from "mongoose";
+export interface IUserThread {
+  started: { [keyof: string]: IThread };
+  commented: { [keyof: string]: IThreadComment};
+  liked: { [keyof: string]: IThreadLike };
+  shared: { [keyof: string]: IThreadShare };
+}
 export interface IUser {
   firstName: string;
   lastName: string;
@@ -18,12 +23,7 @@ export interface IUser {
   avatar: Array<{ url: string }>;
   connections: { [keyof: string]: IUserConnection };
   connectionOf: { [keyof: string]: IUserConnection };
-  threads: {
-    started: { [keyof: string]: IThread },
-    commented: { [keyof: string]: IThreadComment },
-    liked: { [keyof: string]: IThreadLike },
-    shared: { [keyof: string]: IThreadShare },
-  };
+  threads: IUserThread;
 }
 export interface IUserRegistrationDetails {
   // This is all the info we need to create a user
@@ -44,6 +44,7 @@ export interface IUserDocument extends IUser, Document {
   deleteConnectionFromUser: (this: IUserDocument,  objId: string) => Promise<IUserDocument>;
   updateUserProfile: (this: IUserDocument, profileData: IProfileData) => Promise<IUserDocument>;
   createAndPostThread: (this: IUserDocument, threadDetails: IThreadPostDetails) => Promise<{userData: IUserDocument, threadData: IThreadDocument }>;
+  isConnectionOf: (this: IUserDocument, targetId: string) =>  boolean;
 }
 export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;
