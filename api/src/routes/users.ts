@@ -73,7 +73,7 @@ async(req: any, res: Response) => {
   } catch (err) {
     return res.status(400).send({errors: [{
       "location": "response",
-      "msg": `Unable to complete. ${err.Message}`,
+      "msg": `Unable to complete. ${err}`,
       "param": "null"
     }]});
   }

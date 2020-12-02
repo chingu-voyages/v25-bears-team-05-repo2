@@ -96,6 +96,19 @@ describe("user add connection tests", () => {
     expect(target3.connectionOf).toHaveProperty(dummyUserDocuments[0].id);
     expect(target4.connectionOf).toHaveProperty(dummyUserDocuments[0].id);
   });
+
+  test("expect error if user is already a connection and a request is made to add them", async() => {
+    const testUsers = createTestUsers(5, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUsers);
+    await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[4].id);
+    await expect(dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[4].id)).rejects.toThrow();
+  });
+
+  test("expect error if user tries to add themselves as a connection", async() => {
+    const testUsers = createTestUsers(2, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUsers);
+    await expect(dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[0].id)).rejects.toThrow();
+  });
 });
 
 describe("delete user connection tests", () => {

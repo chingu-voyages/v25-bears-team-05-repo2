@@ -107,27 +107,31 @@ export async function findOneByEncryptedEmail (this: IUserModel, encryptedEmail:
  */
 export async function addConnectionToUser (this: IUserDocument, objId: string, isTeamMate?: boolean): Promise<IUserDocument> {
   // This assumes we already have the home user document in context with "this"
-  try {
+
     const targetUser = await UserModel.findById(objId);
     if (targetUser) {
       const targetUserConnection = transformUserDataToConnection(targetUser, isTeamMate); // Adds to originator's connections object
       const originatorConnection = transformUserDataToConnection(this, isTeamMate); // Adds to target;s connectionsOf object
 
-      this["connections"][targetUser._id] = targetUserConnection;
-      targetUser["connectionOf"][this._id] = originatorConnection;
-
+      // Can't add oneself as a connection
+      if (targetUser.id === this.id) {
+        throw new Error("User is trying to add themselves as a connection. Operation failed.");
+      }
+      if (!this["connections"][targetUser._id] && !targetUser["connectionOf"][this._id]) {
+        this["connections"][targetUser._id] = targetUserConnection;
+        targetUser["connectionOf"][this._id] = originatorConnection;
+      } else {
+        throw new Error("Unable to add connection - likely connection already exists");
+      }
       this.markModified("connections");
       targetUser.markModified("connectionOf");
       // Saves the changes
       await this.save();
       await targetUser.save();
-      return targetUser;
+      return Promise.resolve(targetUser);
     } else {
       throw new Error("User id not found");
     }
-  } catch (err) {
-    console.log(err);
-  }
 }
 
 /**
@@ -136,23 +140,19 @@ export async function addConnectionToUser (this: IUserDocument, objId: string, i
  * @param objId
  */
 export async function deleteConnectionFromUser(this: IUserDocument, objId: string): Promise<IUserDocument> {
-  try {
-    const targetUser = await UserModel.findById(objId);
-    if (targetUser) {
-      delete this["connections"][targetUser._id];
-      delete targetUser["connectionOf"][this._id];
+  const targetUser = await UserModel.findById(objId);
+  if (targetUser) {
+    delete this["connections"][targetUser._id];
+    delete targetUser["connectionOf"][this._id];
 
-      this.markModified("connections");
-      targetUser.markModified("connectionOf");
+    this.markModified("connections");
+    targetUser.markModified("connectionOf");
 
-      await this.save();
-      await targetUser.save();
-      return targetUser;
-    } else {
-      throw new Error("User id not found");
-    }
-  } catch (err) {
-    console.log(err);
+    await this.save();
+    await targetUser.save();
+    return targetUser;
+  } else {
+    throw new Error("User id not found");
   }
 }
 
