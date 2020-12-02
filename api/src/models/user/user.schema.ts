@@ -1,4 +1,4 @@
-import { Schema, SchemaType } from "mongoose";
+import { Schema } from "mongoose";
 import { findByGoogleId,
   findOneOrCreateByGoogleId,
   registerUser,
@@ -6,7 +6,8 @@ import { findByGoogleId,
   findOneByEncryptedEmail,
   addConnectionToUser,
   deleteConnectionFromUser,
-  updateUserProfile }
+  updateUserProfile,
+  createAndPostThread }
   from "./user.methods";
 
 const UserSchema: Schema = new Schema({
@@ -49,12 +50,28 @@ const UserSchema: Schema = new Schema({
     default: {}
   },
   threads: {
-    started: {},
-    commented: {},
-    liked: {},
-    shared: {}
+    started: {
+      type: Schema.Types.Mixed,
+      required: true,
+      default: {},
+    },
+    commented: {
+      type: Schema.Types.Mixed,
+      required: true,
+      default: {},
+    },
+    liked: {
+      type: Schema.Types.Mixed,
+      required: true,
+      default: {},
+    },
+    shared: {
+      type: Schema.Types.Mixed,
+      required: true,
+      default: {},
+    }
   },
-}, { timestamps: {}, strict: false}, );
+}, { timestamps: {}, strict: false, typePojoToMixed: false}, );
 
 UserSchema.statics.findOneOrCreateByGoogleId = findOneOrCreateByGoogleId;
 UserSchema.statics.findByGoogleId = findByGoogleId;
@@ -64,5 +81,6 @@ UserSchema.statics.findOneByEncryptedEmail = findOneByEncryptedEmail;
 UserSchema.methods.addConnectionToUser = addConnectionToUser;
 UserSchema.methods.deleteConnectionFromUser = deleteConnectionFromUser;
 UserSchema.methods.updateUserProfile = updateUserProfile;
+UserSchema.methods.createAndPostThread = createAndPostThread;
 
 export default UserSchema;

@@ -57,7 +57,6 @@ router.post("/", sanitizationObject, validatePassword,
       else {
         res.status(400).send(err);
       }
-      
     }
 });
 

@@ -1,4 +1,4 @@
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 let mongoServer: any;
 
@@ -26,9 +26,10 @@ afterAll(async () => {
 
 describe("CRUD operations for Thread model", () => {
   test("saves and retrieves thread to mongoDB", async () => {
+    const sampleId = mongoose.Types.ObjectId();
     const testThreadData = {
       threadType: ThreadType.Article,
-      postedByUserId: "123456789012",
+      postedByUserId: sampleId,
       visibility: ThreadVisibility.Anyone,
       content: {
         html: "someSampleHTML",
@@ -43,7 +44,7 @@ describe("CRUD operations for Thread model", () => {
     const result = await ThreadModel.create(testThreadData);
     expect(result.threadType).toBe(ThreadType.Article);
 
-    expect(result.postedByUserId).toBe("123456789012");
+    expect(result.postedByUserId).toBe(sampleId);
     expect(result.visibility).toBe(ThreadVisibility.Anyone);
     expect(result.content.html).toBe("someSampleHTML");
     expect(result.content.attachments[1]).toBe("b90d*hd*734");

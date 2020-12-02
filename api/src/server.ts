@@ -5,6 +5,7 @@ import authRouter from "./routes/auth";
 import localRegistrationRouter from "./routes/register-local";
 import logOutRouter from "./routes/logout";
 import usersRoute from "./routes/users";
+import threadsRoute from "./routes/threads";
 import express from "express";
 import passport from "passport";
 
@@ -36,6 +37,7 @@ app.use("/auth", authRouter);
 app.use("/register/local", localRegistrationRouter);
 app.use("/logout", logOutRouter);
 app.use("/users", usersRoute);
+app.use("/threads", threadsRoute);
 
 app.get("/", (_req, res) => {
   res.send("API Running");

@@ -1,7 +1,7 @@
-import { Schema } from "mongoose";
+import { Schema, Types } from "mongoose";
 
 const ThreadSchema: Schema = new Schema({
-  postedByUserId: { type: String, required: true },
+  postedByUserId: { type: Types.ObjectId, required: true },
   threadType: { type: Number, default: 0},
   visibility: { type: Number, default: 0 },
   content: {
@@ -9,9 +9,21 @@ const ThreadSchema: Schema = new Schema({
       hashtags: [String],
       attachments: [String]
   },
-  comments: {},
-  likes: {},
-  shares: {}
+  comments: {
+    type: Schema.Types.Mixed,
+    default: {},
+    required: true,
+  },
+  likes: {
+    type: Schema.Types.Mixed,
+    default: {},
+    required: true,
+  },
+  shares: {
+    type: Schema.Types.Mixed,
+    default: {},
+    required: true,
+  }
 }, { timestamps: {}} );
 
 export default ThreadSchema;

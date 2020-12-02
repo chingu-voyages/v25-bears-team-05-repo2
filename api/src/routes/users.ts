@@ -3,12 +3,12 @@ import { Response } from "express";
 import { getProfileById } from "../db/utils/get-profile-by-id";
 import { routeProtector } from "../middleware/route-protector";
 import { body, param, validationResult } from "express-validator/check";
-import { sanitizeBody, sanitizeParam } from "express-validator/filter";
+import { sanitizeBody } from "express-validator/filter";
 import { UserModel } from "../models/user/user.model";
 import { createError } from "../utils/errors";
 import { IProfileData } from "../models/user/user.types";
 import { decrypt } from "../utils/crypto";
-
+import { getVisibleThreads } from "../db/utils/get-visible-threads";
 const router = express.Router();
 
 router.get("/:id", routeProtector, [ param("id").not().isEmpty().trim().escape()], async (req: any, res: Response) => {
@@ -157,6 +157,46 @@ param("id").not().isEmpty().trim().escape()],
         "param": "null"
       }]});
     }
+});
+
+/**
+ * This gets threads object for user with id. If id=me, gets own thread object
+ */
+router.get("/:id/threads", routeProtector, [param("id").not().isEmpty().trim().escape() ], async(req: any, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+  if (req.params.id === "me") {
+    return res.status(200).send({ id: req.user.id, threads: req.user.threads});
+  }
+
+  try {
+    const targetUser = await UserModel.findById(req.params.id);
+    if (targetUser) {
+      // If user is a connection, return all threads
+      // If not a connection, only return threads with a "anyone" visibility
+      if (targetUser.connections[req.user.id] !== undefined) {
+        return res.status(200).send({id: targetUser.id.toString(), threads: targetUser.threads});
+      } else {
+        const onlyVisibleThreads = getVisibleThreads(targetUser.threads);
+        return res.status(200).send({ id: targetUser.id.toString(), threads: onlyVisibleThreads});
+      }
+    } else {
+      return res.status(400).send({errors: [{
+        "location": "Server",
+        "msg": `Bad request. User not found`,
+        "param": "id"
+      }]});
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(404).send({errors: [{
+      "location": "Server",
+      "msg": `${err}`,
+      "param": req.params.id
+    }]});
+  }
 });
 
 export default router;

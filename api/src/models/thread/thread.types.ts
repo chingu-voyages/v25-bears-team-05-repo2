@@ -1,7 +1,8 @@
-import { Document, Model } from "mongoose";
+import { Document, Model, Mongoose, Schema, Types } from "mongoose";
 import { IThreadComment, IThreadCommentModel } from "../thread-comment/thread-comment.types";
 import { IThreadLike } from "../thread-like/thread-like.types";
 import { IThreadShare } from "../thread-share/thread-share.types";
+import mongoose from "mongoose";
 
 export enum ThreadType {
   Post = 0,
@@ -15,8 +16,16 @@ export enum ThreadVisibility {
   Connections = 1
 }
 
+export interface IThreadPostDetails {
+  threadType?: ThreadType;
+  visibility?: ThreadVisibility;
+  html: string;
+  hashTags?: Array<string>;
+  attachments?: Array<string>;
+}
+
 export interface IThread {
-  postedByUserId: string;
+  postedByUserId: mongoose.Types.ObjectId;
   threadType: ThreadType;
   visibility: ThreadVisibility;
   content: {
