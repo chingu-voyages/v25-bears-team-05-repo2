@@ -116,6 +116,8 @@ export async function addConnectionToUser (this: IUserDocument, objId: string, i
       this["connections"][targetUser._id] = targetUserConnection;
       targetUser["connectionOf"][this._id] = originatorConnection;
 
+      this.markModified("connections");
+      targetUser.markModified("connectionOf");
       // Saves the changes
       await this.save();
       await targetUser.save();
@@ -139,6 +141,10 @@ export async function deleteConnectionFromUser(this: IUserDocument, objId: strin
     if (targetUser) {
       delete this["connections"][targetUser._id];
       delete targetUser["connectionOf"][this._id];
+
+      this.markModified("connections");
+      targetUser.markModified("connectionOf");
+
       await this.save();
       await targetUser.save();
       return targetUser;
@@ -218,7 +224,10 @@ function transformUserDataToConnection(userData: IUserDocument, isTeamMate?: boo
   return {
     firstName: userData.firstName,
     lastName: userData.lastName,
+    jobTitle: userData.jobTitle,
     avatar: userData.avatar,
+    userId: userData.id.toString(),
+    dateTimeConnected: userData.createdAt,
     isTeamMate: isTeamMate || false,
   };
 }

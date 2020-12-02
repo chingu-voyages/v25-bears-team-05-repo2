@@ -1,4 +1,4 @@
-import { Document, Model } from "mongoose";
+import { Document, Model, Types } from "mongoose";
 
 export interface Avatar {
   url: string;
@@ -7,8 +7,11 @@ export interface Avatar {
 export interface IUserConnection {
   firstName: string;
   lastName: string;
+  jobTitle: string;
   avatar: Array<Avatar>;
+  userId: Types.ObjectId;
   isTeamMate: boolean;
+  dateTimeConnected: Date;
 }
 
 export interface IUserConnectionDocument extends IUserConnection, Document {}
