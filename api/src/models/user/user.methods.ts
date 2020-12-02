@@ -141,6 +141,10 @@ export async function deleteConnectionFromUser(this: IUserDocument, objId: strin
     if (targetUser) {
       delete this["connections"][targetUser._id];
       delete targetUser["connectionOf"][this._id];
+
+      this.markModified("connections");
+      targetUser.markModified("connectionOf");
+
       await this.save();
       await targetUser.save();
       return targetUser;
