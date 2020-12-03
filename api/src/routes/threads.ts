@@ -1,6 +1,6 @@
 import * as express from "express";
 import { Response } from "express";
-import { body, param, validationResult } from "express-validator/check";
+import { body, validationResult } from "express-validator/check";
 import { IThreadPostDetails } from "../models/thread/thread.types";
 import { routeProtector } from "../middleware/route-protector";
 import { createError } from "../utils/errors";

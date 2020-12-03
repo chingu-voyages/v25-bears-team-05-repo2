@@ -36,6 +36,8 @@ export interface IThread {
   comments: { [keyof: string]: IThreadComment };
   likes: { [keyof: string]: IThreadLike };
   shares: { [keyof: string]: IThreadShare };
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
 }
 
 export interface IThreadDocument extends IThread, Document {}

@@ -1,14 +1,8 @@
 import { Schema } from "mongoose";
-import { findByGoogleId,
-  findOneOrCreateByGoogleId,
-  registerUser,
-  findByEncryptedEmail,
-  findOneByEncryptedEmail,
-  addConnectionToUser,
-  deleteConnectionFromUser,
-  updateUserProfile,
-  createAndPostThread }
-  from "./user.methods";
+import { findOneOrCreateByGoogleId, findByGoogleId, registerUser, findByEncryptedEmail, findOneByEncryptedEmail } from "./user.auth.methods";
+import { addConnectionToUser, deleteConnectionFromUser } from "./user.connections.methods";
+import { updateUserProfile } from "./user.profile.methods";
+import { createAndPostThread, getConnectionThreads } from "./user.thread.methods";
 
 const UserSchema: Schema = new Schema({
   firstName: String,
@@ -82,5 +76,7 @@ UserSchema.methods.addConnectionToUser = addConnectionToUser;
 UserSchema.methods.deleteConnectionFromUser = deleteConnectionFromUser;
 UserSchema.methods.updateUserProfile = updateUserProfile;
 UserSchema.methods.createAndPostThread = createAndPostThread;
+UserSchema.methods.getConnectionThreads = getConnectionThreads;
+
 
 export default UserSchema;
