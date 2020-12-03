@@ -229,17 +229,7 @@ export async function getConnectionThreads(this: IUserDocument): Promise<Array<I
     }
   });
 
-  // Sort the threads and return
-  return threads.sort((a, b) => {
-    if (a.createdAt.valueOf() < b.createdAt.valueOf() ) {
-      return 1;
-    }
-    if (a.createdAt.valueOf() > b.createdAt.valueOf()) {
-      return -1;
-    }
-    return 0;
-  }
- );
+  return threads.sort((a, b) => b.createdAt.valueOf() - a.createdAt.valueOf());
 }
 /**
  *
