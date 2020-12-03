@@ -7,7 +7,8 @@ import { findByGoogleId,
   addConnectionToUser,
   deleteConnectionFromUser,
   updateUserProfile,
-  createAndPostThread }
+  createAndPostThread,
+  getConnectionThreads }
   from "./user.methods";
 
 const UserSchema: Schema = new Schema({
@@ -82,5 +83,7 @@ UserSchema.methods.addConnectionToUser = addConnectionToUser;
 UserSchema.methods.deleteConnectionFromUser = deleteConnectionFromUser;
 UserSchema.methods.updateUserProfile = updateUserProfile;
 UserSchema.methods.createAndPostThread = createAndPostThread;
+UserSchema.methods.getConnectionThreads = getConnectionThreads;
+
 
 export default UserSchema;

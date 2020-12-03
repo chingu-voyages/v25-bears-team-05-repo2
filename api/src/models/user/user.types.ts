@@ -47,6 +47,7 @@ export interface IUserDocument extends IUser, Document {
   updateUserProfile: (this: IUserDocument, profileData: IProfileData) => Promise<IUserDocument>;
   createAndPostThread: (this: IUserDocument, threadDetails: IThreadPostDetails) => Promise<{userData: IUserDocument, threadData: IThreadDocument }>;
   isConnectionOf: (this: IUserDocument, targetId: string) =>  boolean;
+  getConnectionThreads: (this: IUserDocument) => Promise<Array<IThread>>;
 }
 export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;

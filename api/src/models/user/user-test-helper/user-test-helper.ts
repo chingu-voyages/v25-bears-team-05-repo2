@@ -5,7 +5,6 @@ import { encrypt } from "../../../utils/crypto";
  * @param numberOfUsers number of fake users to create for testing.
  */
 export function createTestUsers (numberOfUsers: number = 1, googleIds?: Array<string>, plainTextPasswords?: Array<string>): Array<IUser> {
-
   const fakeUsers: Array<IUser> = [];
   for (let i = 0; i < numberOfUsers; i++) {
     fakeUsers.push({
@@ -26,6 +25,8 @@ export function createTestUsers (numberOfUsers: number = 1, googleIds?: Array<st
         liked: {},
         shared: {},
       },
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
   }
   return fakeUsers;

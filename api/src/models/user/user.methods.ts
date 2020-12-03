@@ -6,6 +6,7 @@ import { UserModel } from "./user.model";
 import { IUserConnection } from "../user-connection/user-connection.types";
 import { IThread, IThreadPostDetails } from "../thread/thread.types";
 import { ThreadModel } from "../thread/thread.model";
+import * as dayjs from "dayjs";
 /**
  * Find user by googleId, if not found, create user, populating with google
  * profile data
@@ -198,22 +199,48 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
     },
     comments: {},
     likes: {},
-    shares: {}
+    shares: {},
+    createdAt: new Date(),
+    updatedAt: new Date()
   };
-  try {
-    const newlyCreatedThread = await ThreadModel.create(userThread);
-    this["threads"]["started"][`${newlyCreatedThread.id.toString()}`] = newlyCreatedThread;
-    // Forces the parent object to update: there may be a better way
-    this.markModified("threads");
-    await this.save();
-    return {userData: this, threadData: newlyCreatedThread};
-  } catch (err) {
-    console.log(err);
-  }
+
+  const newlyCreatedThread = await ThreadModel.create(userThread);
+  this["threads"]["started"][`${newlyCreatedThread.id.toString()}`] = newlyCreatedThread;
+  // Forces the parent object to update: there may be a better way
+  this.markModified("threads");
+  await this.save();
+  return {userData: this, threadData: newlyCreatedThread};
+
 }
 
-export async function deleteUserThreadByThreadId(this: IUserDocument, threadId: string) {
+/** This is a modular helper method. This will only
+ * return a sorted list (by date latest) of threads from source user's connections
+ */
+export async function getConnectionThreads(this: IUserDocument): Promise<Array<IThread>> {
+  // Get an array of userIds for this.connections
+  const connectionUserIds = Object.keys(this.connections);
 
+  // Find user documents that match the ids in the above array
+  const users = await UserModel.find().where("_id").in(connectionUserIds).exec();
+  const threads: IThread[] = [];
+
+  users.forEach((user) => {
+    for (const[_, value] of Object.entries(user.threads.started)) {
+      threads.push(value);
+    }
+  });
+
+  // Sort the threads and return
+  return threads.sort((a, b) => {
+    if (a.createdAt.valueOf() < b.createdAt.valueOf() ) {
+      return 1;
+    }
+    if (a.createdAt.valueOf() > b.createdAt.valueOf()) {
+      return -1;
+    }
+    return 0;
+  }
+ );
 }
 /**
  *
