@@ -25,5 +25,11 @@ describe("chunk tests", () => {
     expect(arr6[0]).toBe(9);
     expect(arr6[7]).toBe(16);
 
+    const arr7 = chunkList(testArray, 2, 21);
+    expect(arr7).toHaveLength(2);
+    expect(arr7[0]).toBe(19);
+
+    expect(() => chunkList(testArray, 5, -5)).toThrow();
+
   });
 });
