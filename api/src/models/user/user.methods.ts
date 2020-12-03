@@ -6,7 +6,6 @@ import { UserModel } from "./user.model";
 import { IUserConnection } from "../user-connection/user-connection.types";
 import { IThread, IThreadPostDetails } from "../thread/thread.types";
 import { ThreadModel } from "../thread/thread.model";
-import * as dayjs from "dayjs";
 /**
  * Find user by googleId, if not found, create user, populating with google
  * profile data
