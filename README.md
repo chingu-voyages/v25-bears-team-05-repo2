@@ -1,3 +1,4 @@
+![Typescript compiler](https://github.com/chingu-voyages/v25-bears-team-05-repo2/workflows/Typescript%20compiler/badge.svg)
 # SyncedUp API
 
 ### About
