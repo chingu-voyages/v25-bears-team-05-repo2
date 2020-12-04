@@ -10,7 +10,7 @@
     "deploy": "echo 'no deployment setup yet'",
     "watch-deploy": "nodemon dist/src/server.js",
     "start": "node dist/src/server.js",
-    "dev": "nodemon",
+    "dev": "NODE_ENV=development nodemon",
     "build": "npm run tsc",
     "test": "npx jest"
   },

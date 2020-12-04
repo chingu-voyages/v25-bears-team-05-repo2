@@ -29,7 +29,7 @@ async function authenticateUser(_accessToken: any, _refreshToken: any, profile: 
 const GooglePassportStrategy = new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: `${process.env.API_URL}:${process.env.PORT || 7000}/auth/google/callback`
+  callbackURL: `${process.env.NODE_ENV === "production" ? process.env.API_URL : process.env.DEV_API_URL}/auth/google/callback`
 }, authenticateUser);
 
 export default GooglePassportStrategy;
