@@ -1,8 +1,12 @@
-import { Schema } from "mongoose";
+import { Schema, SchemaOptions } from "mongoose";
 import { findOneOrCreateByGoogleId, findByGoogleId, registerUser, findByEncryptedEmail, findOneByEncryptedEmail } from "./user.auth.methods";
 import { addConnectionToUser, deleteConnectionFromUser } from "./user.connections.methods";
 import { updateUserProfile } from "./user.profile.methods";
 import { createAndPostThread, getConnectionThreads } from "./user.thread.methods";
+
+interface SchemaOptionsWithPojoToMixed extends SchemaOptions {
+  typePojoToMixed: boolean;
+}
 
 const UserSchema: Schema = new Schema({
   firstName: String,
@@ -65,7 +69,7 @@ const UserSchema: Schema = new Schema({
       default: {},
     }
   },
-}, { timestamps: {}, strict: false, typePojoToMixed: false}, );
+}, { timestamps: {}, strict: false, typePojoToMixed: false} as SchemaOptionsWithPojoToMixed);
 
 UserSchema.statics.findOneOrCreateByGoogleId = findOneOrCreateByGoogleId;
 UserSchema.statics.findByGoogleId = findByGoogleId;
