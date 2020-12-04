@@ -91,7 +91,7 @@ Other tools:
 
 #### Heroku deploy
 1. Set environment varibles on Heroku app (if first time or they've changed)
-    - `$ heroku config:set $(<.env) $(<app/.env)`
+    - `$ heroku config:set $(<.env)`
 1. Deploy a branch to heroku master
     - `$ git push heroku <your branch to deploy>:master`
 ## API Routes
