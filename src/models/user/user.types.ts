@@ -1,4 +1,4 @@
-import { Document, Model, Mongoose } from "mongoose";
+import { Document, Model } from "mongoose";
 import { IThreadComment } from "../thread-comment/thread-comment.types";
 import { IThreadLike } from "../thread-like/thread-like.types";
 import { IThreadShare } from "../thread-share/thread-share.types";

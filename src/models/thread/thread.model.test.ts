@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 let mongoServer: any;
 
-import { IThreadDocument, ThreadType, ThreadVisibility } from "./thread.types";
+import { ThreadType, ThreadVisibility } from "./thread.types";
 import { ThreadModel }  from "./thread.model";
 const options: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
