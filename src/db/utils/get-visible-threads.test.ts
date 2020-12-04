@@ -15,11 +15,13 @@ describe("getVisibleThread db tests", () => {
         content: {
           html: "sample-html-1",
           hashTags: [],
-        attachments: [],
+          attachments: [],
         },
         comments: {},
         likes: {},
         shares: {},
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       "thread_2": {
         postedByUserId: mongoose.Types.ObjectId(),
@@ -28,11 +30,13 @@ describe("getVisibleThread db tests", () => {
         content: {
           html: "sample-html-2",
           hashTags: [],
-        attachments: [],
+          attachments: [],
         },
         comments: {},
         likes: {},
         shares: {},
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       "thread_3": {
         postedByUserId: mongoose.Types.ObjectId(),
@@ -41,11 +45,13 @@ describe("getVisibleThread db tests", () => {
         content: {
           html: "sample-html-3",
           hashTags: [],
-        attachments: [],
+          attachments: [],
         },
         comments: {},
         likes: {},
         shares: {},
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       "thread_4": {
         postedByUserId: mongoose.Types.ObjectId(),
@@ -54,11 +60,13 @@ describe("getVisibleThread db tests", () => {
         content: {
           html: "sample-html-1",
           hashTags: [],
-        attachments: [],
+          attachments: [],
         },
         comments: {},
         likes: {},
         shares: {},
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     };
 
