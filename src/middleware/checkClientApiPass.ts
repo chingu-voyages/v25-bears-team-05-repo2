@@ -3,7 +3,7 @@ import { createError } from "../utils/errors";
 
 export default function checkClientApiPass(req: Request, res: Response, next: NextFunction) {
   // bypass check if google auth route 
-  if (req.path.match(/^\/auth\/google|^\/success|^\/fail|^\/api\/auth\|/)) {
+  if (req.path.match(/^\/auth|^\/success|^\/fail|^\/api\/auth\|/)) {
     next()
   }
   else {
