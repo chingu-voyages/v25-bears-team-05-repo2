@@ -9,6 +9,7 @@ import threadsRoute from "./routes/threads";
 import feedRoute from "./routes/feed";
 import express from "express";
 import passport from "passport";
+import checkClientApiPass from "./middleware/checkClientApiPass";
 
 import connectDB from "../config/database";
 import { createError } from "./utils/errors";
@@ -22,7 +23,7 @@ connectDB();
 // Express configuration
 app.set("port", process.env.SERVER_PORT || 7000);
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use(cookieSession({
@@ -33,6 +34,9 @@ app.use(cookieSession({
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+// check client server is authorised to make requests
+app.use(checkClientApiPass);
 
 app.use("/auth", authRouter);
 app.use("/register/local", localRegistrationRouter);
