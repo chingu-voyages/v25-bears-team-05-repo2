@@ -9,7 +9,8 @@
     "watch-tsc": "tsc -w",
     "deploy": "echo 'no deployment setup yet'",
     "watch-deploy": "nodemon dist/src/server.js",
-    "start": "nodemon",
+    "start": "node dist/src/server.js",
+    "dev": "nodemon",
     "heroku-postbuild": "npm run tsc",
     "test": "npx jest"
   },
