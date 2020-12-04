@@ -21,7 +21,7 @@ const app = express();
 connectDB();
 
 // Express configuration
-app.set("port", process.env.SERVER_PORT || 7000);
+app.set("port", process.env.PORT || 7000);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
