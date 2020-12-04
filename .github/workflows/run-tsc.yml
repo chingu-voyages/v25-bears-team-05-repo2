@@ -19,3 +19,6 @@ jobs:
       uses: icrawl/action-tsc@v1
     - name: tests
       run: npm test
+      env:
+        PASSPHRASE:  ${{ secrets.PASSPHRASE }}
+        CI: true
