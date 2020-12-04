@@ -1,4 +1,4 @@
-import { IProfileData, IUser, IUserDocument,
+import { IUser, IUserDocument,
   IUserModel, IUserRegistrationDetails } from "./user.types";
 import bcrypt from "bcryptjs";
 import { decrypt } from "../../utils/crypto";

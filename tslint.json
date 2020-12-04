@@ -4,6 +4,7 @@
     "comment-format": [true, "check-space"],
     "indent": [true, "spaces"],
     "one-line": [true, "check-open-brace", "check-whitespace"],
+    "no-unused-variable": true,
     "no-var-keyword": true,
     "quotemark": [true, "double", "avoid-escape"],
     "semicolon": [true, "always", "ignore-bound-class-methods"],
