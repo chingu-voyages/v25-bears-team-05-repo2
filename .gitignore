@@ -4,4 +4,3 @@ dist
 api/.env
 .env
 .eslintrc.json
-babel.config.js
