@@ -11,7 +11,7 @@
     "watch-deploy": "nodemon dist/src/server.js",
     "start": "node dist/src/server.js",
     "dev": "nodemon",
-    "heroku-postbuild": "npm run tsc",
+    "build": "npm run tsc",
     "test": "npx jest"
   },
   "dependencies": {
