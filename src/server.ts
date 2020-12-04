@@ -1,5 +1,4 @@
 require("dotenv").config();
-const cors = require("cors");
 import bodyParser from "body-parser";
 import authRouter from "./routes/auth";
 import localRegistrationRouter from "./routes/register-local";
@@ -24,7 +23,6 @@ connectDB();
 app.set("port", process.env.PORT || 7000);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
 
 app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000, // Day
