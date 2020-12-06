@@ -27,7 +27,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000, // Day
   name: "synced-up",
-  keys: [process.env.COOKIE_KEY_1, process.env.COOKIE_KEY_2]
+  keys: [process.env.COOKIE_KEY_1, process.env.COOKIE_KEY_2],
+  domain: ".syncedup.live"
 }));
 
 app.use(passport.initialize());
