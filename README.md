@@ -70,7 +70,7 @@ Other tools:
 
 ---
 
-- Run `npm start` to start the server
+- Run `npm run dev` to start the server
 - Run `npm t` to run jest unit tests
 
 ### Deployment instructions
