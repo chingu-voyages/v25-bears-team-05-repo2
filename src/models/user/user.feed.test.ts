@@ -75,4 +75,38 @@ describe("feed tests", () => {
       expect(numberOfChecks).toBe(8);
     });
   });
+  describe("get connectionsOf tests", () => {
+    test("ensures we get the correct connectionsOf", async() => {
+       // Create a few test users
+       const testUser = createTestUsers(20, undefined, undefined);
+       const dummyUserDocuments = await UserModel.create(testUser);
+
+       // The source user will add some connections
+       // For those connections added (4, 15, 14), some other user will add them as connections,
+       // populating 4, 15, and 14's connectionOf object properties
+       await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[4].id);
+       await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[14].id);
+       await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[15].id);
+
+       // Dummy users 19, 18, 17 and 16 become connectionOf user 4, 15 and 14
+       await dummyUserDocuments[19].addConnectionToUser(dummyUserDocuments[4].id);
+       await dummyUserDocuments[18].addConnectionToUser(dummyUserDocuments[4].id);
+       await dummyUserDocuments[17].addConnectionToUser(dummyUserDocuments[4].id);
+       await dummyUserDocuments[16].addConnectionToUser(dummyUserDocuments[4].id);
+
+       await dummyUserDocuments[19].addConnectionToUser(dummyUserDocuments[15].id);
+       await dummyUserDocuments[18].addConnectionToUser(dummyUserDocuments[15].id);
+       await dummyUserDocuments[17].addConnectionToUser(dummyUserDocuments[15].id);
+       await dummyUserDocuments[16].addConnectionToUser(dummyUserDocuments[15].id);
+
+       await dummyUserDocuments[19].addConnectionToUser(dummyUserDocuments[14].id);
+       await dummyUserDocuments[18].addConnectionToUser(dummyUserDocuments[14].id);
+       await dummyUserDocuments[17].addConnectionToUser(dummyUserDocuments[14].id);
+       await dummyUserDocuments[16].addConnectionToUser(dummyUserDocuments[14].id);
+
+       const result = await dummyUserDocuments[0].getConnectionOfFromConnections();
+       expect(result).toHaveLength(4);
+       expect(result[0].firstName).toBe("testUser19FirstName");
+    });
+  });
 });

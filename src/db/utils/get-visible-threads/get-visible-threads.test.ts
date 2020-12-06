@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import { createTestUsers } from "../../models/user/user-test-helper/user-test-helper";
-import { ThreadType, ThreadVisibility } from "../../models/thread/thread.types";
+import { createTestUsers } from "../../../models/user/user-test-helper/user-test-helper";
+import { ThreadType, ThreadVisibility } from "../../../models/thread/thread.types";
 import { getVisibleThreads } from "./get-visible-threads";
 
 describe("getVisibleThread db tests", () => {
@@ -17,9 +17,9 @@ describe("getVisibleThread db tests", () => {
           hashTags: [],
           attachments: [],
         },
-        comments: {},
-        likes: {},
-        shares: {},
+        comments: { },
+        likes: { },
+        shares: { },
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -32,9 +32,9 @@ describe("getVisibleThread db tests", () => {
           hashTags: [],
           attachments: [],
         },
-        comments: {},
-        likes: {},
-        shares: {},
+        comments: { },
+        likes: { },
+        shares: { },
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -47,9 +47,9 @@ describe("getVisibleThread db tests", () => {
           hashTags: [],
           attachments: [],
         },
-        comments: {},
-        likes: {},
-        shares: {},
+        comments: { },
+        likes: { },
+        shares: { },
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -62,9 +62,9 @@ describe("getVisibleThread db tests", () => {
           hashTags: [],
           attachments: [],
         },
-        comments: {},
-        likes: {},
-        shares: {},
+        comments: { },
+        likes: { },
+        shares: { },
         createdAt: new Date(),
         updatedAt: new Date()
       }

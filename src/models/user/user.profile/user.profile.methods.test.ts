@@ -1,7 +1,7 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import { createTestUsers } from "./user-test-helper/user-test-helper";
-import { UserModel } from "./user.model";
+import { createTestUsers } from "../user-test-helper/user-test-helper";
+import { UserModel } from "../user.model";
 let mongoServer: any;
 
 const options: mongoose.ConnectionOptions = {

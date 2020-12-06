@@ -1,6 +1,6 @@
-import { createTestUsers } from "./user-test-helper/user-test-helper";
-import { UserModel } from "./user.model";
-import { ThreadModel } from "../thread/thread.model";
+import { createTestUsers } from "../user-test-helper/user-test-helper";
+import { UserModel } from "../user.model";
+import { ThreadModel } from "../../thread/thread.model";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 let mongoServer: any;

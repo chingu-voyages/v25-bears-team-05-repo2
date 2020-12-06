@@ -1,6 +1,6 @@
-import { IUserConnection } from "../user-connection/user-connection.types";
-import { UserModel } from "./user.model";
-import { IUserDocument } from "./user.types";
+import { IUserConnection } from "../../user-connection/user-connection.types";
+import { UserModel } from "../user.model";
+import { IUserDocument } from "../user.types";
 
 /**
  *  Adds a connection object to user's profile and updates the connectionOf property
@@ -70,9 +70,15 @@ export async function getConnectionOfFromConnections(this: IUserDocument): Promi
   // Find user documents that match the ids in the above array
   const users = await UserModel.find().where("_id").in(connectionUserIds).exec();
   const connectionsOf: IUserConnection[] = [];
+  const uniqueIds: any = { };
   users.forEach((user) => {
     for (const [_, value] of Object.entries(user.connectionOf)) {
-      connectionsOf.push(value);
+      if (value.userId !== this.id) {
+        if (!uniqueIds[value.userId.toString()]) {
+          connectionsOf.push(value);
+          uniqueIds[value.userId.toString()] = 1;
+        }
+      }
     }
   });
   return connectionsOf;

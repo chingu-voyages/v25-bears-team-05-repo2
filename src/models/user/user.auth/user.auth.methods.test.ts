@@ -1,6 +1,6 @@
-import { decrypt, encrypt } from "../../utils/crypto";
-import { createTestUsers } from "./user-test-helper/user-test-helper";
-import { UserModel } from "./user.model";
+import { decrypt, encrypt } from "../../../utils/crypto";
+import { createTestUsers } from "../user-test-helper/user-test-helper";
+import { UserModel } from "../user.model";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 let mongoServer: any;
