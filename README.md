@@ -71,15 +71,30 @@ Other tools:
 
 ---
 
-- Run `npm start` to start the server
+- Run `npm run dev` to start the server
 - Run `npm t` to run jest unit tests
 
 ### Deployment instructions
 
 ---
 
-To be filled out
+#### Heroku setup 
+1. Install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
+1. Login
+    - `$ heroku login`
+1. Create Heroku app 
+    - `$ heroku create <your heroku app name>`
+    - Or using the [Heroku dashboard](https://dashboard.heroku.com/)
+1. Set a git remote named heroku to your Heroku app
+    - `$ heroku git:remote -a <your heroku app name>`
+1. Add nodejs heroku buildpack
+   - `heroku buildpacks:set heroku/nodejs`
 
+#### Heroku deploy
+1. Set environment varibles on Heroku app (if first time or they've changed)
+    - `$ heroku config:set $(<.env)`
+1. Deploy a branch to heroku master
+    - `$ git push heroku <your branch to deploy>:master`
 ## API Routes
 
 To be filled out

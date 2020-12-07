@@ -9,8 +9,9 @@
     "watch-tsc": "tsc -w",
     "deploy": "echo 'no deployment setup yet'",
     "watch-deploy": "nodemon dist/src/server.js",
-    "start": "nodemon",
-    "heroku-postbuild": "npm run tsc",
+    "start": "node dist/src/server.js",
+    "dev": "NODE_ENV=development nodemon",
+    "build": "npm run tsc",
     "test": "npx jest"
   },
   "dependencies": {
@@ -21,7 +22,6 @@
     "bcryptjs": "^2.4.3",
     "config": "^3.1.0",
     "cookie-session": "^1.4.0",
-    "cors": "^2.8.5",
     "crypto-js": "^4.0.0",
     "dayjs": "^1.9.6",
     "dotenv": "^8.2.0",
@@ -56,5 +56,8 @@
     "nodemon": "^1.19.0",
     "ts-jest": "^26.4.4",
     "ts-node": "^9.0.0"
+  },
+  "engines": {
+    "node": "12.x"
   }
 }

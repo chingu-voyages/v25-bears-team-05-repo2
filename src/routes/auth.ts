@@ -29,7 +29,6 @@ router.post("/local", logoutIfAuthenticated, (req, res, next) => {
   }) (req, res, next);
 });
 
-
-router.get("/", routeProtector, (req, res) => { res.status(200).send(); })
+router.get("/", routeProtector, (req, res) => { res.status(200).send({authed: true}); })
 
 export default router;

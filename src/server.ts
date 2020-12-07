@@ -1,5 +1,4 @@
 require("dotenv").config();
-const cors = require("cors");
 import bodyParser from "body-parser";
 import authRouter from "./routes/auth";
 import localRegistrationRouter from "./routes/register-local";
@@ -9,6 +8,7 @@ import threadsRoute from "./routes/threads";
 import feedRoute from "./routes/feed";
 import express from "express";
 import passport from "passport";
+import checkClientApiPass from "./middleware/checkClientApiPass";
 
 import connectDB from "../config/database";
 import { createError } from "./utils/errors";
@@ -20,19 +20,23 @@ const app = express();
 connectDB();
 
 // Express configuration
-app.set("port", process.env.SERVER_PORT || 7000);
+app.set("port", process.env.PORT || 7000);
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000, // Day
   name: "synced-up",
-  keys: [process.env.COOKIE_KEY_1, process.env.COOKIE_KEY_2]
+  keys: [process.env.COOKIE_KEY_1, process.env.COOKIE_KEY_2],
+  domain: ".syncedup.live",
+  secureProxy: true
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+// check client server is authorised to make requests
+app.use(checkClientApiPass);
 
 app.use("/auth", authRouter);
 app.use("/register/local", localRegistrationRouter);
