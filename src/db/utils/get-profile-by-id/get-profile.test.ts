@@ -1,5 +1,5 @@
-import { UserModel } from "../../models/user/user.model";
-import { createTestUsers } from "../../models/user/user-test-helper/user-test-helper";
+import { UserModel } from "../../../models/user/user.model";
+import { createTestUsers } from "../../../models/user/user-test-helper/user-test-helper";
 import { getProfileById } from "./get-profile-by-id";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";

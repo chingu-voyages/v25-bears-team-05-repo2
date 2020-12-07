@@ -1,5 +1,5 @@
-import { UserModel } from "../../models/user/user.model";
-import { IProfile } from "../../db/types";
+import { UserModel } from "../../../models/user/user.model";
+import { IProfile } from "../../../db/types";
 /**
  * Finds user by ID and only returns relevant properties
  * @param userId ObjectId

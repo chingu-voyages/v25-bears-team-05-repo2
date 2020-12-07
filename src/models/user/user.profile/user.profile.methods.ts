@@ -1,4 +1,4 @@
-import { IUserDocument, IProfileData } from "./user.types";
+import { IUserDocument, IProfileData } from "../user.types";
 
 export async function updateUserProfile(this: IUserDocument, profileData: IProfileData): Promise<IUserDocument> {
   if (profileData.firstName) {

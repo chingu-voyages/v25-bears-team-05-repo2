@@ -1,7 +1,8 @@
-import { IProfileData, IUser, IUserDocument,
-  IUserModel, IUserRegistrationDetails } from "./user.types";
+import { IUser, IUserDocument,
+  IUserModel, IUserRegistrationDetails } from "../user.types";
 import bcrypt from "bcryptjs";
-import { decrypt } from "../../utils/crypto";
+import { decrypt } from "../../../utils/crypto";
+
 /**
  * Find user by googleId, if not found, create user, populating with google
  * profile data
@@ -53,13 +54,13 @@ export async function registerUser(this: IUserModel, details: IUserRegistrationD
           password: hashedPassword
         },
         avatar: [{ url: "defaultAvatar"}],
-        connections: {},
-        connectionOf: {},
+        connections: { },
+        connectionOf: { },
         threads: {
-          started: {},
-          commented: {},
-          liked: {},
-          shared: {}
+          started: { },
+          commented: { },
+          liked: { },
+          shared: { }
         }
       });
       return newUser;
@@ -73,7 +74,7 @@ export async function registerUser(this: IUserModel, details: IUserRegistrationD
  */
 export async function findByEncryptedEmail (this: IUserModel, encryptedEmail: string): Promise<IUserDocument[]> {
   const decryptedEmail = decrypt(encryptedEmail);
-  const allRecords = await this.find();
+  const allRecords: IUserDocument[] = await this.find();
   return allRecords.filter((records) => {
     return decrypt(records.auth.email) === decryptedEmail;
   });

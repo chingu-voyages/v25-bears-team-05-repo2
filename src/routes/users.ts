@@ -1,6 +1,6 @@
 import * as express from "express";
 import { Response } from "express";
-import { getProfileById } from "../db/utils/get-profile-by-id";
+import { getProfileById } from "../db/utils/get-profile-by-id/get-profile-by-id";
 import { routeProtector } from "../middleware/route-protector";
 import { body, param, validationResult } from "express-validator/check";
 import { sanitizeBody } from "express-validator/filter";
@@ -8,7 +8,7 @@ import { UserModel } from "../models/user/user.model";
 import { createError } from "../utils/errors";
 import { IProfileData } from "../models/user/user.types";
 import { decrypt } from "../utils/crypto";
-import { getVisibleThreads } from "../db/utils/get-visible-threads";
+import { getVisibleThreads } from "../db/utils/get-visible-threads/get-visible-threads";
 const router = express.Router();
 
 router.get("/:id", routeProtector, [ param("id").not().isEmpty().trim().escape()], async (req: any, res: Response) => {
@@ -44,7 +44,7 @@ async (req: any, res: Response) => {
         res.status(200).send(otherUser.connections);
       }
     } catch (err) {
-      res.status(400).send({errors: [{ ...createError("get connections",
+      res.status(400).send({ errors: [{ ...createError("get connections",
       `database error. ${err.Message}`,
       "id")} ]});
     }
@@ -71,7 +71,7 @@ async(req: any, res: Response) => {
     await req.user.addConnectionToUser(req.params.id, req.body.isTeamMate);
     return res.status(200).send([req.user.connections, req.user.connectionOf]);
   } catch (err) {
-    return res.status(400).send({errors: [{
+    return res.status(400).send({ errors: [{
       "location": "response",
       "msg": `Unable to complete. ${err.Message}`,
       "param": "null"
@@ -96,7 +96,7 @@ router.delete("/connections/:id", routeProtector, [ param("id").not().isEmpty().
     await req.user.deleteConnectionFromUser(req.params.id);
     return res.status(200).send([req.user.connections, req.user.connectionOf]);
   } catch (err) {
-    return res.status(400).send({errors: [{
+    return res.status(400).send({ errors: [{
       "location": "response",
       "msg": `Unable to complete. ${err.Message}`,
       "param": "null"
@@ -130,7 +130,7 @@ param("id").not().isEmpty().trim().escape()],
     }
 
     if (req.params.id !== "me") {
-      return res.status(400).send({errors: [{
+      return res.status(400).send({ errors: [{
         "location": "Patch profile update",
         "msg": `Bad request`,
         "param": req.params.id
@@ -151,7 +151,7 @@ param("id").not().isEmpty().trim().escape()],
         avatar: req.body.avatar,
         email: decrypt(req.user.auth.email) });
     } catch (err) {
-      return res.status(500).send({errors: [{
+      return res.status(500).send({ errors: [{
         "location": "server error: profile update",
         "msg": `Unable to complete. ${err.Message}`,
         "param": "null"
@@ -177,13 +177,13 @@ router.get("/:id/threads", routeProtector, [param("id").not().isEmpty().trim().e
       // If user is a connection, return all threads
       // If not a connection, only return threads with a "anyone" visibility
       if (targetUser.connections[req.user.id] !== undefined) {
-        return res.status(200).send({id: targetUser.id.toString(), threads: targetUser.threads});
+        return res.status(200).send({ id: targetUser.id.toString(), threads: targetUser.threads});
       } else {
         const onlyVisibleThreads = getVisibleThreads(targetUser.threads);
         return res.status(200).send({ id: targetUser.id.toString(), threads: onlyVisibleThreads});
       }
     } else {
-      return res.status(400).send({errors: [{
+      return res.status(400).send({ errors: [{
         "location": "Server",
         "msg": `Bad request. User not found`,
         "param": "id"
@@ -191,7 +191,7 @@ router.get("/:id/threads", routeProtector, [param("id").not().isEmpty().trim().e
     }
   } catch (err) {
     console.log(err);
-    return res.status(404).send({errors: [{
+    return res.status(404).send({ errors: [{
       "location": "Server",
       "msg": `${err}`,
       "param": req.params.id

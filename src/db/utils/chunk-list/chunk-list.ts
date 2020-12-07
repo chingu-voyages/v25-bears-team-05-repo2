@@ -1,4 +1,3 @@
-import { isAssertionExpression } from "typescript";
 import assert from "assert";
 
 /**

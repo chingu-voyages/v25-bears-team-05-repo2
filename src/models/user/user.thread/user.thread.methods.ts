@@ -1,7 +1,7 @@
-import {  IUserDocument } from "./user.types";
-import { UserModel } from "./user.model";
-import { IThread, IThreadPostDetails } from "../thread/thread.types";
-import { ThreadModel } from "../thread/thread.model";
+import {  IUserDocument } from "../user.types";
+import { UserModel } from "../user.model";
+import { IThread, IThreadPostDetails } from "../../thread/thread.types";
+import { ThreadModel } from "../../thread/thread.model";
 
 /**
  *
@@ -18,9 +18,9 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
       attachments: threadDetails.attachments,
       hashTags: threadDetails.hashTags
     },
-    comments: {},
-    likes: {},
-    shares: {},
+    comments: { },
+    likes: { },
+    shares: { },
     createdAt: new Date(),
     updatedAt: new Date()
   };
@@ -30,7 +30,7 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
   // Forces the parent object to update: there may be a better way
   this.markModified("threads");
   await this.save();
-  return {userData: this, threadData: newlyCreatedThread};
+  return { userData: this, threadData: newlyCreatedThread};
 
 }
 

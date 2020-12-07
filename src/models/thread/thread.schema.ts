@@ -1,4 +1,5 @@
 import { Schema, Types } from "mongoose";
+import { getAllPublicThreads } from "./thread.methods";
 
 const ThreadSchema: Schema = new Schema({
   postedByUserId: { type: Types.ObjectId, required: true },
@@ -11,19 +12,20 @@ const ThreadSchema: Schema = new Schema({
   },
   comments: {
     type: Schema.Types.Mixed,
-    default: {},
+    default: { },
     required: true,
   },
   likes: {
     type: Schema.Types.Mixed,
-    default: {},
+    default: { },
     required: true,
   },
   shares: {
     type: Schema.Types.Mixed,
-    default: {},
+    default: { },
     required: true,
   }
-}, { timestamps: {}} );
+}, { timestamps: { }} );
 
+ThreadSchema.statics.getAllPublicThreads = getAllPublicThreads;
 export default ThreadSchema;

@@ -1,8 +1,8 @@
 import { Schema, SchemaOptions } from "mongoose";
-import { findOneOrCreateByGoogleId, findByGoogleId, registerUser, findByEncryptedEmail, findOneByEncryptedEmail } from "./user.auth.methods";
-import { addConnectionToUser, deleteConnectionFromUser } from "./user.connections.methods";
-import { updateUserProfile } from "./user.profile.methods";
-import { createAndPostThread, getConnectionThreads } from "./user.thread.methods";
+import { findOneOrCreateByGoogleId, findByGoogleId, registerUser, findByEncryptedEmail, findOneByEncryptedEmail } from "./user.auth/user.auth.methods";
+import { addConnectionToUser, deleteConnectionFromUser, getConnectionOfFromConnections } from "./user.connections/user.connections.methods";
+import { updateUserProfile } from "./user.profile/user.profile.methods";
+import { createAndPostThread, getConnectionThreads } from "./user.thread/user.thread.methods";
 
 interface SchemaOptionsWithPojoToMixed extends SchemaOptions {
   typePojoToMixed: boolean;
@@ -35,41 +35,41 @@ const UserSchema: Schema = new Schema({
     }
   },
   avatar: {
-    type: [{url: String}],
+    type: [{ url: String}],
   },
   connections: {
     type: Schema.Types.Mixed,
     required: true,
-    default: {}
+    default: { }
   },
   connectionOf: {
     type: Schema.Types.Mixed,
     required: true,
-    default: {}
+    default: { }
   },
   threads: {
     started: {
       type: Schema.Types.Mixed,
       required: true,
-      default: {},
+      default: { },
     },
     commented: {
       type: Schema.Types.Mixed,
       required: true,
-      default: {},
+      default: { },
     },
     liked: {
       type: Schema.Types.Mixed,
       required: true,
-      default: {},
+      default: { },
     },
     shared: {
       type: Schema.Types.Mixed,
       required: true,
-      default: {},
+      default: { },
     }
   },
-}, { timestamps: {}, strict: false, typePojoToMixed: false} as SchemaOptionsWithPojoToMixed);
+}, { timestamps: { }, strict: false, typePojoToMixed: false} as SchemaOptionsWithPojoToMixed);
 
 UserSchema.statics.findOneOrCreateByGoogleId = findOneOrCreateByGoogleId;
 UserSchema.statics.findByGoogleId = findByGoogleId;
@@ -81,6 +81,7 @@ UserSchema.methods.deleteConnectionFromUser = deleteConnectionFromUser;
 UserSchema.methods.updateUserProfile = updateUserProfile;
 UserSchema.methods.createAndPostThread = createAndPostThread;
 UserSchema.methods.getConnectionThreads = getConnectionThreads;
+UserSchema.methods.getConnectionOfFromConnections = getConnectionOfFromConnections;
 
 
 export default UserSchema;
