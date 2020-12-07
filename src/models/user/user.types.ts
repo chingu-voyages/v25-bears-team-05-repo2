@@ -1,4 +1,4 @@
-import { Document, Model, Mongoose } from "mongoose";
+import { Document, Model } from "mongoose";
 import { IThreadComment } from "../thread-comment/thread-comment.types";
 import { IThreadLike } from "../thread-like/thread-like.types";
 import { IThreadShare } from "../thread-share/thread-share.types";
@@ -45,9 +45,10 @@ export interface IUserDocument extends IUser, Document {
   addConnectionToUser: (this: IUserDocument,  objId: string, isTeamMate?: boolean) => Promise<IUserDocument>;
   deleteConnectionFromUser: (this: IUserDocument,  objId: string) => Promise<IUserDocument>;
   updateUserProfile: (this: IUserDocument, profileData: IProfileData) => Promise<IUserDocument>;
-  createAndPostThread: (this: IUserDocument, threadDetails: IThreadPostDetails) => Promise<{userData: IUserDocument, threadData: IThreadDocument }>;
+  createAndPostThread: (this: IUserDocument, threadDetails: IThreadPostDetails) => Promise<{ userData: IUserDocument, threadData: IThreadDocument }>;
   isConnectionOf: (this: IUserDocument, targetId: string) =>  boolean;
   getConnectionThreads: (this: IUserDocument) => Promise<Array<IThread>>;
+  getConnectionOfFromConnections: (this: IUserDocument) => Promise<IUserConnection[]>;
 }
 export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;

@@ -3,4 +3,3 @@ dist
 .vscode
 api/.env
 .env
-.eslintrc.json

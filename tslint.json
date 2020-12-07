@@ -2,8 +2,9 @@
   "rules": {
     "class-name": true,
     "comment-format": [true, "check-space"],
-    "indent": [true, "spaces"],
+    "indent": [true, "spaces", 2],
     "one-line": [true, "check-open-brace", "check-whitespace"],
+    "no-unused-variable": true,
     "no-var-keyword": true,
     "quotemark": [true, "double", "avoid-escape"],
     "semicolon": [true, "always", "ignore-bound-class-methods"],
@@ -14,7 +15,12 @@
       "check-operator",
       "check-module",
       "check-separator",
-      "check-type"
+      "check-type",
+      "check-rest-spread",
+      "check-typecast",
+      "check-type-operator",
+      "check-preblock",
+      "check-postbrace"
     ],
     "typedef-whitespace": [
       true,

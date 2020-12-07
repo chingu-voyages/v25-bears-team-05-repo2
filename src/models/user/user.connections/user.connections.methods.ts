@@ -1,6 +1,6 @@
-import { IUserConnection } from "../user-connection/user-connection.types";
-import { UserModel } from "./user.model";
-import { IUserDocument } from "./user.types";
+import { IUserConnection } from "../../user-connection/user-connection.types";
+import { UserModel } from "../user.model";
+import { IUserDocument } from "../user.types";
 
 /**
  *  Adds a connection object to user's profile and updates the connectionOf property
@@ -8,7 +8,7 @@ import { IUserDocument } from "./user.types";
  * @param this *
  * @param objId object id
  */
-export async function addConnectionToUser (this: IUserDocument, objId: string, isTeamMate?: boolean): Promise<IUserDocument> {
+export async function addConnectionToUser(this: IUserDocument, objId: string, isTeamMate?: boolean): Promise<IUserDocument> {
   // This assumes we already have the home user document in context with "this"
   try {
     const targetUser = await UserModel.findById(objId);
@@ -59,6 +59,30 @@ export async function deleteConnectionFromUser(this: IUserDocument, objId: strin
   }
 }
 
+/**
+ * Goes through source the connectionsOf object of the source user's connections.
+ * @param this instance of user making the request
+ */
+export async function getConnectionOfFromConnections(this: IUserDocument): Promise<IUserConnection[]> {
+  // Get an array of userIds for this.connections
+  const connectionUserIds = Object.keys(this.connections);
+
+  // Find user documents that match the ids in the above array
+  const users = await UserModel.find().where("_id").in(connectionUserIds).exec();
+  const connectionsOf: IUserConnection[] = [];
+  const uniqueIds: any = { };
+  users.forEach((user) => {
+    for (const [_, value] of Object.entries(user.connectionOf)) {
+      if (value.userId !== this.id) {
+        if (!uniqueIds[value.userId.toString()]) {
+          connectionsOf.push(value);
+          uniqueIds[value.userId.toString()] = 1;
+        }
+      }
+    }
+  });
+  return connectionsOf;
+}
 /**
  *
  * @param userData A user document to transform

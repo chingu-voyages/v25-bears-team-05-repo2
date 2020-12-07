@@ -1,7 +1,6 @@
-import { ThreadVisibility } from "../../models/thread/thread.types";
+import { ThreadVisibility } from "../../../models/thread/thread.types";
 import * as _ from "lodash";
-import { IUserThread } from "../../models/user/user.types";
-
+import { IUserThread } from "../../../models/user/user.types";
 
 /**
  * Uses lodash to go through the started and shared Thread objects and filter out any
