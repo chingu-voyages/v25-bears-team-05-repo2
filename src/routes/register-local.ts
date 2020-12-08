@@ -17,17 +17,6 @@ const sanitizationObject = [ body("email").isEmail().normalizeEmail({ all_lowerc
 
 const router = express.Router();
 
-// POIJ Will be deleted
-router.get("/", (_req, res) => {
-  res.status(200).send("you've reached the register/local get route");
-});
-
-// POIJ: to be deleted
-router.get("/success", (req, res) => {
-  // The user should have a cookie at this point
-  res.status(200).send({ status: "registration successful", data: req.user}); // Reg successful // client should navigate to sign in page?
-});
-
 router.post("/", sanitizationObject, validatePassword,
   async(req: Request, res: Response) => {
     const errors = validationResult(req);
