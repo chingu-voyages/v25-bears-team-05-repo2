@@ -1,28 +1,24 @@
 ![Typescript compiler](https://github.com/chingu-voyages/v25-bears-team-05-repo2/workflows/Typescript%20compiler/badge.svg)
-# SyncedUp API
+
+# [![SyncedUp](./assets/logo-dark.svg)](https://syncedup.live/) | SyncedUp API
 
 ### About
-
----
 
 This is the API portion of the SyncedUp project (a full-stack LinkedIn clone). The other repo can be found here.
 
 ### Features
 
----
-
 - Register for an account using local authentication (email/password), or using their Google account with Google oAuth.
 
-- Sign-in to account.
+- Sign-in to the service.
 - Add/remove connections to your profile.
 - Create posts
+- View posts from connections.
+- Receive connection suggestions
 
 - Log out of the service
-- Data persistence using
 
 ### Future features (nice to haves)
-
----
 
 - Push notifications
 - Private messaging
@@ -33,14 +29,10 @@ This is the API portion of the SyncedUp project (a full-stack LinkedIn clone). T
 
 ### Tech Stack
 
----
-
-The back-end is part of a MERNT stack.
-
 - nodejs
 - express
 - typescript
-- mongoose
+- mongoose, mongoDb
 - jest
 
 For authentication:
@@ -58,8 +50,6 @@ Other tools:
 
 ### Installation instructions
 
----
-
 1. Clone the repo and run `npm i` to install dependencies
 2. Install typescript
 3. Install mongoDb
@@ -69,32 +59,100 @@ Other tools:
 
 ### Running the app and tests
 
----
-
-- Run `npm run dev` to start the server
+- Run `npm start` to start the server
 - Run `npm t` to run jest unit tests
+
+### Building the app
+
+- Run `npm run tsc` to compile
 
 ### Deployment instructions
 
----
+#### Heroku setup
 
-#### Heroku setup 
 1. Install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
 1. Login
-    - `$ heroku login`
-1. Create Heroku app 
-    - `$ heroku create <your heroku app name>`
-    - Or using the [Heroku dashboard](https://dashboard.heroku.com/)
+   - `$ heroku login`
+1. Create Heroku app
+   - `$ heroku create <your heroku app name>`
+   - Or using the [Heroku dashboard](https://dashboard.heroku.com/)
 1. Set a git remote named heroku to your Heroku app
-    - `$ heroku git:remote -a <your heroku app name>`
+   - `$ heroku git:remote -a <your heroku app name>`
 1. Add nodejs heroku buildpack
    - `heroku buildpacks:set heroku/nodejs`
 
 #### Heroku deploy
-1. Set environment varibles on Heroku app (if first time or they've changed)
-    - `$ heroku config:set $(<.env)`
+
+1. Set environment variables on Heroku app (if first time or they've changed)
+   - `$ heroku config:set $(<.env)`
 1. Deploy a branch to heroku master
-    - `$ git push heroku <your branch to deploy>:master`
+   - `$ git push heroku <your branch to deploy>:master`
+
 ## API Routes
 
-To be filled out
+### <b>Feed</b>
+
+Method: GET <br>
+Endpoint: `/feed`<br>
+Description: returns threads authored by connections, connection suggestions and public posts
+
+### <b>Threads</b>
+
+Method: POST <br>
+Endpoint: `/threads` <br>
+Body: `htmlContent`, `threadType`, `visibility`, `hashTags`, `attachments`<br>
+Description: Creates a thread for the requester's profile
+
+### <b>Users</b>
+
+Method: GET<br>
+Endpoint: `/users/:id` <br>
+Description: Get requester's profile data <br>
+Parameter: userId of requester
+
+Method: GET<br>
+Endpoint: `/users/:id/connections` <br>
+Description: Gets user's connections <br>
+Parameter: userId of requester
+
+Method: PUT<br>
+Endpoint: `/users/connections/:id` <br>
+Description: Adds connection requester's profile <br>
+Parameter: userId to add as connection
+
+Method: DELETE<br>
+Endpoint: `/users/connections/:id` <br>
+Description: Deletes a connection from requester's profile<br>
+Parameter: userId to delete from connection
+
+Method: PATCH <br>
+Endpoint: `/users/:id`
+Description: Update requester's profile details
+Body: optional parameters: `firstName`, `lastName` `avatar`, `jobTitle`
+
+Method: GET <br>
+Endpoint: `/users/:id/threads` <br>
+Description: Gets a user's threads
+Params: `id` is either `me` referring to requester's own profile, or the profile `id` of another user.
+
+### <b>Auth</b>
+
+Method: GET <br>
+Endpoint: `/auth/google/callback`<br>
+Description: Google oAuth route
+
+Method: POST <br>
+Endpoint: `/auth/local`<br>
+Description: local login (with e-mail and password)
+
+### <b>Logout</b>
+
+Method: POST<br>
+Endpoint: `/logout`<br>
+Description: log out of service and expire cookie
+
+### <b>Register-local</b>
+
+Method: POST<br>
+Endpoint: `/register/local`<br>
+Description: log-in using local authentication<br>
