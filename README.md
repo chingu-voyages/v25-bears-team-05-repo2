@@ -126,13 +126,13 @@ Description: Deletes a connection from requester's profile<br>
 Parameter: userId to delete from connection
 
 Method: PATCH <br>
-Endpoint: `/users/:id`
-Description: Update requester's profile details
+Endpoint: `/users/:id` <br>
+Description: Update requester's profile details <br>
 Body: optional parameters: `firstName`, `lastName` `avatar`, `jobTitle`
 
 Method: GET <br>
 Endpoint: `/users/:id/threads` <br>
-Description: Gets a user's threads
+Description: Gets a user's threads <br>
 Params: `id` is either `me` referring to requester's own profile, or the profile `id` of another user.
 
 ### <b>Auth</b>
