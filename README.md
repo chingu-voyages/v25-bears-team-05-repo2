@@ -4,7 +4,7 @@
 
 ### About
 
-This is the API portion of the SyncedUp project (a full-stack LinkedIn clone). The other repo can be found here.
+This is the API portion of the SyncedUp project (a full-stack LinkedIn clone). The other repo can be found [here](https://github.com/chingu-voyages/v25-bears-team-05).
 
 ### Features
 
