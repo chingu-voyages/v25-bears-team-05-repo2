@@ -39,7 +39,7 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
  */
 export async function getConnectionThreads(this: IUserDocument): Promise<Array<IThread>> {
   // Get an array of userIds for this.connections
-  const connectionUserIds = Object.keys(this.connections);
+  const connectionUserIds = [...Object.keys(this.connections), this.id];
 
   // Find user documents that match the ids in the above array
   const users = await UserModel.find().where("_id").in(connectionUserIds).exec();
