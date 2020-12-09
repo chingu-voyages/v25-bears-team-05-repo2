@@ -1,9 +1,9 @@
 import { Document, Model } from "mongoose";
 
 export enum ThreadLikeTypeTitle {
-  Like = "like",
-  Celebrate = "celebrate",
-  Love = "love"
+  Star = "star",
+  Heart = "heart",
+  Processing = "Processing",
 }
 
 export interface IThreadLike {
