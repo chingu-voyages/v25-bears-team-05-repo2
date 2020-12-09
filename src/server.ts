@@ -15,6 +15,7 @@ import { createError } from "./utils/errors";
 const cookieSession = require("cookie-session");
 
 const app = express();
+const isProduction = !(process.env.NODE_ENV && process.env.NODE_ENV.match("development"));
 
 // Connect to MongoDB
 connectDB();
@@ -28,8 +29,8 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000, // Day
   name: "synced-up",
   keys: [process.env.COOKIE_KEY_1, process.env.COOKIE_KEY_2],
-  domain: ".syncedup.live",
-  secureProxy: true
+  domain: isProduction ? ".syncedup.live" : "localhost",
+  secure: isProduction
 }));
 
 app.use(passport.initialize());
