@@ -1,6 +1,6 @@
 import * as express from "express";
 import { Response } from "express";
-import { body, validationResult } from "express-validator/check";
+import { body, param, validationResult } from "express-validator/check";
 import { IThreadPostDetails } from "../models/thread/thread.types";
 import { routeProtector } from "../middleware/route-protector";
 import { createError } from "../utils/errors";
@@ -43,6 +43,14 @@ body("visibility").not().isEmpty().isNumeric(), body("hashTags").custom((value) 
     "req.body")} ]});
   }
 });
+
+router.patch("/:id", routeProtector, [param("id").not().isEmpty().trim().escape() ], async(req: any, res:Response)=> {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+  // User should be able to update threadType, visibility, and the content
+})
 
 router.post("/:id/comments", async(req: any, res: Response) => {
   res.send(200);

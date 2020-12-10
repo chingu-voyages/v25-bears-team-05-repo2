@@ -40,6 +40,10 @@ export interface IThread {
   readonly updatedAt: Date;
 }
 
+export interface IThreadPatchData {
+  
+}
+
 export interface IThreadDocument extends IThread, Document { }
 export interface IThreadModel extends Model<IThreadDocument> {
   getAllPublicThreads: (this: IThreadModel, excludeUserId?: string) => Promise<IThreadDocument[]>;

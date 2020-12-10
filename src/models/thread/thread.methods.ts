@@ -1,4 +1,4 @@
-import { IThreadDocument, IThreadModel } from "./thread.types";
+import { IThreadDocument, IThreadModel, IThreadPatchData } from "./thread.types";
 import mongoose from "mongoose";
 /**
  *
@@ -10,4 +10,8 @@ export async function getAllPublicThreads(this: IThreadModel, excludePostedByUse
     return await this.find({ visibility: 0 , postedByUserId: { $ne: mongoose.Types.ObjectId(excludePostedByUserId) } }).exec();
   }
   return await this.find({ visibility: 0 }).exec();
+}
+
+export async function patchThread(this: IThreadModel, threadPatchData:IThreadPatchData): Promise<IThreadDocument> {
+  
 }
