@@ -2,6 +2,7 @@ import {  IUserDocument } from "../user.types";
 import { UserModel } from "../user.model";
 import { IThread, IThreadPostDetails } from "../../thread/thread.types";
 import { ThreadModel } from "../../thread/thread.model";
+import sanitizeHtml from 'sanitize-html';
 
 /**
  *
@@ -14,7 +15,7 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
     visibility: threadDetails.visibility,
     postedByUserId: this.id,
     content: {
-      html: threadDetails.html,
+      html: sanitizeHtml(threadDetails.html),
       attachments: threadDetails.attachments,
       hashTags: threadDetails.hashTags
     },
