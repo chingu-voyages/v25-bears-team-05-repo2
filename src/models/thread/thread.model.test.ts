@@ -76,7 +76,7 @@ describe("CRUD operations for Thread model", () => {
       const user2DummyThreads = createDummyPublicThreads(2, dummyUserDocuments[1].id);
       await ThreadModel.create(user1DummyThreads);
       await ThreadModel.create(user2DummyThreads);
-      const results = await ThreadModel.getAllPublicThreads(dummyUserDocuments[0].id);
+      const results = await ThreadModel.getAllPublicThreads([dummyUserDocuments[0].id]);
 
       expect(results).toHaveLength(3);
       expect(results.filter((result) => {

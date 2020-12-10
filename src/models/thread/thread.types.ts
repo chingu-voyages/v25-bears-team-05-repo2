@@ -42,5 +42,5 @@ export interface IThread {
 
 export interface IThreadDocument extends IThread, Document { }
 export interface IThreadModel extends Model<IThreadDocument> {
-  getAllPublicThreads: (this: IThreadModel, excludeUserId?: string) => Promise<IThreadDocument[]>;
+  getAllPublicThreads: (this: IThreadModel, excludeUserId?: string[]) => Promise<IThreadDocument[]>;
 }
