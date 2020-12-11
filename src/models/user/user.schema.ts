@@ -2,7 +2,7 @@ import { Schema, SchemaOptions } from "mongoose";
 import { findOneOrCreateByGoogleId, findByGoogleId, registerUser, findByEncryptedEmail, findOneByEncryptedEmail } from "./user.auth/user.auth.methods";
 import { addConnectionToUser, deleteConnectionFromUser, getConnectionOfFromConnections } from "./user.connections/user.connections.methods";
 import { updateUserProfile } from "./user.profile/user.profile.methods";
-import { createAndPostThread, getConnectionThreads } from "./user.thread/user.thread.methods";
+import { addLikeToThread, createAndPostThread, deleteLikeFromThread, getConnectionThreads } from "./user.thread/user.thread.methods";
 
 interface SchemaOptionsWithPojoToMixed extends SchemaOptions {
   typePojoToMixed: boolean;
@@ -76,12 +76,14 @@ UserSchema.statics.findByGoogleId = findByGoogleId;
 UserSchema.statics.registerUser = registerUser;
 UserSchema.statics.findByEncryptedEmail = findByEncryptedEmail;
 UserSchema.statics.findOneByEncryptedEmail = findOneByEncryptedEmail;
+
 UserSchema.methods.addConnectionToUser = addConnectionToUser;
 UserSchema.methods.deleteConnectionFromUser = deleteConnectionFromUser;
 UserSchema.methods.updateUserProfile = updateUserProfile;
 UserSchema.methods.createAndPostThread = createAndPostThread;
 UserSchema.methods.getConnectionThreads = getConnectionThreads;
 UserSchema.methods.getConnectionOfFromConnections = getConnectionOfFromConnections;
-
+UserSchema.methods.addLikeToThread = addLikeToThread;
+UserSchema.methods.deleteLikeFromThread = deleteLikeFromThread;
 
 export default UserSchema;

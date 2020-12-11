@@ -1,7 +1,8 @@
-import {  IUserDocument } from "../user.types";
+import { IUserDocument } from "../user.types";
 import { UserModel } from "../user.model";
-import { IThread, IThreadPostDetails } from "../../thread/thread.types";
+import { IThread, IThreadDocument, IThreadPostDetails } from "../../thread/thread.types";
 import { ThreadModel } from "../../thread/thread.model";
+import { ThreadLikeModel } from "../../../models/thread-like/thread-like.model";
 
 /**
  *
@@ -52,4 +53,60 @@ export async function getConnectionThreads(this: IUserDocument): Promise<Array<I
   });
 
   return threads.sort((a, b) => b.createdAt.valueOf() - a.createdAt.valueOf());
+}
+
+export async function addLikeToThread(this: IUserDocument, data: { targetThreadId: string, title: string}) {
+  // Find the thread
+  // Create the like object
+  // Add like object to thread
+  // Add the thread to the likes object on the user
+
+  const targetThread = await ThreadModel.findById(data.targetThreadId);
+  if (targetThread) {
+    // User can't like own thread
+
+    if (targetThread.postedByUserId === this.id.toString()) {
+      throw new Error("Cannot like own thread");
+    }
+    // Create the like object
+    const threadLikeDocument = await ThreadLikeModel.create({ postedByUserId: this.id,  title: data.title});
+    targetThread.likes[`${threadLikeDocument._id.toString()}`] = threadLikeDocument;
+    targetThread.markModified("likes");
+    this.threads.liked[`${targetThread.id.toString()}`] = threadLikeDocument;
+    this.markModified("threads");
+    await this.save();
+    const threadDoc = await targetThread.save();
+    return {
+      updatedThread: threadDoc,
+      threadLikeDocument: threadLikeDocument
+    };
+  }
+}
+
+export async function deleteLikeFromThread(this: IUserDocument, data: {  targetThreadId: string, targetLikeId: string }): Promise<{ updatedThread: IThreadDocument}> {
+  // Find the thread
+  const targetThread = await ThreadModel.findById(data.targetThreadId);
+
+  // Find the like and validate that it's by the user requesting
+  const like = targetThread.likes[`${data.targetLikeId}`];
+
+  if (like && like.postedByUserId.toString() === this.id.toString()) {
+    if (like._id.toString() === data.targetLikeId) {
+      delete targetThread.likes[`${data.targetLikeId}`];
+      targetThread.markModified("likes");
+
+      // Delete it from the requesting user's document
+      delete this.threads.liked[`${data.targetThreadId.toString()}`];
+      this.markModified("threads");
+      await targetThread.save();
+      await this.save();
+      return {
+        updatedThread: targetThread
+      };
+    } else {
+      throw new Error("ThreadLike id not found");
+    }
+  } else {
+    throw new Error("Unable to delete like from thread.");
+  }
 }

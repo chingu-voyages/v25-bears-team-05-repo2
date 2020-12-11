@@ -1,6 +1,6 @@
 import { Document, Model } from "mongoose";
 import { IThreadComment } from "../thread-comment/thread-comment.types";
-import { IThreadLike } from "../thread-like/thread-like.types";
+import { IThreadLikeDocument } from "../thread-like/thread-like.types";
 import { IThreadShare } from "../thread-share/thread-share.types";
 import mongoose from "mongoose";
 
@@ -34,13 +34,24 @@ export interface IThread {
     attachments: Array<string>
   };
   comments: { [keyof: string]: IThreadComment };
-  likes: { [keyof: string]: IThreadLike };
+  likes: { [keyof: string]: IThreadLikeDocument };
   shares: { [keyof: string]: IThreadShare };
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }
 
+export interface IThreadPatchData {
+  threadId: string;
+  userId: string;
+  threadType?: ThreadType;
+  visibility?: ThreadVisibility;
+  htmlContent?: string;
+  hashTags?: Array<string>;
+  attachments?: Array<string>;
+}
+
 export interface IThreadDocument extends IThread, Document { }
 export interface IThreadModel extends Model<IThreadDocument> {
   getAllPublicThreads: (this: IThreadModel, excludeUserId?: string) => Promise<IThreadDocument[]>;
+  patchThread: (this: IThreadModel, data: IThreadPatchData) => Promise<IThreadDocument>;
 }

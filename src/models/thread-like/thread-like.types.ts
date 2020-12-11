@@ -8,11 +8,8 @@ export enum ThreadLikeTypeTitle {
 
 export interface IThreadLike {
   postedByUserId: string;
-  threadLikeType: {
-    emoji: string,
-    title: ThreadLikeTypeTitle
-  };
+  title: ThreadLikeTypeTitle;
 }
 
-export interface IThreadLikeDocument extends IThreadLike, Document {}
-export interface IThreadLikeModel extends Model<IThreadLikeDocument> {}
+export interface IThreadLikeDocument extends IThreadLike, Document { }
+export interface IThreadLikeModel extends Model<IThreadLikeDocument> { }
