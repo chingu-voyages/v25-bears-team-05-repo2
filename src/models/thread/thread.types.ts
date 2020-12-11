@@ -41,10 +41,17 @@ export interface IThread {
 }
 
 export interface IThreadPatchData {
-  
+  threadId: string;
+  userId: string;
+  threadType?: ThreadType;
+  visibility?: ThreadVisibility;
+  htmlContent?: string;
+  hashTags?: Array<string>;
+  attachments?: Array<string>;
 }
 
 export interface IThreadDocument extends IThread, Document { }
 export interface IThreadModel extends Model<IThreadDocument> {
   getAllPublicThreads: (this: IThreadModel, excludeUserId?: string) => Promise<IThreadDocument[]>;
+  patchThread: (this: IThreadModel, data: IThreadPatchData) => Promise<IThreadDocument>; 
 }

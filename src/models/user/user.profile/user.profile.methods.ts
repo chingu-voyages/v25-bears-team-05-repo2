@@ -18,9 +18,5 @@ export async function updateUserProfile(this: IUserDocument, profileData: IProfi
       this.avatar.unshift( { url: profileData.avatarUrl} );
     }
   }
-  try {
-    return await this.save();
-  } catch (err) {
-    console.log(err);
-  }
+  return await this.save();
 }

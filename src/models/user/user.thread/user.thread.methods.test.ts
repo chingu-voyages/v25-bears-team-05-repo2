@@ -69,3 +69,13 @@ describe("User creating thread tests", () => {
     expect(Object.keys(dummyUserDocuments[0].threads.started)).toHaveLength(4);
   });
 });
+
+describe("thread like tests", () => {
+  test("thread like stores correctly", async() => {
+    const testUser = createTestUsers(2, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUser);
+    const thread1 = await dummyUserDocuments[0].createAndPostThread({
+      html: "thread-1-test",
+    });
+  });
+});

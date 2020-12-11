@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 let mongoServer: any;
 
-import { IThread, ThreadType, ThreadVisibility } from "./thread.types";
+import { IThread, IThreadPatchData, ThreadType, ThreadVisibility } from "./thread.types";
 import { ThreadModel }  from "./thread.model";
 import { createDummyPublicThreads } from "./thread-test-helper/thread-test-helper";
 import { createTestUsers } from "../user/user-test-helper/user-test-helper";
@@ -83,5 +83,45 @@ describe("CRUD operations for Thread model", () => {
         return result.postedByUserId === dummyUserDocuments[0].id;
       })).toHaveLength(0);
     });
+  });
+  describe("thread patch tests", () => {
+    test("updates (patching) to thread performs correctly", async() => {
+      const testUsers = createTestUsers(2, undefined, undefined);
+      const dummyUserDocuments = await UserModel.create(testUsers);
+      const dummyThread1 = createDummyPublicThreads(2, dummyUserDocuments[0].id);
+      const createdThreads = await ThreadModel.create(dummyThread1);
+
+      expect(createdThreads[0].visibility).toBe(ThreadVisibility.Anyone);
+
+      const patchData: IThreadPatchData = {
+        threadId: createdThreads[0].id,
+        userId: dummyUserDocuments[0].id,
+        htmlContent: "some kind of new content here",
+        visibility: ThreadVisibility.Connections,
+        threadType: ThreadType.Photo,
+        attachments: ["https://some-photo.com/photo1"],
+        hashTags: ["#tag1", "#tag2", "#tag2"]
+      };
+      const patchedThread = await ThreadModel.patchThread(patchData);
+      expect(patchedThread.content.html).toBe("some kind of new content here");
+      expect(patchedThread.content.hashTags).toHaveLength(2);
+      expect(patchedThread.content.hashTags[1]).toBe("#tag2");
+      expect(patchedThread.visibility).toBe(ThreadVisibility.Connections);
+      expect(patchedThread.content.attachments[0]).toBe("https://some-photo.com/photo1");
+      expect(patchedThread.threadType).toBe(ThreadType.Photo);
+    });
+  });
+  test("patch thread function throws when user tries to patch a thread that they didn't author"
+  , async() => {
+    const testUsers = createTestUsers(2, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUsers);
+    const dummyThreadForUser2 = createDummyPublicThreads(2, dummyUserDocuments[1].id);
+    const createdThreads = await ThreadModel.create(dummyThreadForUser2);
+
+    const patchData: IThreadPatchData = {
+      threadId: createdThreads[0].id,
+      userId: dummyUserDocuments[0].id,
+    };
+    await expect(() => ThreadModel.patchThread(patchData)).rejects.toThrow("Unauthorized patch request");
   });
 });
