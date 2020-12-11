@@ -6,9 +6,9 @@ import { ThreadModel } from "./thread.model";
  * @param this *
  * @param excludeUserId userId of posts to exclude from the return
  */
-export async function getAllPublicThreads(this: IThreadModel, excludePostedByUserId?: string): Promise<IThreadDocument[]> {
-  if (excludePostedByUserId) {
-    return await this.find({ visibility: 0 , postedByUserId: { $ne: mongoose.Types.ObjectId(excludePostedByUserId) } }).exec();
+export async function getAllPublicThreads(this: IThreadModel, excludePostedByUserIds?: string[]): Promise<IThreadDocument[]> {
+  if (excludePostedByUserIds) {
+    return await this.find({ visibility: 0 , postedByUserId: { $nin: excludePostedByUserIds.map(id => mongoose.Types.ObjectId(id)) } }).exec();
   }
   return await this.find({ visibility: 0 }).exec();
 }
