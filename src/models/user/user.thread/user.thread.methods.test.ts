@@ -71,11 +71,42 @@ describe("User creating thread tests", () => {
 });
 
 describe("thread like tests", () => {
-  test("thread like stores correctly", async() => {
+  test("thread like stores correctly on appropriate documents", async() => {
     const testUser = createTestUsers(2, undefined, undefined);
     const dummyUserDocuments = await UserModel.create(testUser);
     const thread1 = await dummyUserDocuments[0].createAndPostThread({
       html: "thread-1-test",
     });
+    // Have the second user like the thread
+    const result = await dummyUserDocuments[1].addLikeToThread({ targetThreadId: thread1.threadData.id.toString(),
+      title: "thumbs-up!"});
+
+    const { updatedThread, threadLikeDocument } = result;
+    expect(threadLikeDocument.postedByUserId.toString())
+    .toBe(dummyUserDocuments[1].id.toString());
+    expect(updatedThread.likes).toHaveProperty(threadLikeDocument.id.toString());
+    expect(updatedThread.likes[`${threadLikeDocument.id.toString()}`].title).toBe("thumbs-up!");
+    expect(dummyUserDocuments[1].threads.liked).toHaveProperty(updatedThread.id.toString());
+    expect(dummyUserDocuments[1].threads.liked[`${updatedThread.id.toString()}`].id.toString())
+    .toBe(threadLikeDocument.id.toString());
+  });
+
+  test("thread like is deleted", async() => {
+    // Setup
+    const testUser = createTestUsers(2, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUser);
+    const thread1 = await dummyUserDocuments[0].createAndPostThread({
+      html: "thread-1-test",
+    });
+    // Have the second user add a threadLike
+    const updatedThread = await dummyUserDocuments[1].addLikeToThread({ targetThreadId: thread1.threadData.id.toString(),
+      title: "makes-me-think"});
+
+    // Have the second user delete the thread
+    const result = await dummyUserDocuments[1].deleteLikeFromThread({ targetThreadId: updatedThread.updatedThread.id.toString(),
+      targetLikeId: updatedThread.threadLikeDocument.id.toString() });
+
+    expect(result.updatedThread.likes[`${updatedThread.threadLikeDocument.id.toString()}`]).not.toBeDefined();
+    expect(dummyUserDocuments[1].threads.liked).not.toHaveProperty(`${updatedThread.updatedThread.id}`);
   });
 });

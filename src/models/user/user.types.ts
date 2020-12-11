@@ -1,13 +1,13 @@
 import { Document, Model } from "mongoose";
 import { IThreadComment } from "../thread-comment/thread-comment.types";
-import { IThreadLike } from "../thread-like/thread-like.types";
+import { IThreadLikeDocument } from "../thread-like/thread-like.types";
 import { IThreadShare } from "../thread-share/thread-share.types";
 import { IThread, IThreadDocument, IThreadPostDetails } from "../thread/thread.types";
 import { IUserConnection } from "../user-connection/user-connection.types";
 export interface IUserThread {
   started: { [keyof: string]: IThread };
   commented: { [keyof: string]: IThreadComment};
-  liked: { [keyof: string]: IThreadLike };
+  liked: { [keyof: string]: IThreadLikeDocument };
   shared: { [keyof: string]: IThreadShare };
 }
 export interface IUser {
@@ -49,6 +49,10 @@ export interface IUserDocument extends IUser, Document {
   isConnectionOf: (this: IUserDocument, targetId: string) =>  boolean;
   getConnectionThreads: (this: IUserDocument) => Promise<Array<IThread>>;
   getConnectionOfFromConnections: (this: IUserDocument) => Promise<IUserConnection[]>;
+  addLikeToThread: (this: IUserDocument, data: { targetThreadId: string, title: string }) => Promise<{ updatedThread: IThreadDocument,
+    threadLikeDocument: IThreadLikeDocument
+  }>;
+  deleteLikeFromThread: (this: IUserDocument, data: {  targetThreadId: string, targetLikeId: string }) => Promise<{ updatedThread: IThreadDocument}>;
 }
 export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;

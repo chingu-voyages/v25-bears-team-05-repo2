@@ -109,14 +109,41 @@ body("attachments").custom((value) => {
 });
 
 router.post("/:id/likes", routeProtector, [param("id").exists().trim().escape(),
-body("likeType").exists().trim().escape(),
 body("title").exists().trim().escape(),
 ], async(req: any, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
 
+  try {
+    const result = await req.user.addLikeToThread({ targetThreadId: req.params.id,
+      title: req.body.title});
+      return res.status(200).send(result);
+  } catch (err) {
+    res.status(400).send({ errors: [{ ...createError("Add a like to a thread",
+    `error. ${err}`,
+    "Server error")} ]});
+  }
 });
 
-router.delete("/:id/likes", routeProtector, async(req: any, res: Response) => {
 
+router.delete("/:id/likes", routeProtector, [param("id").exists().trim().escape(),
+body("threadLikeId").exists().trim().escape()],
+async(req: any, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+  try {
+    const result = await req.user.deleteLikeFromThread({ targetThreadId: req.params.id,
+      targetLikeId: req.body.threadLikeId});
+    return res.status(200).send(result);
+  } catch (err) {
+    res.status(400).send({ errors: [{ ...createError("Delete a like from a thread",
+    `error. ${err}`,
+    "Server error")} ]});
+  }
 });
 
 router.post("/:id/comments", async(req: any, res: Response) => {
