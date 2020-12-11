@@ -3,6 +3,7 @@ import { UserModel } from "../user.model";
 import { IThread, IThreadDocument, IThreadPostDetails } from "../../thread/thread.types";
 import { ThreadModel } from "../../thread/thread.model";
 import { ThreadLikeModel } from "../../../models/thread-like/thread-like.model";
+import sanitizeHtml from 'sanitize-html';
 
 /**
  *
@@ -15,7 +16,7 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
     visibility: threadDetails.visibility,
     postedByUserId: this.id,
     content: {
-      html: threadDetails.html,
+      html: sanitizeHtml(threadDetails.html),
       attachments: threadDetails.attachments,
       hashTags: threadDetails.hashTags
     },
@@ -40,7 +41,7 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
  */
 export async function getConnectionThreads(this: IUserDocument): Promise<Array<IThread>> {
   // Get an array of userIds for this.connections
-  const connectionUserIds = Object.keys(this.connections);
+  const connectionUserIds = [...Object.keys(this.connections), this.id];
 
   // Find user documents that match the ids in the above array
   const users = await UserModel.find().where("_id").in(connectionUserIds).exec();

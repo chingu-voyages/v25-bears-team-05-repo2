@@ -9,8 +9,8 @@ router.get("/", routeProtector, async (req: any, res: Response) => {
   try {
     const connectionThreads = await req.user.getConnectionThreads();
     const connectionSuggestions = await req.user.getConnectionOfFromConnections();
-    const publicThreads = await ThreadModel.getAllPublicThreads(req.user.id.toString());
-
+    const connectionIdsOfConnectionThreads = connectionThreads.map(({postedByUserId}: {postedByUserId: string}) => postedByUserId);
+    const publicThreads = await ThreadModel.getAllPublicThreads([req.user.id.toString(), ...connectionIdsOfConnectionThreads]);
     // We have to take into account query parameters and limit and offset considerations.
 
     res.status(200).send({ connectionThreads, connectionSuggestions, publicThreads });
