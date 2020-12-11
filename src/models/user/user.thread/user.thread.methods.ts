@@ -76,8 +76,11 @@ export async function addLikeToThread(this: IUserDocument, data: { targetThreadI
     this.threads.liked[`${targetThread.id.toString()}`] = threadLikeDocument;
     this.markModified("threads");
     await this.save();
-    await targetThread.save();
-    return threadLikeDocument._id.toString();
+    const threadDoc = await targetThread.save();
+    return {
+      updatedThread: threadDoc,
+      threadLikeDocument: threadLikeDocument
+    };
   }
 }
 
