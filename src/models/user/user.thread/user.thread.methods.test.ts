@@ -112,7 +112,7 @@ describe("thread like tests", () => {
 });
 
 describe("create and delete threadComment tests", () => {
-  test.only("creates thread comment properly", async() => {
+  test("creates thread comment properly", async() => {
     const testUser = createTestUsers(2, undefined, undefined);
     const dummyUserDocuments = await UserModel.create(testUser);
     const thread1 = await dummyUserDocuments[0].createAndPostThread({
