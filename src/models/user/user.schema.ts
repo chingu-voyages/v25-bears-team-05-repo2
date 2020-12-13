@@ -2,7 +2,7 @@ import { Schema, SchemaOptions } from "mongoose";
 import { findOneOrCreateByGoogleId, findByGoogleId, registerUser, findByEncryptedEmail, findOneByEncryptedEmail } from "./user.auth/user.auth.methods";
 import { addConnectionToUser, deleteConnectionFromUser, getConnectionOfFromConnections } from "./user.connections/user.connections.methods";
 import { updateUserProfile } from "./user.profile/user.profile.methods";
-import { addLikeToThread, addThreadComment, createAndPostThread, deleteLikeFromThread, getConnectionThreads } from "./user.thread/user.thread.methods";
+import { addLikeToThread, addThreadComment, createAndPostThread, deleteLikeFromThread, deleteThreadComment, getConnectionThreads } from "./user.thread/user.thread.methods";
 
 interface SchemaOptionsWithPojoToMixed extends SchemaOptions {
   typePojoToMixed: boolean;
@@ -86,6 +86,7 @@ UserSchema.methods.getConnectionOfFromConnections = getConnectionOfFromConnectio
 UserSchema.methods.addLikeToThread = addLikeToThread;
 UserSchema.methods.deleteLikeFromThread = deleteLikeFromThread;
 UserSchema.methods.addThreadComment = addThreadComment;
+UserSchema.methods.deleteThreadComment = deleteThreadComment;
 
 
 export default UserSchema;

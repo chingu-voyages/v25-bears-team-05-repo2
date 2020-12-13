@@ -114,6 +114,11 @@ export async function deleteLikeFromThread(this: IUserDocument, data: {  targetT
   }
 }
 
+/**
+ * Adds a comment to a thread and updates necessary documents
+ * @param this *
+ * @param data
+ */
 export async function addThreadComment (this: IUserDocument,
   data: { targetThreadId: string, threadCommentData:
     { content: string, attachments?: Array<IAttachmentType>} }) {
@@ -146,6 +151,30 @@ export async function addThreadComment (this: IUserDocument,
   }
 }
 
-export async function deleteThreadComment (this: IUserDocument, data: { targetThreadId: string }) {
+/**
+ *
+ * @param this
+ * @param data
+ */
+export async function deleteThreadComment (this: IUserDocument, data: { targetThreadId: string, targetThreadCommentId: string }) {
+  const targetThread = await ThreadModel.findById(data.targetThreadId);
+  if (targetThread) {
+    if (targetThread.comments[`${data.targetThreadCommentId}`]) {
+      delete targetThread.comments[`${data.targetThreadCommentId}`];
+      targetThread.markModified("comments");
 
+      // Delete it from the user doc
+      delete this.threads.commented[`${targetThread.id.toString()}`][`${data.targetThreadCommentId}`];
+      this.markModified("threads");
+      await targetThread.save();
+      await this.save();
+      return {
+        updatedThread: targetThread
+      };
+    } else {
+      throw new Error("Thread comment not found");
+    }
+  } else {
+    throw new Error("Parent thread not found");
+  }
 }

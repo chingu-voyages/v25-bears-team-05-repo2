@@ -63,6 +63,12 @@ export interface IUserDocument extends IUser, Document {
     updatedThread: IThreadDocument;
     newComment: IThreadCommentDocument;
 }>;
+deleteThreadComment: (this: IUserDocument, data: {
+  targetThreadId: string;
+  targetThreadCommentId: string;
+}) => Promise<{
+  updatedThread: IThreadDocument;
+}>;
 }
 export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;
