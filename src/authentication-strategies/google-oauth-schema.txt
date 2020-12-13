@@ -1,0 +1,32 @@
+{
+  id: 'x',
+  displayName: 'first Last',
+  name: { familyName: 'Last', givenName: 'First' },
+  emails: [ { value: 'x@gmail.com', verified: true } ],
+  photos: [
+    {
+      value: 'https://lh3.googleusercontent.com/a-/AOh14Gg46hQTArFHjnFc2X4-ztS3yq6O6JF8tkvk-UQ7=s96-c'
+    }
+  ],
+  provider: 'google',
+  _raw: '{\n' +
+    '  "sub": "x",\n' +
+    '  "name": "first Last",\n' +
+    '  "given_name": "first",\n' +
+    '  "family_name": "Last",\n' +
+    '  "picture": "x",\n' +
+    '  "email": "x",\n' +
+    '  "email_verified": true,\n' +
+    '  "locale": "en"\n' +
+    '}',
+  _json: {
+    sub: 'x',
+    name: 'first Family',
+    given_name: '',
+    family_name: '',
+    picture: '',
+    email: '',
+    email_verified: true,
+    locale: 'en'
+  }
+}
