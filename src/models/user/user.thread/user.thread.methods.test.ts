@@ -110,3 +110,32 @@ describe("thread like tests", () => {
     expect(dummyUserDocuments[1].threads.liked).not.toHaveProperty(`${updatedThread.updatedThread.id}`);
   });
 });
+
+describe("create and delete threadComment tests", () => {
+  test.only("creates thread comment properly", async() => {
+    const testUser = createTestUsers(2, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUser);
+    const thread1 = await dummyUserDocuments[0].createAndPostThread({
+      html: "thread-1-test",
+    });
+
+    await dummyUserDocuments[1].addThreadComment({
+     threadCommentData: { content: "This the first comment content" },
+     targetThreadId: thread1.threadData.id,
+    });
+    await dummyUserDocuments[1].addThreadComment({
+      threadCommentData: { content: "This the second comment content" },
+      targetThreadId: thread1.threadData.id,
+     });
+    await dummyUserDocuments[1].addThreadComment({
+      threadCommentData: { content: "This the third comment content" },
+      targetThreadId: thread1.threadData.id,
+     });
+
+     const arrayOfKeys = (Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`]));
+     expect(Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`])).toHaveLength(3);
+     expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[2]}`].content).toBe("This the third comment content");
+     expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[2]}`].postedByUserId).toBe(dummyUserDocuments[1].id.toString());
+
+    });
+});
