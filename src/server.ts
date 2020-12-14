@@ -30,7 +30,7 @@ app.use(cookieSession({
   name: "synced-up",
   keys: [process.env.COOKIE_KEY_1, process.env.COOKIE_KEY_2],
   domain: isProduction ? ".syncedup.live" : "localhost",
-  secure: isProduction
+ // secure: isProduction
 }));
 
 app.use(passport.initialize());
