@@ -1,12 +1,12 @@
 import { Document, Model } from "mongoose";
-import { IAttachmentType, IThreadComment, IThreadCommentDocument } from "../thread-comment/thread-comment.types";
+import { IAttachmentType, IThreadCommentDocument } from "../thread-comment/thread-comment.types";
 import { IThreadLikeDocument } from "../thread-like/thread-like.types";
 import { IThreadShare } from "../thread-share/thread-share.types";
 import { IThread, IThreadDocument, IThreadPostDetails } from "../thread/thread.types";
 import { IUserConnection } from "../user-connection/user-connection.types";
 export interface IUserThread {
   started: { [keyof: string]: IThread };
-  commented: { [keyof: string]: { [keyof: string]: IThreadComment }};
+  commented: { [keyof: string]: { [keyof: string]: IThreadCommentDocument }};
   liked: { [keyof: string]: IThreadLikeDocument };
   shared: { [keyof: string]: IThreadShare };
 }
