@@ -1,12 +1,12 @@
 import { Document, Model } from "mongoose";
-import { IThreadComment } from "../thread-comment/thread-comment.types";
+import { IAttachmentType, IThreadCommentDocument } from "../thread-comment/thread-comment.types";
 import { IThreadLikeDocument } from "../thread-like/thread-like.types";
 import { IThreadShare } from "../thread-share/thread-share.types";
 import { IThread, IThreadDocument, IThreadPostDetails } from "../thread/thread.types";
 import { IUserConnection } from "../user-connection/user-connection.types";
 export interface IUserThread {
   started: { [keyof: string]: IThread };
-  commented: { [keyof: string]: IThreadComment};
+  commented: { [keyof: string]: { [keyof: string]: IThreadCommentDocument }};
   liked: { [keyof: string]: IThreadLikeDocument };
   shared: { [keyof: string]: IThreadShare };
 }
@@ -53,6 +53,22 @@ export interface IUserDocument extends IUser, Document {
     threadLikeDocument: IThreadLikeDocument
   }>;
   deleteLikeFromThread: (this: IUserDocument, data: {  targetThreadId: string, targetLikeId: string }) => Promise<{ updatedThread: IThreadDocument}>;
+  addThreadComment: (this: IUserDocument, data: {
+    targetThreadId: string;
+    threadCommentData: {
+        content: string;
+        attachments?: Array<IAttachmentType>;
+    };
+}) => Promise<{
+    updatedThread: IThreadDocument;
+    newComment: IThreadCommentDocument;
+}>;
+deleteThreadComment: (this: IUserDocument, data: {
+  targetThreadId: string;
+  targetThreadCommentId: string;
+}) => Promise<{
+  updatedThread: IThreadDocument;
+}>;
 }
 export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;

@@ -3,7 +3,9 @@ import { UserModel } from "../user.model";
 import { IThread, IThreadDocument, IThreadPostDetails } from "../../thread/thread.types";
 import { ThreadModel } from "../../thread/thread.model";
 import { ThreadLikeModel } from "../../../models/thread-like/thread-like.model";
-import sanitizeHtml from 'sanitize-html';
+import sanitizeHtml from "sanitize-html";
+import { ThreadCommentModel } from "../../../models/thread-comment/thread-comment.model";
+import { IAttachmentType } from "../../../models/thread-comment/thread-comment.types";
 
 /**
  *
@@ -109,5 +111,73 @@ export async function deleteLikeFromThread(this: IUserDocument, data: {  targetT
     }
   } else {
     throw new Error("Unable to delete like from thread.");
+  }
+}
+
+/**
+ * Adds a comment to a thread and updates necessary documents
+ * @param this *
+ * @param data
+ */
+export async function addThreadComment (this: IUserDocument,
+  data: { targetThreadId: string, threadCommentData:
+    { content: string, attachments?: Array<IAttachmentType>} }) {
+  const targetThread = await ThreadModel.findById(data.targetThreadId);
+
+  if (targetThread) {
+    // Create a thread
+    const newThreadComment = await ThreadCommentModel.create(
+      { postedByUser: this.id.toString(),
+        ...data.threadCommentData});
+        newThreadComment.postedByUserId = this.id.toString();
+
+    targetThread.comments[`${newThreadComment.id.toString()}`] = newThreadComment;
+    targetThread.markModified("comments");
+
+    if (!this.threads.commented[`${targetThread.id.toString()}`]) {
+      this.threads.commented[`${targetThread.id.toString()}`] = { };
+      this.threads.commented[`${targetThread.id.toString()}`][`${newThreadComment.id.toString()}`] = newThreadComment;
+    } else {
+      this.threads.commented[`${targetThread.id.toString()}`] = { ...this.threads.commented[`${targetThread.id.toString()}`],
+      [`${newThreadComment.id.toString()}`]: newThreadComment };
+    }
+    this.markModified("threads");
+    await this.save();
+    await targetThread.save();
+    return {
+      updatedThread: targetThread,
+      newComment: newThreadComment
+    };
+  }
+}
+
+/**
+ *
+ * @param this
+ * @param data
+ */
+export async function deleteThreadComment (this: IUserDocument, data: { targetThreadId: string, targetThreadCommentId: string }) {
+  const targetThread = await ThreadModel.findById(data.targetThreadId);
+
+  if (!targetThread) {
+    throw new Error("Parent thread not found");
+  }
+  if (!(targetThread.comments[data.targetThreadCommentId])) {
+    throw new Error("Thread comment not found");
+  }
+
+  if (this.threads.commented[targetThread.id.toString()][data.targetThreadCommentId]) {
+    const targetThreadId = targetThread.id.toString();
+    delete this.threads.commented[targetThreadId][data.targetThreadCommentId];
+    delete targetThread.comments[data.targetThreadCommentId];
+    targetThread.markModified("comments");
+    this.markModified("threads");
+    await targetThread.save();
+    await this.save();
+    return {
+      updatedThread: targetThread
+    };
+  } else {
+    throw new Error ("Thread comment not found on user object");
   }
 }

@@ -146,11 +146,71 @@ async(req: any, res: Response) => {
   }
 });
 
-router.post("/:id/comments", async(req: any, res: Response) => {
-  res.send(200);
+router.post("/:thread_id/comments", routeProtector,
+[param("thread_id").exists().trim().escape(),
+body("content").exists().trim().escape(),
+body("attachments").custom((value) => {
+  if (!value) {
+    return true;
+  }
+  if (Array.isArray(value)) {
+    true;
+  } else {
+    return false;
+  }
+})],
+async(req: any, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+  try {
+    const result = await req.user.addThreadComment( {
+      targetThreadId: req.params.thread_id,
+      threadCommentData: {
+        content: req.body.content, attachments: req.body.attachments
+      }
+    });
+    return res.status(200).send(result);
+  } catch (err) {
+    res.status(400).send({ errors: [{ ...createError("Can't find thread",
+    `${err}`,
+    "Error")} ]});
+  }
 });
 
-router.get("/:id/comments", routeProtector, (req, res) => {
-  res.send(200);
+router.delete("/:thread_id/comments/:commentId",
+[param("thread_id").exists().trim().escape(), param("commentId").exists().trim().escape()],
+routeProtector, async(req: any, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+  try {
+    const result = await req.user.deleteThreadComment({ targetThreadId: req.params.thread_id,
+      targetThreadCommentId: req.params.commentId});
+      return res.status(200).send(result);
+  } catch (err) {
+    res.status(400).send({ errors: [{ ...createError("Can't find thread",
+    `${err}`,
+    "Error")} ]});
+  }
+});
+
+router.get("/:thread_id/comments",
+[param("thread_id").exists().trim().escape()],
+routeProtector, async(req: any, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+  try {
+    const result = await ThreadModel.findById(req.params.thread_id);
+    return res.status(200).send({ threadComments: result.comments});
+  } catch (err) {
+    res.status(400).send({ errors: [{ ...createError("Can't find thread",
+    `${err}`,
+    "Error")} ]});
+  }
 });
 export default router;

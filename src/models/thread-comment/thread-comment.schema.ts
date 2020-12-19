@@ -9,6 +9,6 @@ const ThreadCommentSchema: Schema = new Schema({
     required: false,
     default: []
   }
-}, { timestamps: {}});
+}, { timestamps: { }});
 
 export default ThreadCommentSchema;
