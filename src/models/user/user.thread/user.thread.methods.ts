@@ -162,13 +162,14 @@ export async function deleteThreadComment (this: IUserDocument, data: { targetTh
   if (!targetThread) {
     throw new Error("Parent thread not found");
   }
-  if (!(targetThread.comments[`${data.targetThreadCommentId}`])) {
+  if (!(targetThread.comments[data.targetThreadCommentId])) {
     throw new Error("Thread comment not found");
   }
 
-  if (this.threads.commented[`${targetThread.id.toString()}`][`${data.targetThreadCommentId}`]) {
-    delete this.threads.commented[`${targetThread.id.toString()}`][`${data.targetThreadCommentId}`];
-    delete targetThread.comments[`${data.targetThreadCommentId}`];
+  if (this.threads.commented[targetThread.id.toString()][data.targetThreadCommentId]) {
+    const targetThreadId = targetThread.id.toString();
+    delete this.threads.commented[targetThreadId][data.targetThreadCommentId];
+    delete targetThread.comments[data.targetThreadCommentId];
     targetThread.markModified("comments");
     this.markModified("threads");
     await targetThread.save();

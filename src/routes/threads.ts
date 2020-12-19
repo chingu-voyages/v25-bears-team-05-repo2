@@ -7,7 +7,6 @@ import { createError } from "../utils/errors";
 import { UserModel } from "../models/user/user.model";
 import { sanitizeBody } from "express-validator/filter";
 import { ThreadModel } from "../models/thread/thread.model";
-import { areAllElementsUrls } from "./utils/elements-are-urls";
 const router = express.Router();
 
 router.post("/", routeProtector, [body("htmlContent").not().isEmpty().trim(), // Unsure whether or not to escape here?
@@ -155,7 +154,7 @@ body("attachments").custom((value) => {
     return true;
   }
   if (Array.isArray(value)) {
-    return areAllElementsUrls(value);
+    true;
   } else {
     return false;
   }
