@@ -181,3 +181,7 @@ export async function deleteThreadComment (this: IUserDocument, data: { targetTh
     throw new Error ("Thread comment not found on user object");
   }
 }
+
+export async function shareThreadComment (this: IUserDocument, data: { targetThreadIdToShare: string }) {
+
+}
