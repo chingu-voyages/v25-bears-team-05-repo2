@@ -182,6 +182,15 @@ export async function deleteThreadComment (this: IUserDocument, data: { targetTh
   }
 }
 
-export async function shareThreadComment (this: IUserDocument, data: { targetThreadIdToShare: string }) {
+/**
+ *
+ * @param this Instance of a User
+ * @param data the thread to share on user's profile
+ */
+export async function shareThread(this: IUserDocument, data: { targetThreadId: string}) {
+
+}
+
+export async function shareThreadComment (this: IUserDocument, data: { targetThreadCommentId: string }) {
 
 }

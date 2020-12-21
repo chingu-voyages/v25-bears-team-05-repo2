@@ -213,4 +213,8 @@ routeProtector, async(req: any, res: Response) => {
     "Error")} ]});
   }
 });
+
+router.post("/:thread_id/share", routeProtector, async(req: any, res) => {
+
+});
 export default router;
