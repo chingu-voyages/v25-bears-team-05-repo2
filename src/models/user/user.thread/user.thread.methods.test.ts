@@ -71,6 +71,26 @@ describe("User creating thread tests", () => {
   });
 });
 
+describe("thread deletion", () => {
+  test("deletes thread from users threads.started object", async() => {
+    const testUser = createTestUsers(1, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUser);
+    const thread1 = await dummyUserDocuments[0].createAndPostThread({
+      html: "thread-1-test",
+    });
+
+    const threadId = thread1.threadData.id.toString();
+    // Perform delete
+    await dummyUserDocuments[0].deleteThread({ targetThreadId: threadId});
+    expect(dummyUserDocuments[0].threads.started[threadId]).toBeUndefined();
+    expect(dummyUserDocuments[0].threads.started).not.toHaveProperty(threadId);
+
+    // Throws with invalid thread id
+    const invalidObjectId = mongoose.Types.ObjectId().toHexString();
+    await expect(() => dummyUserDocuments[0].deleteThread({ targetThreadId: invalidObjectId })).rejects.toThrow();
+  });
+});
+
 describe("thread like tests", () => {
   test("thread like stores correctly on appropriate documents", async() => {
     const testUser = createTestUsers(2, undefined, undefined);

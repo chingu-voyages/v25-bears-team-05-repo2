@@ -38,6 +38,19 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
   return { userData: this, threadData: newlyCreatedThread};
 }
 
+export async function deleteThread (this: IUserDocument, threadDetails: { targetThreadId: string }) {
+  // Rules: user can only delete a thread they started.
+  // For now, we will only delete the thread from the user's threads.started object
+
+  if (this.threads.started[threadDetails.targetThreadId]) {
+    delete this.threads.started[threadDetails.targetThreadId];
+    this.markModified("threads");
+    await this.save();
+    return this.threads.started;
+  } else {
+    throw new Error(`Thread not found on user object with id: ${threadDetails.targetThreadId}: unable to delete`);
+  }
+}
 /** This is a modular helper method. This will only
  * return a sorted list (by date latest) of threads from source user's connections
  */
