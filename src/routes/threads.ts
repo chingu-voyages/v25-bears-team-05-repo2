@@ -213,4 +213,43 @@ routeProtector, async(req: any, res: Response) => {
     "Error")} ]});
   }
 });
+
+router.post("/:thread_id/share", [body("threadId").exists().trim().escape(),
+body("sourceUserId").exists().trim().escape()],
+routeProtector,
+async(req: any, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+  try {
+    const result = await req.user.shareThread({ targetThreadId: req.body.threadId,
+      sourceUserId: req.body.sourceUserId
+    });
+    return res.status(200).send(result);
+  } catch (err) {
+    res.status(400).send({ errors: [{ ...createError("Unable to share thread",
+    `${err}`,
+    "Error")} ]});
+  }
+});
+
+router.delete("/:thread_id",
+[body("threadId").exists().trim().escape()],
+ routeProtector, async(req: any, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+  try {
+    const result = await req.user.deleteThreadShare({
+      targetThreadShareId: req.body.threadId
+    });
+    return res.status(200).send(result);
+  } catch (err) {
+    res.status(400).send({ errors: [{ ...createError("Unable to delete threadShare",
+    `${err}`,
+    "Error")} ]});
+  }
+});
 export default router;

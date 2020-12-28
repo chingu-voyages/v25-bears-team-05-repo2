@@ -1,11 +1,12 @@
 import { IUserDocument } from "../user.types";
 import { UserModel } from "../user.model";
-import { IThread, IThreadDocument, IThreadPostDetails } from "../../thread/thread.types";
+import { IThread, IThreadDocument, IThreadPostDetails, ThreadType, ThreadVisibility } from "../../thread/thread.types";
 import { ThreadModel } from "../../thread/thread.model";
 import { ThreadLikeModel } from "../../../models/thread-like/thread-like.model";
 import sanitizeHtml from "sanitize-html";
 import { ThreadCommentModel } from "../../../models/thread-comment/thread-comment.model";
 import { IAttachmentType } from "../../../models/thread-comment/thread-comment.types";
+import { IThreadShare, IThreadShareDocument } from "../../../models/thread-share/thread-share.types";
 
 /**
  *
@@ -35,7 +36,6 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
   this.markModified("threads");
   await this.save();
   return { userData: this, threadData: newlyCreatedThread};
-
 }
 
 /** This is a modular helper method. This will only
@@ -179,5 +179,112 @@ export async function deleteThreadComment (this: IUserDocument, data: { targetTh
     };
   } else {
     throw new Error ("Thread comment not found on user object");
+  }
+}
+
+/**
+ *
+ * @param this Instance of a User
+ * @param data the thread to share on user's profile
+ */
+export async function shareThread(this: IUserDocument,
+  data: { targetThreadId: string,
+    sourceUserId: string,
+    threadShareType: ThreadType,
+    visibility?: ThreadVisibility}) {
+  // The targetThreadId has to exist on the source user.
+  // The targetThreadId must be a public thread (cannot share private)
+  // ThreadShares (the shared object on the Thread document) is stored by the sharer's userId.
+
+  // First find the thread in the collection
+  const targetThreadFromCollection = await ThreadModel.findById(data.targetThreadId.toString());
+  if (!targetThreadFromCollection) {
+    throw new Error("Target thread not found in collection");
+  }
+
+  if (targetThreadFromCollection.visibility != ThreadVisibility.Anyone) {
+    throw new Error("Unable to share due to privacy settings");
+  }
+
+  // Find the source user
+  const sourceUser = await UserModel.findById(data.sourceUserId.toString());
+  if (!sourceUser) {
+    throw new Error(`User with id ${data.sourceUserId} is not found`);
+  }
+
+  // Find the actual thread
+  if (sourceUser.threads.started[targetThreadFromCollection.id.toString()]) {
+    // Update the thread object for the collection, and updated this.shared
+    if (targetThreadFromCollection.shares === undefined) {
+      targetThreadFromCollection.shares = { };
+    }
+    if (!this.threads.shared) {
+      this.threads.shared = { };
+    }
+
+    const threadShare: IThreadShare = {
+      threadShareType: data.threadShareType,
+      postedByUserId: targetThreadFromCollection.postedByUserId,
+      visibility: data.visibility || ThreadVisibility.Anyone,
+      content: targetThreadFromCollection.content,
+      threadType: targetThreadFromCollection.threadType,
+      comments: targetThreadFromCollection.comments,
+      likes: targetThreadFromCollection.likes,
+      shares: { } , // targetThreadFromCollection.shares,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    targetThreadFromCollection.shares[this._id] = threadShare;
+    targetThreadFromCollection.markModified("shares");
+    this.threads.shared[targetThreadFromCollection.id.toString()] = targetThreadFromCollection as IThreadShareDocument;
+    this.markModified("threads");
+
+    await this.save();
+    await targetThreadFromCollection.save();
+
+    return {
+      updatedSharedThreads: this.threads.shared,
+      updatedThreadDocument: targetThreadFromCollection
+    };
+  } else {
+    throw new Error(`Thread with id ${targetThreadFromCollection.id.toString()} does not exist on user's threads.started object`);
+  }
+}
+
+/**
+ * Deletes a thread share from user's own thread share object. It
+ * @param this instance of UserDocument
+ * @param data
+ */
+export async function deleteThreadShare (this: IUserDocument, data: { targetThreadShareId: string }) {
+  // Get all needed objects
+  const sourceThread = await ThreadModel.findById(data.targetThreadShareId);
+
+  if (this.threads.shared[data.targetThreadShareId]) {
+    delete this.threads.shared[data.targetThreadShareId];
+    this.markModified("threads");
+    await this.save();
+
+    // Update the other documents
+    if (sourceThread) {
+      if (sourceThread.shares[this.id.toString()]) {
+        delete sourceThread.shares[this.id.toString()];
+        sourceThread.markModified("shares");
+        await sourceThread.save();
+        return {
+          updatedSharedThreads: this.threads.shared,
+          updatedThreadDocument: sourceThread
+        };
+      }
+    } else {
+      console.warn("Thread not found in thread collection");
+      return {
+        updatedSharedThreads: this.threads.shared,
+        updatedThreadDocument: sourceThread
+      };
+    }
+  } else {
+    throw new Error("Thread share wasn't found in user's thread share object");
   }
 }

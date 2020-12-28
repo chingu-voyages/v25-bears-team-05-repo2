@@ -25,7 +25,7 @@ export async function patchThread(this: IThreadModel, data: IThreadPatchData): P
       throw new Error("Unauthorized patch request");
     }
     if (data.threadType) {
-      targetThread.threadType = data.threadType as number;
+      targetThread.threadType = data.threadType;
     }
     if (data.visibility) {
       targetThread.visibility = data.visibility as number;

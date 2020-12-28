@@ -3,6 +3,7 @@ import { UserModel } from "../user.model";
 import { ThreadModel } from "../../thread/thread.model";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
+import { ThreadType } from "../../../models/thread/thread.types";
 let mongoServer: any;
 
 const options: mongoose.ConnectionOptions = {
@@ -163,4 +164,39 @@ describe("create and delete threadComment tests", () => {
       expect(thread1.threadData.comments[`${threadCommentId}`]).not.toBeDefined();
       expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${threadCommentId}`]).not.toBeDefined();
     });
+});
+
+
+describe("Thread share tests", () => {
+  test("threads shared correctly", async() => {
+    // Source user posts a thread. User 2 shares it on its own profile. Expect documents to update
+    // correctly
+    const testUser = createTestUsers(2, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUser);
+    const thread1 = await dummyUserDocuments[0].createAndPostThread({
+      html: "thread-1-test",
+    });
+
+    const result = await dummyUserDocuments[1].shareThread({ targetThreadId: thread1.threadData.id.toString(),
+    sourceUserId: dummyUserDocuments[0].id.toString(), threadShareType: ThreadType.Post });
+
+    expect(result.updatedThreadDocument.shares[dummyUserDocuments[1].id.toString()]).toBeDefined();
+    expect(result.updatedThreadDocument.shares[dummyUserDocuments[1].id.toString()].content.html).toBe("thread-1-test");
+    expect(result.updatedSharedThreads[thread1.threadData.id.toString()]).toBeDefined();
+  });
+  test("threadshares deleted property", async() => {
+
+    const testUser = createTestUsers(2, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUser);
+    const thread1 = await dummyUserDocuments[0].createAndPostThread({
+      html: "thread-1-test",
+    });
+
+    await dummyUserDocuments[1].shareThread({ targetThreadId: thread1.threadData.id.toString(),
+    sourceUserId: dummyUserDocuments[0].id.toString(), threadShareType: ThreadType.Post });
+
+    const result = await dummyUserDocuments[1].deleteThreadShare({ targetThreadShareId: thread1.threadData.id.toString()});
+      expect(result.updatedSharedThreads[thread1.threadData.id]).not.toBeDefined();
+      expect(result.updatedThreadDocument.shares[dummyUserDocuments[1].id.toString()]).not.toBeDefined();
+  });
 });

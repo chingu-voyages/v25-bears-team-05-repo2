@@ -3,7 +3,7 @@ import { getAllPublicThreads, patchThread } from "./thread.methods";
 
 const ThreadSchema: Schema = new Schema({
   postedByUserId: { type: Types.ObjectId, required: true },
-  threadType: { type: Number, default: 0},
+  threadType: { type: String, default: "post"},
   visibility: { type: Number, default: 0 },
   content: {
       html: { type: String },
