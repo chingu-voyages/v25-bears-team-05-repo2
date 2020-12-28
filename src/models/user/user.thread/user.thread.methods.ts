@@ -235,8 +235,6 @@ export async function shareThread(this: IUserDocument,
       updatedAt: new Date()
     };
 
-    // console.log("ThreadShare", threadShare);
-
     targetThreadFromCollection.shares[this._id] = threadShare;
     targetThreadFromCollection.markModified("shares");
     this.threads.shared[targetThreadFromCollection.id.toString()] = targetThreadFromCollection as IThreadShareDocument;
