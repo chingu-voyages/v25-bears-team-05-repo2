@@ -1,14 +1,14 @@
 import { Document, Model } from "mongoose";
 import { IThreadComment } from "../thread-comment/thread-comment.types";
 import { IThreadLikeDocument } from "../thread-like/thread-like.types";
-import { IThreadShare } from "../thread-share/thread-share.types";
 import mongoose from "mongoose";
+import { IThreadShare } from "../thread-share/thread-share.types";
 
 export enum ThreadType {
-  Post = 0,
-  Photo = 1,
-  Job = 2,
-  Article = 3
+  Post = "post",
+  Photo = "photo",
+  Job = "job",
+  Article = "article"
 }
 
 export enum ThreadVisibility {

@@ -13,7 +13,8 @@
     "dev-win": "SET NODE_ENV=development & nodemon",
     "dev": "NODE_ENV=development nodemon",
     "build": "npm run tsc",
-    "test": "npx jest"
+    "test": "npx jest",
+    "test-build": "npm run tsc && rm -r ./dist"
   },
   "dependencies": {
     "@babel/core": "^7.12.3",
