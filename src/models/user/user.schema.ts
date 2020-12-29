@@ -12,6 +12,7 @@ import { addLikeToThread,
   addThreadComment,
   createAndPostThread,
   deleteLikeFromThread,
+  deleteThread,
   deleteThreadComment,
   deleteThreadShare,
   getConnectionThreads,
@@ -103,7 +104,6 @@ UserSchema.methods.addThreadComment = addThreadComment;
 UserSchema.methods.deleteThreadComment = deleteThreadComment;
 UserSchema.methods.shareThread = shareThread;
 UserSchema.methods.deleteThreadShare = deleteThreadShare;
-
 UserSchema.methods.deleteThread = deleteThread;
 
 export default UserSchema;

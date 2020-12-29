@@ -21,6 +21,7 @@
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-typescript": "^7.12.1",
     "@types/sanitize-html": "^1.27.0",
+    "async": "^3.2.0",
     "babel-jest": "^26.6.3",
     "bcryptjs": "^2.4.3",
     "config": "^3.1.0",
@@ -45,6 +46,7 @@
     "typescript": "^3.4.5"
   },
   "devDependencies": {
+    "@types/async": "^3.2.5",
     "@types/bcryptjs": "^2.4.2",
     "@types/config": "0.0.34",
     "@types/crypto-js": "^4.0.1",
