@@ -7,6 +7,7 @@ import sanitizeHtml from "sanitize-html";
 import { ThreadCommentModel } from "../../../models/thread-comment/thread-comment.model";
 import { IAttachmentType } from "../../../models/thread-comment/thread-comment.types";
 import { IThreadShare, IThreadShareDocument } from "../../../models/thread-share/thread-share.types";
+import { deleteUserCommentsForThreadByThreadId } from "./user.thread.deletion.methods";
 
 /**
  *
@@ -40,12 +41,11 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
 
 export async function deleteThread (this: IUserDocument, threadDetails: { targetThreadId: string }) {
   // Rules: user can only delete a thread they started.
-
-
   if (this.threads.started[threadDetails.targetThreadId]) {
     delete this.threads.started[threadDetails.targetThreadId];
     this.markModified("threads");
     await this.save();
+    await deleteUserCommentsForThreadByThreadId({ sourceThreadId: threadDetails.targetThreadId});
     return this.threads.started;
   } else {
     throw new Error(`Thread not found on user object with id: ${threadDetails.targetThreadId}: unable to delete`);

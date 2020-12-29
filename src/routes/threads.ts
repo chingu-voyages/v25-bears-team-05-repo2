@@ -146,7 +146,9 @@ async(req: any, res: Response) => {
   }
 });
 
-router.delete("/:thread_id", routeProtector, param("thread_id").exists().trim().escape(), async(req: any, res: Response) => {
+router.delete("/:thread_id", routeProtector,
+param("thread_id").exists().trim().escape(),
+async(req: any, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).send({ errors: errors.array() });

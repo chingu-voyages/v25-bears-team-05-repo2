@@ -26,7 +26,8 @@ afterEach(async () => {
   await mongoServer.stop();
 });
 describe("deleteUserCommentsForThreadByThreadId", () => {
-  test.only("returns users that have commented on a thread", async() => {
+  test("method deletes the object on user.threads.commented where the threadId corresponds to the thread being deleted",
+  async() => {
     const testUser = createTestUsers(6, undefined, undefined);
     const dummyUserDocuments = await UserModel.create(testUser);
     const thread1 = await dummyUserDocuments[0].createAndPostThread({
@@ -65,9 +66,16 @@ describe("deleteUserCommentsForThreadByThreadId", () => {
     });
 
     await deleteUserCommentsForThreadByThreadId({ sourceThreadId: thread1.threadData.id.toString()});
-    // Test that it's been delete
-
+    const user1 = await UserModel.findById(dummyUserDocuments[1].id);
+    const user2 = await UserModel.findById(dummyUserDocuments[2].id);
+    const user3 = await UserModel.findById(dummyUserDocuments[3].id);
+    const user4 = await UserModel.findById(dummyUserDocuments[4].id);
     const user5 = await UserModel.findById(dummyUserDocuments[5].id);
-    console.log("71", user5.threads.commented);
+
+    expect(user1.threads.commented).toHaveProperty(thread2.threadData.id.toString());
+    expect(user2.threads.commented).toStrictEqual({ });
+    expect(user3.threads.commented).toStrictEqual({ });
+    expect(user4.threads.commented).toStrictEqual({ });
+    expect(user5.threads.commented).toStrictEqual({ });
   });
 });
