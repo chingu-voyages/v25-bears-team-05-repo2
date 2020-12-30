@@ -12,7 +12,7 @@ export async function deleteUserCommentsForThreadByThreadId(data: { sourceThread
     const allComments = Object.values(sourceThread.comments);
     const commenterUserIds = allComments.map(comment => comment.postedByUserId);
     const users = await UserModel.find().where("_id").in(commenterUserIds).exec();
-    users.forEach(async (user) => {
+    users.forEach((user) => {
       delete user.threads.commented[data.sourceThreadId];
       user.markModified("threads");
     });

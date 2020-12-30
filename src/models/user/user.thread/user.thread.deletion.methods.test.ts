@@ -28,8 +28,8 @@ afterEach(async () => {
 describe("deleteUserCommentsForThreadByThreadId", () => {
   test("method deletes the object on user.threads.commented where the threadId corresponds to the thread being deleted",
   async() => {
-    const testUser = createTestUsers(6, undefined, undefined);
-    const dummyUserDocuments = await UserModel.create(testUser);
+    const testUsers = createTestUsers(6, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUsers);
     const thread1 = await dummyUserDocuments[0].createAndPostThread({
       html: "thread-1-test",
     });

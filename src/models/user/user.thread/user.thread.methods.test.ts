@@ -73,8 +73,8 @@ describe("User creating thread tests", () => {
 
 describe("thread deletion", () => {
   test("deletes thread from users threads.started object", async() => {
-    const testUser = createTestUsers(1, undefined, undefined);
-    const dummyUserDocuments = await UserModel.create(testUser);
+    const testUsers = createTestUsers(1, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUsers);
     const thread1 = await dummyUserDocuments[0].createAndPostThread({
       html: "thread-1-test",
     });
@@ -90,8 +90,8 @@ describe("thread deletion", () => {
     await expect(() => dummyUserDocuments[0].deleteThread({ targetThreadId: invalidObjectId })).rejects.toThrow();
   });
   test("properly deletes threads across user documents", async() => {
-    const testUser = createTestUsers(6, undefined, undefined);
-    const dummyUserDocuments = await UserModel.create(testUser);
+    const testUsers = createTestUsers(6, undefined, undefined);
+    const dummyUserDocuments = await UserModel.create(testUsers);
     const thread1 = await dummyUserDocuments[0].createAndPostThread({
       html: "thread-1-test",
     });
