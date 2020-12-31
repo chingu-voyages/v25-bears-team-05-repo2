@@ -45,7 +45,6 @@
     "typescript": "^3.4.5"
   },
   "devDependencies": {
-    "@types/async": "^3.2.5",
     "@types/bcryptjs": "^2.4.2",
     "@types/config": "0.0.34",
     "@types/crypto-js": "^4.0.1",
