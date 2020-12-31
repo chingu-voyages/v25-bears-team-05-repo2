@@ -47,6 +47,11 @@ export interface IUserDocument extends IUser, Document {
   deleteConnectionFromUser: (this: IUserDocument,  objId: string) => Promise<IUserDocument>;
   updateUserProfile: (this: IUserDocument, profileData: IProfileData) => Promise<IUserDocument>;
   createAndPostThread: (this: IUserDocument, threadDetails: IThreadPostDetails) => Promise<{ userData: IUserDocument, threadData: IThreadDocument }>;
+  deleteThread: (this: IUserDocument, threadDetails: {
+    targetThreadId: string;
+}) => Promise<{
+  [keyof: string]: IThreadDocument;
+}>;
   isConnectionOf: (this: IUserDocument, targetId: string) =>  boolean;
   getConnectionThreads: (this: IUserDocument) => Promise<Array<IThread>>;
   getConnectionOfFromConnections: (this: IUserDocument) => Promise<IUserConnection[]>;

@@ -146,6 +146,24 @@ async(req: any, res: Response) => {
   }
 });
 
+router.delete("/:thread_id", routeProtector,
+param("thread_id").exists().trim().escape(),
+async(req: any, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+
+  try {
+    const result = await req.user.deleteThread({ targetThreadId: req.params.thread_id });
+    res.status(200).send(result);
+  } catch (err) {
+    res.status(400).send({ errors: [{ ...createError("Unable to delete thread",
+    `${err}`,
+    "Error")} ]});
+  }
+});
+
 router.post("/:thread_id/comments", routeProtector,
 [param("thread_id").exists().trim().escape(),
 body("content").exists().trim().escape(),

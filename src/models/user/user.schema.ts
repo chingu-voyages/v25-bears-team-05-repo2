@@ -1,11 +1,18 @@
 import { Schema, SchemaOptions } from "mongoose";
-import { findOneOrCreateByGoogleId, findByGoogleId, registerUser, findByEncryptedEmail, findOneByEncryptedEmail } from "./user.auth/user.auth.methods";
-import { addConnectionToUser, deleteConnectionFromUser, getConnectionOfFromConnections } from "./user.connections/user.connections.methods";
+import { findOneOrCreateByGoogleId, findByGoogleId,
+  registerUser, findByEncryptedEmail,
+  findOneByEncryptedEmail }
+  from "./user.auth/user.auth.methods";
+import { addConnectionToUser,
+  deleteConnectionFromUser,
+  getConnectionOfFromConnections }
+  from "./user.connections/user.connections.methods";
 import { updateUserProfile } from "./user.profile/user.profile.methods";
 import { addLikeToThread,
   addThreadComment,
   createAndPostThread,
   deleteLikeFromThread,
+  deleteThread,
   deleteThreadComment,
   deleteThreadShare,
   getConnectionThreads,
@@ -97,6 +104,6 @@ UserSchema.methods.addThreadComment = addThreadComment;
 UserSchema.methods.deleteThreadComment = deleteThreadComment;
 UserSchema.methods.shareThread = shareThread;
 UserSchema.methods.deleteThreadShare = deleteThreadShare;
-
+UserSchema.methods.deleteThread = deleteThread;
 
 export default UserSchema;
