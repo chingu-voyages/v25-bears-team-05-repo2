@@ -50,7 +50,7 @@ export interface IUserDocument extends IUser, Document {
   deleteThread: (this: IUserDocument, threadDetails: {
     targetThreadId: string;
 }) => Promise<{
-    [keyof: string]: IThread;
+  [keyof: string]: IThreadDocument;
 }>;
   isConnectionOf: (this: IUserDocument, targetId: string) =>  boolean;
   getConnectionThreads: (this: IUserDocument) => Promise<Array<IThread>>;
