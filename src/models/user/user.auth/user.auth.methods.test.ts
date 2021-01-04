@@ -27,7 +27,7 @@ afterEach(async () => {
 
 describe("find by encrypted email function tests", () => {
   test("Function works", async() => {
-    const dummyUsers = createTestUsers(150, undefined, undefined);
+    const dummyUsers = createTestUsers({ numberOfUsers: 150 });
     const encryptedEmail = dummyUsers[0].auth.email; // This should be encrypted
     await UserModel.create(dummyUsers);
     const result = await UserModel.findByEncryptedEmail(encryptedEmail);
@@ -39,7 +39,7 @@ describe("find by encrypted email function tests", () => {
 
 describe("findOneByEncryptedEmail function tests", () => {
   test("function returns a single object", async() => {
-    const dummyUsers = createTestUsers(10, undefined, undefined);
+    const dummyUsers = createTestUsers({ numberOfUsers: 10 });
     const encryptedEmail = dummyUsers[1].auth.email; // This should be encrypted
     await UserModel.create(dummyUsers);
     const result = await UserModel.findOneByEncryptedEmail(encryptedEmail);
@@ -50,7 +50,7 @@ describe("findOneByEncryptedEmail function tests", () => {
   });
 
   test("function returns undefined because no e-mail exists", async () => {
-    const dummyUsers = createTestUsers(5, undefined, undefined);
+    const dummyUsers = createTestUsers({ numberOfUsers: 5});
     const encryptedEmail = encrypt("someOtherEmail@test.com");
     await UserModel.create(dummyUsers);
     const result = await UserModel.findOneByEncryptedEmail(encryptedEmail);

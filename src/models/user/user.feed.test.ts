@@ -28,7 +28,7 @@ describe("feed tests", () => {
   describe("getConnectionThreads method tests", () => {
     test("gets threads properly", async() => {
       // Create a few test users
-      const testUser = createTestUsers(10, undefined, undefined);
+      const testUser = createTestUsers({ numberOfUsers: 10});
       const dummyUserDocuments = await UserModel.create(testUser);
 
       // Have the users create random threads
@@ -78,7 +78,7 @@ describe("feed tests", () => {
   describe("get connectionsOf tests", () => {
     test("ensures we get the correct connectionsOf", async() => {
        // Create a few test users
-       const testUser = createTestUsers(20, undefined, undefined);
+       const testUser = createTestUsers({ numberOfUsers: 20});
        const dummyUserDocuments = await UserModel.create(testUser);
 
        // The source user will add some connections
