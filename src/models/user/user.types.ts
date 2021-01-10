@@ -91,6 +91,7 @@ deleteThreadShare: (this: IUserDocument, data: { targetThreadShareId: string }) 
       [keyof: string]: IThreadShare;
   };
   updatedThreadDocument: IThreadDocument}>;
+getUserDocumentsFromSourceUserConnectionOf: (this: IUserDocument) => Promise<IUserDocument[]>;
 }
 export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;

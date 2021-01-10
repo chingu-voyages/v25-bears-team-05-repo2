@@ -5,7 +5,8 @@ import { findOneOrCreateByGoogleId, findByGoogleId,
   from "./user.auth/user.auth.methods";
 import { addConnectionToUser,
   deleteConnectionFromUser,
-  getConnectionOfFromConnections }
+  getConnectionOfFromConnections,
+  getUserDocumentsFromSourceUserConnectionOf }
   from "./user.connections/user.connections.methods";
 import { updateUserProfile } from "./user.profile/user.profile.methods";
 import { addLikeToThread,
@@ -85,6 +86,7 @@ const UserSchema: Schema = new Schema({
     }
   },
 }, { timestamps: { }, strict: false, typePojoToMixed: false} as SchemaOptionsWithPojoToMixed);
+UserSchema.index({ "firstName": "text", "lastName": "text", "jobTitle":  "text" });
 
 UserSchema.statics.findOneOrCreateByGoogleId = findOneOrCreateByGoogleId;
 UserSchema.statics.findByGoogleId = findByGoogleId;
@@ -105,5 +107,6 @@ UserSchema.methods.deleteThreadComment = deleteThreadComment;
 UserSchema.methods.shareThread = shareThread;
 UserSchema.methods.deleteThreadShare = deleteThreadShare;
 UserSchema.methods.deleteThread = deleteThread;
+UserSchema.methods.getUserDocumentsFromSourceUserConnectionOf = getUserDocumentsFromSourceUserConnectionOf;
 
 export default UserSchema;

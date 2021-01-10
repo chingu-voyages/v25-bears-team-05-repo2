@@ -1,4 +1,4 @@
-import { ThreadType } from "../../models/thread/thread.types";
+import { ThreadType, ThreadVisibility } from "../../models/thread/thread.types";
 
 export interface ISearchResults {
   users?: Array<IPublicUserDetails>;
@@ -10,9 +10,11 @@ export interface IPublicUserDetails {
   firstName: string;
   lastName: string;
   jobTitle?: string;
+  avatars?: Array<{ url: string}>;
 }
 
 export interface IThreadDetails {
+  id: string;
   postedByUserId: string;
   threadType: ThreadType;
   content: {
@@ -20,6 +22,7 @@ export interface IThreadDetails {
       hashTags?: Array<string>,
       attachments?: Array<string>
     };
+  visibility: ThreadVisibility;
   likes?: number;
   shares?: number;
   updatedAt: Date;

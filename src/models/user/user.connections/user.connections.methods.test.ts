@@ -84,3 +84,20 @@ describe("delete user connection tests", () => {
     expect(target2.connectionOf).not.toHaveProperty(dummyUserDocuments[0].id);
   });
 });
+
+test("gets UseDocuments from users connectionOf object", async () => {
+  const testUsers = createTestUsers({ numberOfUsers: 5});
+  const dummyUserDocuments = await UserModel.create(testUsers);
+
+  // Users 1, 2, 3 add user 0 as a connection.
+  await dummyUserDocuments[1].addConnectionToUser(dummyUserDocuments[0].id.toString());
+  await dummyUserDocuments[2].addConnectionToUser(dummyUserDocuments[0].id.toString());
+  await dummyUserDocuments[3].addConnectionToUser(dummyUserDocuments[0].id.toString());
+
+  const refreshedUser = await UserModel.findById(dummyUserDocuments[0].id.toString());
+  const connectionsOfUserDocuments = await refreshedUser.getUserDocumentsFromSourceUserConnectionOf();
+
+  expect(connectionsOfUserDocuments.length).toBe(3);
+  const arrayOfConnectionsOfUserIds = connectionsOfUserDocuments.map(document => document.id.toString());
+  expect(arrayOfConnectionsOfUserIds.includes(dummyUserDocuments[1].id.toString()));
+});

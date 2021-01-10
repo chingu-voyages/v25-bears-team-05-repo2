@@ -148,7 +148,17 @@ export async function addThreadComment (this: IUserDocument,
     targetThread.comments[`${newThreadComment.id.toString()}`] = newThreadComment;
     targetThread.markModified("comments");
 
-    if (!this.threads.commented[`${targetThread.id.toString()}`]) {
+    // Update the User of the creator of the parent thread
+    const sourceUser = await UserModel.findById(targetThread.postedByUserId.toString());
+    if (sourceUser) {
+      sourceUser.threads.started[targetThread._id.toString()]["comments"] = { [`${newThreadComment._id.toString()}`] : newThreadComment };
+      sourceUser.markModified("threads");
+      await sourceUser.save();
+    } else {
+      throw new Error("Source user was not found (thread comment");
+    }
+
+    if (!this .threads.commented[`${targetThread.id.toString()}`]) {
       this.threads.commented[`${targetThread.id.toString()}`] = { };
       this.threads.commented[`${targetThread.id.toString()}`][`${newThreadComment.id.toString()}`] = newThreadComment;
     } else {
