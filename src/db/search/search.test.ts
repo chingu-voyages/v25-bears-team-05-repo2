@@ -27,7 +27,7 @@ afterAll(async () => {
   await mongoServer.stop();
 });
 
-describe("search results tests", () => {
+describe("search query tests", () => {
   test("users search results are accurate", async() => {
     // Create a bunch of test users
     const testUsers = createTestUsers({ numberOfUsers: 10 });
@@ -67,7 +67,7 @@ describe("search results tests", () => {
     expect(query5[0].firstName).toBe("Sharon");
   });
 
-  test("main thread public posts (comments not included)", async() => {
+  test("gets correct public posts based on query (excludes threadComments)", async() => {
     const testUsers = createTestUsers({ numberOfUsers: 10 });
     const userDocuments = await UserModel.create(testUsers);
 
@@ -92,30 +92,28 @@ describe("search results tests", () => {
     expect(query2.length).toBe(2);
   });
 
-  describe("search results for private posts", () => {
-    test("gets correct private posts based on a query", async() => {
-      const testUsers = createTestUsers({ numberOfUsers: 5 });
-      const userDocuments = await UserModel.create(testUsers);
+  test("gets correct private posts based on a query", async() => {
+    const testUsers = createTestUsers({ numberOfUsers: 5 });
+    const userDocuments = await UserModel.create(testUsers);
 
-      await userDocuments[4].createAndPostThread({ html: "Nothing is so necessary for a young man",
-      visibility: ThreadVisibility.Connections});
+    await userDocuments[4].createAndPostThread({ html: "Nothing is so necessary for a young man",
+    visibility: ThreadVisibility.Connections});
 
-      await userDocuments[4].createAndPostThread({ html: "There are more things in heaven and earth, Heratio,",
-      visibility: ThreadVisibility.Connections});
-      await userDocuments[4].createAndPostThread({ html: "There once was something worthy bah!",
-      hashTags: ["apples", "plumbing"],
-      visibility: ThreadVisibility.Connections});
+    await userDocuments[4].createAndPostThread({ html: "There are more things in heaven and earth, Heratio,",
+    visibility: ThreadVisibility.Connections});
+    await userDocuments[4].createAndPostThread({ html: "There once was something worthy bah!",
+    hashTags: ["apples", "plumbing"],
+    visibility: ThreadVisibility.Connections});
 
-      await userDocuments[4].addConnectionToUser(userDocuments[0].id.toString());
-      await userDocuments[4].addConnectionToUser(userDocuments[1].id.toString());
+    await userDocuments[4].addConnectionToUser(userDocuments[0].id.toString());
+    await userDocuments[4].addConnectionToUser(userDocuments[1].id.toString());
 
-      const result1 = await queryPrivateThreads({ requestorUserId: userDocuments[0].id.toString(), queryString: "heratio" });
-      const result2 = await queryPrivateThreads({ requestorUserId: userDocuments[4].id.toString(), queryString: "young man"});
-      const result3 = await queryPrivateThreads({ requestorUserId: userDocuments[1].id.toString(), queryString: "plumbing" });
-      expect(result1.length).toBe(1);
-      expect(result1[0].content.html).toBe("There are more things in heaven and earth, Heratio,");
-      expect(result2.length).toBe(0);
-      expect(result3.length).toBe(1);
-  });
+    const result1 = await queryPrivateThreads({ requestorUserId: userDocuments[0].id.toString(), queryString: "heratio" });
+    const result2 = await queryPrivateThreads({ requestorUserId: userDocuments[4].id.toString(), queryString: "young man"});
+    const result3 = await queryPrivateThreads({ requestorUserId: userDocuments[1].id.toString(), queryString: "plumbing" });
+    expect(result1.length).toBe(1);
+    expect(result1[0].content.html).toBe("There are more things in heaven and earth, Heratio,");
+    expect(result2.length).toBe(0);
+    expect(result3.length).toBe(1);
   });
 });
