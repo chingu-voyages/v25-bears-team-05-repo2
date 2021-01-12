@@ -1,4 +1,4 @@
-import { getUserSearchResults } from "./search.user";
+import { getUserSearchResults } from "./search.users";
 import { queryPrivateThreads } from "./search.threads";
 import { queryPublicThreads } from "./search.threads";
 import { ISearchResults } from "./search.types";

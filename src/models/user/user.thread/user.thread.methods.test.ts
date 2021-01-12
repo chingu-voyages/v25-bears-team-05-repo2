@@ -4,7 +4,7 @@ import { ThreadModel } from "../../thread/thread.model";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { ThreadType } from "../../../models/thread/thread.types";
-import { ThreadCommentModel } from "../../../models/thread-comment/thread-comment.model";
+
 let mongoServer: any;
 
 const options: mongoose.ConnectionOptions = {
