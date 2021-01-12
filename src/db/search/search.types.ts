@@ -2,7 +2,8 @@ import { ThreadType, ThreadVisibility } from "../../models/thread/thread.types";
 
 export interface ISearchResults {
   users?: Array<IPublicUserDetails>;
-  threads?: Array<IThreadDetails>;
+  public_threads?: Array<IThreadDetails>;
+  private_threads?: Array<IThreadDetails>;
 }
 
 export interface IPublicUserDetails {
@@ -25,5 +26,13 @@ export interface IThreadDetails {
   visibility: ThreadVisibility;
   likes?: number;
   shares?: number;
+  updatedAt: Date;
+}
+
+export interface IThreadCommentDetails {
+  id: string;
+  postedByUserId: string;
+  content: string;
+  createdAt: Date;
   updatedAt: Date;
 }

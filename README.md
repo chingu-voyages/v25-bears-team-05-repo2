@@ -156,3 +156,9 @@ Description: log out of service and expire cookie
 Method: POST<br>
 Endpoint: `/register/local`<br>
 Description: log-in using local authentication<br>
+
+### <b>Search</b>
+
+Method: GET<br>
+Endpoint: in progress<br>
+Description: in progress <br>

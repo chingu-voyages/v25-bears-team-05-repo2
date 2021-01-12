@@ -4,6 +4,7 @@ import { ThreadModel } from "../../thread/thread.model";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { ThreadType } from "../../../models/thread/thread.types";
+import { ThreadCommentModel } from "../../../models/thread-comment/thread-comment.model";
 let mongoServer: any;
 
 const options: mongoose.ConnectionOptions = {
@@ -202,12 +203,14 @@ describe("create and delete threadComment tests", () => {
     await dummyUserDocuments[1].addThreadComment({
       threadCommentData: { content: "This the third comment content" },
       targetThreadId: thread1.threadData.id,
-     });
+    });
 
-     const arrayOfKeys = (Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`]));
-     expect(Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`])).toHaveLength(3);
-     expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[2]}`].content).toBe("This the third comment content");
-     expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[2]}`].postedByUserId).toBe(dummyUserDocuments[1].id.toString());
+    const arrayOfKeys = (Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`]));
+    expect(Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`])).toHaveLength(3);
+    expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[2]}`].content)
+      .toBe("This the third comment content");
+    expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[2]}`].postedByUserId)
+      .toBe(dummyUserDocuments[1].id.toString());
     });
 
     test("deletes a thread comment properly", async() => {

@@ -141,9 +141,14 @@ export async function addThreadComment (this: IUserDocument,
   if (targetThread) {
     // Create a thread
     const newThreadComment = await ThreadCommentModel.create(
-      { postedByUser: this.id.toString(),
-        ...data.threadCommentData});
-        newThreadComment.postedByUserId = this.id.toString();
+      { postedByUserId: this.id.toString(),
+        ...data.threadCommentData,
+        parentThreadId: targetThread.id.toString(),
+        parentThreadVisibility: targetThread.visibility,
+        createdAt: new Date(),
+        updatedAt: new Date()}
+      );
+      newThreadComment.postedByUserId = this.id.toString();
 
     targetThread.comments[`${newThreadComment.id.toString()}`] = newThreadComment;
     targetThread.markModified("comments");
@@ -189,6 +194,8 @@ export async function deleteThreadComment (this: IUserDocument, data: { targetTh
   if (!(targetThread.comments[data.targetThreadCommentId])) {
     throw new Error("Thread comment not found");
   }
+
+  await ThreadCommentModel.findByIdAndDelete(data.targetThreadCommentId);
 
   if (this.threads.commented[targetThread.id.toString()][data.targetThreadCommentId]) {
     const targetThreadId = targetThread.id.toString();

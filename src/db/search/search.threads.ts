@@ -1,7 +1,8 @@
 import { ThreadVisibility } from "../../models/thread/thread.types";
 import { ThreadModel } from "../../models/thread/thread.model";
-import { IThreadDetails } from "./search.types";
+import { IThreadCommentDetails, IThreadDetails } from "./search.types";
 import { UserModel } from "../../models/user/user.model";
+import { ThreadCommentModel } from "../../models/thread-comment/thread-comment.model";
 
 export async function queryPublicThreads(data: { queryString: string }): Promise<IThreadDetails[]> {
   const query = { "$search": data.queryString };

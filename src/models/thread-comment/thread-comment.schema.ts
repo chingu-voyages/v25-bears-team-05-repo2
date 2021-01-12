@@ -1,9 +1,10 @@
 import { Schema } from "mongoose";
 
-
 const ThreadCommentSchema: Schema = new Schema({
-  postedByUserId: String,
-  content: String,
+  postedByUserId: { type: String, required: true },
+  content: { type: String, required: true },
+  parentThreadId: String,
+  parentThreadVisibility: { type: Number, default: 0, required: true },
   attachments: {
     type: [{ url: String }] ,
     required: false,
@@ -11,4 +12,5 @@ const ThreadCommentSchema: Schema = new Schema({
   }
 }, { timestamps: { }});
 
+ThreadCommentSchema.index({ "content": "text"});
 export default ThreadCommentSchema;
