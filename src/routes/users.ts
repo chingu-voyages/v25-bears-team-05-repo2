@@ -16,12 +16,19 @@ router.get("/:id", routeProtector, [ param("id").not().isEmpty().trim().escape()
   if (!errors.isEmpty()) {
     return res.status(400).send({ errors: errors.array() });
   }
-  if (req.params.id === "me") {
-    const homeProfileData = await getProfileById(req.user._id);
-    return res.status(200).send(homeProfileData);
-  } else {
-    const otherUserData = await getProfileById(req.params.id);
-    return res.status(200).send(otherUserData);
+
+  try {
+    if (req.params.id === "me") {
+      const homeProfileData = await getProfileById(req.user._id);
+      return res.status(200).send(homeProfileData);
+    } else {
+      const otherUserData = await getProfileById(req.params.id);
+      return res.status(200).send(otherUserData);
+    }
+  } catch(err) {
+    res.status(400).send({ errors: [{ ...createError("get profile by id",
+    `invalid id or id is undefined ${err.Message}`,
+    "id")} ]});
   }
 });
 
