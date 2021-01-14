@@ -11,9 +11,10 @@ export interface IThreadComment {
   attachments?: Array<IAttachmentType>;
   parentThreadId: string;
   parentThreadVisibility: ThreadVisibility;
+  parentThreadOriginatorId: string;
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }
 
-export interface IThreadCommentDocument extends IThreadComment, Document { }
-export interface IThreadCommentModel extends Model<IThreadCommentDocument> { }
+export interface IThreadCommentDocument extends IThreadComment, Document {}
+export interface IThreadCommentModel extends Model<IThreadCommentDocument> {}

@@ -11,7 +11,7 @@ export interface IPublicUserDetails {
   firstName: string;
   lastName: string;
   jobTitle?: string;
-  avatars?: Array<{ url: string}>;
+  avatars?: Array<{ url: string }>;
 }
 
 export interface IThreadDetails {
@@ -19,18 +19,32 @@ export interface IThreadDetails {
   postedByUserId: string;
   threadType: ThreadType;
   content: {
-      html: string,
-      hashTags?: Array<string>,
-      attachments?: Array<string>
-    };
+    html: string;
+    hashTags?: Array<string>;
+    attachments?: Array<string>;
+  };
   visibility: ThreadVisibility;
   likes?: number;
   shares?: number;
   updatedAt: Date;
 }
 
-export interface IThreadCommentDetails {
+export interface IParentThreadDetails {
   id: string;
+  postedByUserId: string;
+  visibility: ThreadVisibility;
+  content: {
+    html: string;
+    hashTags: Array<string>;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IThreadCommentDetails {
+  parentThread: IParentThreadDetails | null;
+  id: string;
+  parentThreadId: string;
   postedByUserId: string;
   content: string;
   createdAt: Date;

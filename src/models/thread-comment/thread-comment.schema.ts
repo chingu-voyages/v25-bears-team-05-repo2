@@ -1,16 +1,20 @@
 import { Schema } from "mongoose";
 
-const ThreadCommentSchema: Schema = new Schema({
-  postedByUserId: { type: String, required: true },
-  content: { type: String, required: true },
-  parentThreadId: String,
-  parentThreadVisibility: { type: Number, default: 0, required: true },
-  attachments: {
-    type: [{ url: String }] ,
-    required: false,
-    default: []
-  }
-}, { timestamps: { }});
+const ThreadCommentSchema: Schema = new Schema(
+  {
+    postedByUserId: { type: String, required: true },
+    content: { type: String, required: true },
+    parentThreadId: String,
+    parentThreadVisibility: { type: Number, default: 0, required: true },
+    parentThreadOriginatorId: String,
+    attachments: {
+      type: [{ url: String }],
+      required: false,
+      default: [],
+    },
+  },
+  { timestamps: {} }
+);
 
-ThreadCommentSchema.index({ "content": "text"});
+ThreadCommentSchema.index({ "content": "text" });
 export default ThreadCommentSchema;
