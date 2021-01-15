@@ -15,7 +15,8 @@ import { createError } from "./utils/errors";
 const cookieSession = require("cookie-session");
 
 const app = express();
-const isProduction = !(process.env.NODE_ENV && process.env.NODE_ENV.match("development"));
+const isProduction =
+  process.env.NODE_ENV && process.env.NODE_ENV.match("production");
 
 // Connect to MongoDB
 connectDB();
@@ -25,19 +26,21 @@ app.set("port", process.env.PORT || 7000);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(cookieSession({
-  maxAge: 24 * 60 * 60 * 1000, // Day
-  name: "synced-up",
-  keys: [process.env.COOKIE_KEY_1, process.env.COOKIE_KEY_2],
-  domain: isProduction ? ".syncedup.live" : "localhost",
- // secure: isProduction
-}));
+app.use(
+  cookieSession({
+    maxAge: 24 * 60 * 60 * 1000, // Day
+    name: "synced-up",
+    keys: [process.env.COOKIE_KEY_1, process.env.COOKIE_KEY_2],
+    domain: isProduction ? ".syncedup.live" : "localhost",
+    // secure: isProduction
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-// check client server is authorised to make requests
-app.use(checkClientApiPass);
+// check client server is authorized to make requests
+isProduction && app.use(checkClientApiPass);
 
 app.use("/auth", authRouter);
 app.use("/register/local", localRegistrationRouter);
@@ -55,7 +58,9 @@ app.get("/success", (req: any, res) => {
 });
 
 app.get("/fail", (req, res) => {
-  res.status(400).send({ errors: [{...createError("google-oauth", "Authentication error", "na")}]});
+  res.status(400).send({
+    errors: [{ ...createError("google-oauth", "Authentication error", "na") }],
+  });
 });
 const port = app.get("port");
 const server = app.listen(port, () =>
