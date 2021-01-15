@@ -9,7 +9,7 @@ import feedRoute from "./routes/feed";
 import searchRouter from "./routes/search";
 import express from "express";
 import passport from "passport";
-import checkClientApiPass from "./middleware/checkClientApiPass";
+import checkClientApiPass from "./middleware/check-client-api-pass";
 
 import connectDB from "../config/database";
 import { createError } from "./utils/errors";
