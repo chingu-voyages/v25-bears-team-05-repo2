@@ -19,10 +19,10 @@ router.get("/:id", routeProtector, [ param("id").not().isEmpty().trim().escape()
 
   try {
     if (req.params.id === "me") {
-      const homeProfileData = await getProfileById(req.user._id);
+      const homeProfileData = await getProfileById({userId: req.user._id, reqUserId: req.user._id});
       return res.status(200).send(homeProfileData);
     } else {
-      const otherUserData = await getProfileById(req.params.id);
+      const otherUserData = await getProfileById({userId: req.user._id, reqUserId: req.user._id});
       return res.status(200).send(otherUserData);
     }
   } catch(err) {

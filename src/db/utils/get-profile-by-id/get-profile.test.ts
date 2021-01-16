@@ -32,7 +32,7 @@ describe("get profile tests", () => {
 
     // Grab the id from one of the users so we can test the function
     const id = newUsers[0]._id.toString();
-    const result = await getProfileById(id);
+    const result = await getProfileById({userId: id, reqUserId: "na"});
 
     expect(result.id.toString()).toBe(id);
     expect(result).not.toHaveProperty("auth");

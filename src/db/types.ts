@@ -9,7 +9,7 @@ export interface IProfile {
   lastName: string;
   jobTitle: string;
   avatarUrls: Array<{url: string}>;
-  nOfConnections: number | null;
+  nOfConnections: number;
   isAConnection: boolean;
   connections: { [userId: string]: IUserConnection };
   connectionOf: { [userId: string]: IUserConnection };
