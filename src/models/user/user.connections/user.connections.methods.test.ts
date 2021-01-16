@@ -52,8 +52,6 @@ describe("user add connection tests", () => {
     expect(dummyUserDocuments[0].connections).toHaveProperty(dummyUserDocuments[8].id);
     expect(dummyUserDocuments[0].connections).toHaveProperty(dummyUserDocuments[9].id);
     expect(dummyUserDocuments[0].connections).toHaveProperty(dummyUserDocuments[10].id);
-    expect(dummyUserDocuments[0].connections[dummyUserDocuments[7].id].firstName).toBeDefined();
-    expect(dummyUserDocuments[0].connections[dummyUserDocuments[8].id].lastName).toBeDefined();
 
     expect(target1.connectionOf).toHaveProperty(dummyUserDocuments[0].id);
     expect(target2.connectionOf).toHaveProperty(dummyUserDocuments[0].id);

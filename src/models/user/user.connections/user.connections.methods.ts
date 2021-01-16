@@ -90,10 +90,6 @@ export async function getConnectionOfFromConnections(this: IUserDocument): Promi
  */
 function transformUserDataToConnection(userData: IUserDocument, isTeamMate?: boolean): IUserConnection {
   return {
-    firstName: userData.firstName,
-    lastName: userData.lastName,
-    jobTitle: userData.jobTitle,
-    avatarUrls: userData.avatarUrls,
     userId: userData.id.toString(),
     dateTimeConnected: userData.createdAt,
     isTeamMate: isTeamMate || false,

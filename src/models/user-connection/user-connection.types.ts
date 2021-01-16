@@ -5,10 +5,6 @@ export interface Avatar {
 }
 
 export interface IUserConnection {
-  firstName: string;
-  lastName: string;
-  jobTitle: string;
-  avatarUrls: Array<Avatar>;
   userId: Types.ObjectId;
   isTeamMate: boolean;
   dateTimeConnected: Date;

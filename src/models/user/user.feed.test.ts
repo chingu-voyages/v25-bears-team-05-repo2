@@ -106,7 +106,6 @@ describe("feed tests", () => {
 
        const result = await dummyUserDocuments[0].getConnectionOfFromConnections();
        expect(result).toHaveLength(4);
-       expect(result[0].firstName).toBe("testUser19FirstName");
     });
   });
 });
