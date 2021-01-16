@@ -1,8 +1,8 @@
 import { Document, Model } from "mongoose";
 import { IThreadComment } from "../thread-comment/thread-comment.types";
-import { IThreadLikeDocument } from "../thread-like/thread-like.types";
+import { IThreadReactionDocument } from "../thread-reaction/thread-reaction.types";
 import mongoose from "mongoose";
-import { IThreadShare } from "../thread-share/thread-share.types";
+import { IThreadFork } from "../thread-fork/thread-fork.types";
 
 export enum ThreadType {
   Post = "post",
@@ -34,8 +34,8 @@ export interface IThread {
     attachments: Array<string>
   };
   comments: { [keyof: string]: IThreadComment };
-  likes: { [keyof: string]: IThreadLikeDocument };
-  shares: { [keyof: string]: IThreadShare };
+  reactions: { [keyof: string]: IThreadReactionDocument };
+  forks: { [keyof: string]: IThreadFork };
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }

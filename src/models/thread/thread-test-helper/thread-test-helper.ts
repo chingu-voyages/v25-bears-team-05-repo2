@@ -31,8 +31,8 @@ export function createDummyPublicThreads(count: number, forUserId: string): IThr
         attachments: []
       },
       comments: { },
-      likes: { },
-      shares: { },
+      reactions: { },
+      forks: { },
       createdAt: new Date(),
       updatedAt: new Date()
     });

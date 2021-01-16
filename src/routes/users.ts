@@ -113,7 +113,7 @@ router.delete("/connections/:id", routeProtector, [ param("id").not().isEmpty().
 
 
 router.patch("/:id", routeProtector, [body("firstName").trim().escape(),
-body("lastName").trim().escape(), body("avatar").custom((value) => {
+body("lastName").trim().escape(), body("avatarUrls").custom((value) => {
   if (value) {
     try {
       new URL(value);
@@ -125,7 +125,7 @@ body("lastName").trim().escape(), body("avatar").custom((value) => {
     return true;
   }
 }),
-sanitizeBody("avatar").customSanitizer((value) => {
+sanitizeBody("avatarUrls").customSanitizer((value) => {
   return value.trim();
 }),
 body("jobTitle").trim().escape(),
@@ -147,7 +147,7 @@ param("id").not().isEmpty().trim().escape()],
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       jobTitle: req.body.jobTitle,
-      avatarUrl: req.body.avatar
+      avatarUrl: req.body.avatarUrls
     };
 
     try {
@@ -155,7 +155,7 @@ param("id").not().isEmpty().trim().escape()],
       return res.status(200).send({ firstName: req.user.firstName,
         lastName: req.user.lastName,
         jobTitle: req.user.jobTitle,
-        avatar: req.body.avatar,
+        avatarUrls: req.body.avatarUrls,
         email: decrypt(req.user.auth.email) });
     } catch (err) {
       return res.status(500).send({ errors: [{

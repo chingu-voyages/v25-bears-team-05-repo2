@@ -128,7 +128,7 @@ Parameter: userId to delete from connection
 Method: PATCH <br>
 Endpoint: `/users/:id` <br>
 Description: Update requester's profile details <br>
-Body: optional parameters: `firstName`, `lastName` `avatar`, `jobTitle`
+Body: optional parameters: `firstName`, `lastName` `avatarUrls`, `jobTitle`
 
 Method: GET <br>
 Endpoint: `/users/:id/threads` <br>

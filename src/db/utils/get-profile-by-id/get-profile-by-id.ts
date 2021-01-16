@@ -12,7 +12,7 @@ export async function getProfileById(userId: string): Promise<IProfile> {
     firstName: result.firstName,
     lastName: result.lastName,
     jobTitle: result.jobTitle,
-    avatar: result.avatar,
+    avatarUrls: result.avatar,
     connections: result.connections,
     connectionOf: result.connectionOf,
     threads:  result.threads,

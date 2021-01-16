@@ -41,8 +41,8 @@ describe("CRUD operations for Thread model", () => {
         attachments: ["a1490dfw4", "b90d*hd*734"],
       },
       comments: { },
-      likes: { },
-      shares: { },
+      reactions: { },
+      forks: { },
       createdAt: new Date(),
       updatedAt: new Date()
     };

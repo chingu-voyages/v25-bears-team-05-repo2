@@ -1,9 +1,9 @@
 import { Schema } from "mongoose";
 import ThreadSchema from "../thread/thread.schema";
 
-const ThreadShareSchema: Schema = new Schema({
+const ThreadForkSchema: Schema = new Schema({
   postedByUserId: String,
-  threadShareType: String,
+  threadForkType: String,
   visibility: Number,
   content: {
     thread: ThreadSchema,
@@ -16,16 +16,16 @@ const ThreadShareSchema: Schema = new Schema({
     default: {},
     required: true,
   },
-  likes: {
+  reactions: {
     type: Schema.Types.Mixed,
     default: {},
     required: true,
   },
-  shares: {
+  forks: {
     type: Schema.Types.Mixed,
     default: {},
     required: true,
   },
 }, { timestamps: {}});
 
-export default ThreadShareSchema;
+export default ThreadForkSchema;

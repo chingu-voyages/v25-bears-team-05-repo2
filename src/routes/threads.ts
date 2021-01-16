@@ -108,7 +108,7 @@ body("attachments").custom((value) => {
   }
 });
 
-router.post("/:id/likes", routeProtector, [param("id").exists().trim().escape(),
+router.post("/:id/reactions", routeProtector, [param("id").exists().trim().escape(),
 body("title").exists().trim().escape(),
 ], async(req: any, res: Response) => {
   const errors = validationResult(req);
@@ -117,30 +117,30 @@ body("title").exists().trim().escape(),
   }
 
   try {
-    const result = await req.user.addLikeToThread({ targetThreadId: req.params.id,
+    const result = await req.user.addReactionToThread({ targetThreadId: req.params.id,
       title: req.body.title});
       return res.status(200).send(result);
   } catch (err) {
-    res.status(400).send({ errors: [{ ...createError("Add a like to a thread",
+    res.status(400).send({ errors: [{ ...createError("Add a reaction to a thread",
     `error. ${err}`,
     "Server error")} ]});
   }
 });
 
 
-router.delete("/:id/likes", routeProtector, [param("id").exists().trim().escape(),
-body("threadLikeId").exists().trim().escape()],
+router.delete("/:id/reactions", routeProtector, [param("id").exists().trim().escape(),
+body("threadReactionId").exists().trim().escape()],
 async(req: any, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).send({ errors: errors.array() });
   }
   try {
-    const result = await req.user.deleteLikeFromThread({ targetThreadId: req.params.id,
-      targetLikeId: req.body.threadLikeId});
+    const result = await req.user.deleteReactionFromThread({ targetThreadId: req.params.id,
+      targetReactionId: req.body.threadReactionId});
     return res.status(200).send(result);
   } catch (err) {
-    res.status(400).send({ errors: [{ ...createError("Delete a like from a thread",
+    res.status(400).send({ errors: [{ ...createError("Delete a reaction from a thread",
     `error. ${err}`,
     "Server error")} ]});
   }
@@ -232,7 +232,7 @@ routeProtector, async(req: any, res: Response) => {
   }
 });
 
-router.post("/:thread_id/share", [body("threadId").exists().trim().escape(),
+router.post("/:thread_id/fork", [body("threadId").exists().trim().escape(),
 body("sourceUserId").exists().trim().escape()],
 routeProtector,
 async(req: any, res: Response) => {
@@ -241,12 +241,12 @@ async(req: any, res: Response) => {
     return res.status(400).send({ errors: errors.array() });
   }
   try {
-    const result = await req.user.shareThread({ targetThreadId: req.body.threadId,
+    const result = await req.user.forkThread({ targetThreadId: req.body.threadId,
       sourceUserId: req.body.sourceUserId
     });
     return res.status(200).send(result);
   } catch (err) {
-    res.status(400).send({ errors: [{ ...createError("Unable to share thread",
+    res.status(400).send({ errors: [{ ...createError("Unable to fork thread",
     `${err}`,
     "Error")} ]});
   }
@@ -260,12 +260,12 @@ router.delete("/:thread_id",
     return res.status(400).send({ errors: errors.array() });
   }
   try {
-    const result = await req.user.deleteThreadShare({
-      targetThreadShareId: req.body.threadId
+    const result = await req.user.deleteThreadFork({
+      targetThreadForkId: req.body.threadId
     });
     return res.status(200).send(result);
   } catch (err) {
-    res.status(400).send({ errors: [{ ...createError("Unable to delete threadShare",
+    res.status(400).send({ errors: [{ ...createError("Unable to delete threadFork",
     `${err}`,
     "Error")} ]});
   }

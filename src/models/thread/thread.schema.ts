@@ -15,12 +15,12 @@ const ThreadSchema: Schema = new Schema({
     default: { },
     required: true,
   },
-  likes: {
+  reactions: {
     type: Schema.Types.Mixed,
     default: { },
     required: true,
   },
-  shares: {
+  forks: {
     type: Schema.Types.Mixed,
     default: { },
     required: true,

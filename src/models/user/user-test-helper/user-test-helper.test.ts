@@ -7,7 +7,7 @@ describe("createTestUsers helper function tests", () => {
     expect(result).toHaveLength(5);
     expect(decrypt(result[1].auth.email)).toBe("testUser1@test.com");
     expect(result[4].lastName).toBe("testUser4LastName");
-    expect(result[0].avatar[0].url).toBe("testUser0AvatarUrl");
+    expect(result[0].avatarUrls[0].url).toBe("testUser0AvatarUrl");
   });
 
   test("googleIds are assigned properly with same number of ids as test users", () => {

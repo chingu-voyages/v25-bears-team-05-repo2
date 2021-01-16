@@ -8,7 +8,7 @@ export interface IUserConnection {
   firstName: string;
   lastName: string;
   jobTitle: string;
-  avatar: Array<Avatar>;
+  avatarUrls: Array<Avatar>;
   userId: Types.ObjectId;
   isTeamMate: boolean;
   dateTimeConnected: Date;

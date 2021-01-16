@@ -93,7 +93,7 @@ function transformUserDataToConnection(userData: IUserDocument, isTeamMate?: boo
     firstName: userData.firstName,
     lastName: userData.lastName,
     jobTitle: userData.jobTitle,
-    avatar: userData.avatar,
+    avatarUrls: userData.avatarUrls,
     userId: userData.id.toString(),
     dateTimeConnected: userData.createdAt,
     isTeamMate: isTeamMate || false,

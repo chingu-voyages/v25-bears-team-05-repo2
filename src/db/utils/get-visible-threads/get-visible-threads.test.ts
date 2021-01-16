@@ -18,8 +18,8 @@ describe("getVisibleThread db tests", () => {
           attachments: [],
         },
         comments: { },
-        likes: { },
-        shares: { },
+        reactions: { },
+        forks: { },
         createdAt: new Date(),
         updatedAt: new Date()
       } as IThreadDocument,
@@ -33,8 +33,8 @@ describe("getVisibleThread db tests", () => {
           attachments: [],
         },
         comments: { },
-        likes: { },
-        shares: { },
+        reactions: { },
+        forks: { },
         createdAt: new Date(),
         updatedAt: new Date()
       } as IThreadDocument,
@@ -48,8 +48,8 @@ describe("getVisibleThread db tests", () => {
           attachments: [],
         },
         comments: { },
-        likes: { },
-        shares: { },
+        reactions: { },
+        forks: { },
         createdAt: new Date(),
         updatedAt: new Date()
       } as IThreadDocument,
@@ -63,8 +63,8 @@ describe("getVisibleThread db tests", () => {
           attachments: [],
         },
         comments: { },
-        likes: { },
-        shares: { },
+        reactions: { },
+        forks: { },
         createdAt: new Date(),
         updatedAt: new Date()
       } as IThreadDocument

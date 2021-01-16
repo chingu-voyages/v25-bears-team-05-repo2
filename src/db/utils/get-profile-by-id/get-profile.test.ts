@@ -41,7 +41,7 @@ describe("get profile tests", () => {
     expect(result).toHaveProperty("connections");
     expect(result).toHaveProperty("connectionOf");
     expect(result).toHaveProperty("threads");
-    expect(result).toHaveProperty("avatar");
+    expect(result).toHaveProperty("avatarUrls");
     expect(result).toHaveProperty("id");
     expect(result).toHaveProperty("jobTitle");
   });

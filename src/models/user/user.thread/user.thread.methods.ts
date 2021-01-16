@@ -2,11 +2,11 @@ import { IUserDocument } from "../user.types";
 import { UserModel } from "../user.model";
 import { IThread, IThreadDocument, IThreadPostDetails, ThreadType, ThreadVisibility } from "../../thread/thread.types";
 import { ThreadModel } from "../../thread/thread.model";
-import { ThreadLikeModel } from "../../../models/thread-like/thread-like.model";
+import { ThreadReactionModel } from "../../../models/thread-reaction/thread-reaction.model";
 import sanitizeHtml from "sanitize-html";
 import { ThreadCommentModel } from "../../../models/thread-comment/thread-comment.model";
 import { IAttachmentType } from "../../../models/thread-comment/thread-comment.types";
-import { IThreadShare, IThreadShareDocument } from "../../../models/thread-share/thread-share.types";
+import { IThreadFork, IThreadForkDocument } from "../../../models/thread-fork/thread-fork.types";
 import { deleteUserCommentsForThreadByThreadId } from "./user.thread.deletion.methods";
 
 /**
@@ -25,8 +25,8 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
       hashTags: threadDetails.hashTags
     },
     comments: { },
-    likes: { },
-    shares: { },
+    reactions: { },
+    forks: { },
     createdAt: new Date(),
     updatedAt: new Date()
   };
@@ -72,48 +72,48 @@ export async function getConnectionThreads(this: IUserDocument): Promise<Array<I
   return threads.sort((a, b) => b.createdAt.valueOf() - a.createdAt.valueOf());
 }
 
-export async function addLikeToThread(this: IUserDocument, data: { targetThreadId: string, title: string}) {
+export async function addReactionToThread(this: IUserDocument, data: { targetThreadId: string, title: string}) {
   // Find the thread
-  // Create the like object
-  // Add like object to thread
-  // Add the thread to the likes object on the user
+  // Create the reaction object
+  // Add reaction object to thread
+  // Add the thread to the reactions object on the user
 
   const targetThread = await ThreadModel.findById(data.targetThreadId);
   if (targetThread) {
-    // User can't like own thread
+    // User can't reaction own thread
 
     if (targetThread.postedByUserId === this.id.toString()) {
-      throw new Error("Cannot like own thread");
+      throw new Error("Cannot reaction own thread");
     }
-    // Create the like object
-    const threadLikeDocument = await ThreadLikeModel.create({ postedByUserId: this.id,  title: data.title});
-    targetThread.likes[`${threadLikeDocument._id.toString()}`] = threadLikeDocument;
-    targetThread.markModified("likes");
-    this.threads.liked[`${targetThread.id.toString()}`] = threadLikeDocument;
+    // Create the reaction object
+    const threadReactionDocument = await ThreadReactionModel.create({ postedByUserId: this.id,  title: data.title});
+    targetThread.reactions[`${threadReactionDocument._id.toString()}`] = threadReactionDocument;
+    targetThread.markModified("reactions");
+    this.threads.reacted[`${targetThread.id.toString()}`] = threadReactionDocument;
     this.markModified("threads");
     await this.save();
     const threadDoc = await targetThread.save();
     return {
       updatedThread: threadDoc,
-      threadLikeDocument: threadLikeDocument
+      threadReactionDocument: threadReactionDocument
     };
   }
 }
 
-export async function deleteLikeFromThread(this: IUserDocument, data: {  targetThreadId: string, targetLikeId: string }): Promise<{ updatedThread: IThreadDocument}> {
+export async function deleteReactionFromThread(this: IUserDocument, data: {  targetThreadId: string, targetReactionId: string }): Promise<{ updatedThread: IThreadDocument}> {
   // Find the thread
   const targetThread = await ThreadModel.findById(data.targetThreadId);
 
-  // Find the like and validate that it's by the user requesting
-  const like = targetThread.likes[`${data.targetLikeId}`];
+  // Find the reaction and validate that it's by the user requesting
+  const reaction = targetThread.reactions[`${data.targetReactionId}`];
 
-  if (like && like.postedByUserId.toString() === this.id.toString()) {
-    if (like._id.toString() === data.targetLikeId) {
-      delete targetThread.likes[`${data.targetLikeId}`];
-      targetThread.markModified("likes");
+  if (reaction && reaction.postedByUserId.toString() === this.id.toString()) {
+    if (reaction._id.toString() === data.targetReactionId) {
+      delete targetThread.reactions[`${data.targetReactionId}`];
+      targetThread.markModified("reactions");
 
       // Delete it from the requesting user's document
-      delete this.threads.liked[`${data.targetThreadId.toString()}`];
+      delete this.threads.reacted[`${data.targetThreadId.toString()}`];
       this.markModified("threads");
       await targetThread.save();
       await this.save();
@@ -121,10 +121,10 @@ export async function deleteLikeFromThread(this: IUserDocument, data: {  targetT
         updatedThread: targetThread
       };
     } else {
-      throw new Error("ThreadLike id not found");
+      throw new Error("ThreadReaction id not found");
     }
   } else {
-    throw new Error("Unable to delete like from thread.");
+    throw new Error("Unable to delete reaction from thread.");
   }
 }
 
@@ -199,16 +199,16 @@ export async function deleteThreadComment (this: IUserDocument, data: { targetTh
 /**
  *
  * @param this Instance of a User
- * @param data the thread to share on user's profile
+ * @param data the thread to fork on user's profile
  */
-export async function shareThread(this: IUserDocument,
+export async function forkThread(this: IUserDocument,
   data: { targetThreadId: string,
     sourceUserId: string,
-    threadShareType: ThreadType,
+    threadForkType: ThreadType,
     visibility?: ThreadVisibility}) {
   // The targetThreadId has to exist on the source user.
-  // The targetThreadId must be a public thread (cannot share private)
-  // ThreadShares (the shared object on the Thread document) is stored by the sharer's userId.
+  // The targetThreadId must be a public thread (cannot fork private)
+  // ThreadForks (the forked object on the Thread document) is stored by the forkr's userId.
 
   // First find the thread in the collection
   const targetThreadFromCollection = await ThreadModel.findById(data.targetThreadId.toString());
@@ -217,7 +217,7 @@ export async function shareThread(this: IUserDocument,
   }
 
   if (targetThreadFromCollection.visibility != ThreadVisibility.Anyone) {
-    throw new Error("Unable to share due to privacy settings");
+    throw new Error("Unable to fork due to privacy settings");
   }
 
   // Find the source user
@@ -228,37 +228,37 @@ export async function shareThread(this: IUserDocument,
 
   // Find the actual thread
   if (sourceUser.threads.started[targetThreadFromCollection.id.toString()]) {
-    // Update the thread object for the collection, and updated this.shared
-    if (targetThreadFromCollection.shares === undefined) {
-      targetThreadFromCollection.shares = { };
+    // Update the thread object for the collection, and updated this.forked
+    if (targetThreadFromCollection.forks === undefined) {
+      targetThreadFromCollection.forks = { };
     }
-    if (!this.threads.shared) {
-      this.threads.shared = { };
+    if (!this.threads.forked) {
+      this.threads.forked = { };
     }
 
-    const threadShare: IThreadShare = {
-      threadShareType: data.threadShareType,
+    const threadFork: IThreadFork = {
+      threadForkType: data.threadForkType,
       postedByUserId: targetThreadFromCollection.postedByUserId,
       visibility: data.visibility || ThreadVisibility.Anyone,
       content: targetThreadFromCollection.content,
       threadType: targetThreadFromCollection.threadType,
       comments: targetThreadFromCollection.comments,
-      likes: targetThreadFromCollection.likes,
-      shares: { } , // targetThreadFromCollection.shares,
+      reactions: targetThreadFromCollection.reactions,
+      forks: { } , // targetThreadFromCollection.forks,
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
-    targetThreadFromCollection.shares[this._id] = threadShare;
-    targetThreadFromCollection.markModified("shares");
-    this.threads.shared[targetThreadFromCollection.id.toString()] = targetThreadFromCollection as IThreadShareDocument;
+    targetThreadFromCollection.forks[this._id] = threadFork;
+    targetThreadFromCollection.markModified("forks");
+    this.threads.forked[targetThreadFromCollection.id.toString()] = targetThreadFromCollection as IThreadForkDocument;
     this.markModified("threads");
 
     await this.save();
     await targetThreadFromCollection.save();
 
     return {
-      updatedSharedThreads: this.threads.shared,
+      updatedForkedThreads: this.threads.forked,
       updatedThreadDocument: targetThreadFromCollection
     };
   } else {
@@ -267,38 +267,38 @@ export async function shareThread(this: IUserDocument,
 }
 
 /**
- * Deletes a thread share from user's own thread share object. It
+ * Deletes a thread fork from user's own thread fork object. It
  * @param this instance of UserDocument
  * @param data
  */
-export async function deleteThreadShare (this: IUserDocument, data: { targetThreadShareId: string }) {
+export async function deleteThreadFork (this: IUserDocument, data: { targetThreadForkId: string }) {
   // Get all needed objects
-  const sourceThread = await ThreadModel.findById(data.targetThreadShareId);
+  const sourceThread = await ThreadModel.findById(data.targetThreadForkId);
 
-  if (this.threads.shared[data.targetThreadShareId]) {
-    delete this.threads.shared[data.targetThreadShareId];
+  if (this.threads.forked[data.targetThreadForkId]) {
+    delete this.threads.forked[data.targetThreadForkId];
     this.markModified("threads");
     await this.save();
 
     // Update the other documents
     if (sourceThread) {
-      if (sourceThread.shares[this.id.toString()]) {
-        delete sourceThread.shares[this.id.toString()];
-        sourceThread.markModified("shares");
+      if (sourceThread.forks[this.id.toString()]) {
+        delete sourceThread.forks[this.id.toString()];
+        sourceThread.markModified("forks");
         await sourceThread.save();
         return {
-          updatedSharedThreads: this.threads.shared,
+          updatedForkedThreads: this.threads.forked,
           updatedThreadDocument: sourceThread
         };
       }
     } else {
       console.warn("Thread not found in thread collection");
       return {
-        updatedSharedThreads: this.threads.shared,
+        updatedForkedThreads: this.threads.forked,
         updatedThreadDocument: sourceThread
       };
     }
   } else {
-    throw new Error("Thread share wasn't found in user's thread share object");
+    throw new Error("Thread fork wasn't found in user's thread fork object");
   }
 }

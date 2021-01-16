@@ -11,11 +11,11 @@ export async function updateUserProfile(this: IUserDocument, profileData: IProfi
     this.jobTitle = profileData.jobTitle;
   }
   if (profileData.avatarUrl) {
-    const elementExists = this.avatar.find((element) => {
+    const elementExists = this.avatarUrls.find((element) => {
       return element.url === profileData.avatarUrl;
     });
     if (!elementExists) {
-      this.avatar.unshift( { url: profileData.avatarUrl} );
+      this.avatarUrls.unshift( { url: profileData.avatarUrl} );
     }
   }
   return await this.save();

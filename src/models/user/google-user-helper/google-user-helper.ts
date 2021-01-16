@@ -11,7 +11,7 @@ export function createUserFromGoogleData (profile: IGoogleOauthProfile): IUser {
         email: encrypt(profile.emails[0].value.toLowerCase()),
         oauth: profile.accessToken
       },
-      avatar: profile.photos.map((photo) => {
+      avatarUrls: profile.photos.map((photo) => {
         return { url: photo.value } ;
       }),
       connections: {},
@@ -19,8 +19,8 @@ export function createUserFromGoogleData (profile: IGoogleOauthProfile): IUser {
       threads: {
         started: {},
         commented: {},
-        liked: {},
-        shared: {},
+        reacted: {},
+        forked: {},
       },
       createdAt: new Date(),
       updatedAt: new Date()

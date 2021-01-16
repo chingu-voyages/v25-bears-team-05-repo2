@@ -16,14 +16,14 @@ export function createTestUsers (numberOfUsers: number = 1, googleIds?: Array<st
         googleId: googleIds && googleIds[i],
         email: encrypt(`testUser${i.toString()}@test.com`),
       },
-      avatar: [ {url: `testUser${i.toString()}AvatarUrl`} ],
+      avatarUrls: [ {url: `testUser${i.toString()}AvatarUrl`} ],
       connections: {},
       connectionOf: {},
       threads: {
         started: {},
         commented: {},
-        liked: {},
-        shared: {},
+        reacted: {},
+        forked: {},
       },
       createdAt: new Date(),
       updatedAt: new Date()
