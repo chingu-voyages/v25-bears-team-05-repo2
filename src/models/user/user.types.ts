@@ -2,15 +2,32 @@ import { Document, Model } from "mongoose";
 import { IAttachmentType, IThreadCommentDocument } from "../thread-comment/thread-comment.types";
 import { IThreadReactionDocument } from "../thread-reaction/thread-reaction.types";
 import { IThreadFork } from "../thread-fork/thread-fork.types";
-
 import { IThread, IThreadDocument, IThreadPostDetails, ThreadType, ThreadVisibility } from "../thread/thread.types";
 import { IUserConnection } from "../user-connection/user-connection.types";
-export interface IUserThread {
-  started: { [keyof: string]: IThreadDocument };
-  commented: { [keyof: string]: { [keyof: string]: IThreadCommentDocument }};
-  reacted: { [keyof: string]: IThreadReactionDocument };
-  forked: { [keyof: string]: IThreadFork };
+import { ThreadReactionTypeTitle } from "../thread-reaction/thread-reaction.types";
+
+export interface IUserThreadsReference {
+  threadId: string;
+  createdAt: string;
+  updatedAt: string;
+  contentSnippet: string;
 }
+
+export interface IUserThreadsCommentReference extends IUserThreadsReference{
+  commentId: string;
+}
+
+export interface IUserThreadsReactionReference extends IUserThreadsReference {
+  reactionId: string;
+  title: ThreadReactionTypeTitle;
+}
+
+export interface IUserThread {
+  started: { [threadId: string]: IUserThreadsReference };
+  commented: { [threadId: string]: { [commentId: string]: IUserThreadsCommentReference }};
+  reacted: { [threadId: string]: { [reactionId: string]: IUserThreadsReactionReference } };
+}
+
 export interface IUser {
   firstName: string;
   lastName: string;

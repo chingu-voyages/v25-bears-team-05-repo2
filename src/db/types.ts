@@ -1,12 +1,22 @@
-import { IUserThread } from "../models/user/user.types";
+import { IUserConnection } from "../models/user-connection/user-connection.types";
+import { IUserThreadsReference } from "../models/user/user.types";
+import { IUserThreadsReactionReference } from "../models/user/user.types";
+import { IUserThreadsCommentReference } from "../models/user/user.types";
 
 export interface IProfile {
+  id: string;
   firstName: string;
   lastName: string;
   jobTitle: string;
-  avatar: Array<{ url: string}>;
-  connections: any;
-  connectionOf: any;
-  threads: IUserThread;
-  id: string;
+  avatarUrls: Array<{url: string}>;
+  nOfConnections: number | null;
+  isAConnection: boolean;
+  connections: { [userId: string]: IUserConnection };
+  connectionOf: { [userId: string]: IUserConnection };
+  threads: {
+    started: { [threadId: string]: IUserThreadsReference };
+    commented: { [threadId: string]: { [commentId: string]: IUserThreadsCommentReference }};
+    reacted: { [threadId: string]: { [reactionId: string]: IUserThreadsReactionReference } };
+  };
+  isMe: boolean;
 }
