@@ -26,9 +26,9 @@ router.get(
         errors: [
           {
             ...createError(
-              "create thread POST request",
+              "search get request",
               `database error. ${err.Message}`,
-              "req.body"
+              "req.query"
             ),
           },
         ],
