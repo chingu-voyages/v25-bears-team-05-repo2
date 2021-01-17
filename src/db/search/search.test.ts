@@ -4,7 +4,6 @@ import { createTestUsers } from "../../models/user/user-test-helper/user-test-he
 import { UserModel } from "../../models/user/user.model";
 import { ThreadVisibility } from "../../models/thread/thread.types";
 import { search } from "./search";
-import { objectify } from "tslint/lib/utils";
 
 let mongoServer: any;
 
