@@ -69,6 +69,8 @@ export interface IThreadResponse {
   };
   comments: Array<IThreadComment>;
   reactions: { [keyof: string]: IThreadReaction };
+  reactionsCount: number;
+  currentUserReactions: { [keyof: string]: IThreadReaction };
   forks: { [userId: string]: IThreadFork };
   isAFork: boolean;
   updatedAt: string;

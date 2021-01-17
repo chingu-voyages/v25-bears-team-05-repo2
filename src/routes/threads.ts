@@ -57,7 +57,7 @@ router.get("/:id", routeProtector, [ param("id").not().isEmpty().trim().escape()
     return res.status(400).send({ errors: errors.array() });
   }
   try {
-    const threadData = await getThreadById({threadId: req.params.id});
+    const threadData = await getThreadById({threadId: req.params.id, reqUserId: req.user.id});
     return res.status(200).send(threadData);
   } catch(err) {
     res.status(404).send({ errors: [{ ...createError("get thread by id",
