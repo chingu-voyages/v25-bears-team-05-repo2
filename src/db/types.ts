@@ -1,7 +1,7 @@
+import { IThreadCommentReference } from "../models/thread-comment/thread-comment.types";
+import { IThreadReactionReference } from "../models/thread-reaction/thread-reaction.types";
+import { IThreadReference } from "../models/thread/thread.types";
 import { IUserConnection } from "../models/user-connection/user-connection.types";
-import { IUserThreadsReference } from "../models/user/user.types";
-import { IUserThreadsReactionReference } from "../models/user/user.types";
-import { IUserThreadsCommentReference } from "../models/user/user.types";
 
 export interface IProfile {
   id: string;
@@ -14,9 +14,9 @@ export interface IProfile {
   connections: { [userId: string]: IUserConnection };
   connectionOf: { [userId: string]: IUserConnection };
   threads: {
-    started: { [threadId: string]: IUserThreadsReference };
-    commented: { [threadId: string]: { [commentId: string]: IUserThreadsCommentReference }};
-    reacted: { [threadId: string]: { [reactionId: string]: IUserThreadsReactionReference } };
+    started: { [threadId: string]: IThreadReference };
+    commented: { [threadId: string]: { [commentId: string]: IThreadCommentReference }};
+    reacted: { [threadId: string]: { [reactionId: string]: IThreadReactionReference } };
   };
-  isMe: boolean;
+  isCurrentUser: boolean;
 }

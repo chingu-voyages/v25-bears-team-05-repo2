@@ -19,6 +19,6 @@ export async function getProfileById({userId, reqUserId}: {userId: string, reqUs
     connections: result.connections,
     connectionOf: result.connectionOf,
     threads: result.threads,
-    isMe: userId === reqUserId,
+    isCurrentUser: userId === reqUserId,
   };
 }
