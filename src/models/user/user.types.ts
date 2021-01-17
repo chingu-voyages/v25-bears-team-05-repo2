@@ -1,31 +1,14 @@
 import { Document, Model } from "mongoose";
-import { IAttachmentType, IThreadCommentDocument } from "../thread-comment/thread-comment.types";
-import { IThreadReactionDocument } from "../thread-reaction/thread-reaction.types";
+import { IAttachmentType, IThreadCommentDocument, IThreadCommentReference } from "../thread-comment/thread-comment.types";
+import { IThreadReactionDocument, IThreadReactionReference } from "../thread-reaction/thread-reaction.types";
 import { IThreadFork } from "../thread-fork/thread-fork.types";
-import { IThread, IThreadDocument, IThreadPostDetails, ThreadType, ThreadVisibility } from "../thread/thread.types";
+import { IThread, IThreadDocument, IThreadPostDetails, IThreadReference, ThreadType, ThreadVisibility } from "../thread/thread.types";
 import { IUserConnection } from "../user-connection/user-connection.types";
-import { ThreadReactionTypeTitle } from "../thread-reaction/thread-reaction.types";
-
-export interface IUserThreadsReference {
-  threadId: string;
-  createdAt: string;
-  updatedAt: string;
-  contentSnippet: string;
-}
-
-export interface IUserThreadsCommentReference extends IUserThreadsReference{
-  commentId: string;
-}
-
-export interface IUserThreadsReactionReference extends IUserThreadsReference {
-  reactionId: string;
-  title: ThreadReactionTypeTitle;
-}
 
 export interface IUserThread {
-  started: { [threadId: string]: IUserThreadsReference };
-  commented: { [threadId: string]: { [commentId: string]: IUserThreadsCommentReference }};
-  reacted: { [threadId: string]: { [reactionId: string]: IUserThreadsReactionReference } };
+  started: { [threadId: string]: IThreadReference };
+  commented: { [threadId: string]: { [commentId: string]: IThreadCommentReference }};
+  reacted: { [threadId: string]: { [reactionId: string]: IThreadReactionReference } };
 }
 
 export interface IUser {

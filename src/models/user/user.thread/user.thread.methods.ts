@@ -1,20 +1,21 @@
-import { IUserDocument } from "../user.types";
+import { IUserDocument, IUserThread } from "../user.types";
 import { UserModel } from "../user.model";
-import { IThread, IThreadDocument, IThreadPostDetails, ThreadType, ThreadVisibility } from "../../thread/thread.types";
+import { IThread, IThreadDocument, IThreadPostDetails, IThreadReference, ThreadType, ThreadVisibility } from "../../thread/thread.types";
 import { ThreadModel } from "../../thread/thread.model";
 import { ThreadReactionModel } from "../../../models/thread-reaction/thread-reaction.model";
 import sanitizeHtml from "sanitize-html";
 import { ThreadCommentModel } from "../../../models/thread-comment/thread-comment.model";
-import { IAttachmentType } from "../../../models/thread-comment/thread-comment.types";
-import { IThreadFork, IThreadForkDocument } from "../../../models/thread-fork/thread-fork.types";
+import { IAttachmentType, IThreadCommentDocument, IThreadCommentReference } from "../../../models/thread-comment/thread-comment.types";
 import { deleteUserCommentsForThreadByThreadId } from "./user.thread.deletion.methods";
+import { IThreadReactionDocument, IThreadReactionReference } from "../../../models/thread-reaction/thread-reaction.types";
+import { IThreadFork } from "../../../models/thread-fork/thread-fork.types";
 
 /**
  *
  * @param this instance of IUserDocument
  * @param threadDetails data used to make a thread
  */
-export async function createAndPostThread(this: IUserDocument, threadDetails: IThreadPostDetails) {
+export async function createAndPostThread(this: IUserDocument, threadDetails: IThreadPostDetails, isAFork: boolean = false) {
   const userThread: IThread = {
     threadType: threadDetails.threadType,
     visibility: threadDetails.visibility,
@@ -27,12 +28,13 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
     comments: { },
     reactions: { },
     forks: { },
+    isAFork,
     createdAt: new Date(),
     updatedAt: new Date()
   };
 
   const newlyCreatedThread = await ThreadModel.create(userThread);
-  this["threads"]["started"][`${newlyCreatedThread.id.toString()}`] = newlyCreatedThread;
+  this["threads"]["started"][`${newlyCreatedThread.id.toString()}`] = createUserThreadReference(newlyCreatedThread);
   // Forces the parent object to update: there may be a better way
   this.markModified("threads");
   await this.save();
@@ -55,13 +57,13 @@ export async function deleteThread (this: IUserDocument, threadDetails: { target
 /** This is a modular helper method. This will only
  * return a sorted list (by date latest) of threads from source user's connections
  */
-export async function getConnectionThreads(this: IUserDocument): Promise<Array<IThread>> {
+export async function getConnectionThreads(this: IUserDocument): Promise<Array<IThreadReference>> {
   // Get an array of userIds for this.connections
   const connectionUserIds = [...Object.keys(this.connections), this.id];
 
   // Find user documents that match the ids in the above array
   const users = await UserModel.find().where("_id").in(connectionUserIds).exec();
-  const threads: IThread[] = [];
+  const threads: IThreadReference[] = [];
 
   users.forEach((user) => {
     for (const[_, value] of Object.entries(user.threads.started)) {
@@ -69,7 +71,7 @@ export async function getConnectionThreads(this: IUserDocument): Promise<Array<I
     }
   });
 
-  return threads.sort((a, b) => b.createdAt.valueOf() - a.createdAt.valueOf());
+  return threads.sort((a, b) => parseInt(b.createdAt) - parseInt(a.createdAt));
 }
 
 export async function addReactionToThread(this: IUserDocument, data: { targetThreadId: string, title: string}) {
@@ -86,10 +88,22 @@ export async function addReactionToThread(this: IUserDocument, data: { targetThr
       throw new Error("Cannot reaction own thread");
     }
     // Create the reaction object
-    const threadReactionDocument = await ThreadReactionModel.create({ postedByUserId: this.id,  title: data.title});
+    const threadReactionDocument = await ThreadReactionModel.create({ postedByUserId: this.id, title: data.title});
+    const newThreadReactionReference = createUserThreadReactionReference({threadData: targetThread, reactionData: threadReactionDocument});
+
     targetThread.reactions[`${threadReactionDocument._id.toString()}`] = threadReactionDocument;
     targetThread.markModified("reactions");
-    this.threads.reacted[`${targetThread.id.toString()}`] = threadReactionDocument;
+    
+    if (!this.threads.reacted[targetThread.id]) {
+      this.threads.reacted[targetThread.id] = { };
+      this.threads.reacted[targetThread.id][newThreadReactionReference.reactionData.reactionId] = newThreadReactionReference;
+    } else {
+      this.threads.reacted[targetThread.id] = { 
+        ...this.threads.reacted[targetThread.id],
+        [newThreadReactionReference.reactionData.reactionId]: newThreadReactionReference 
+      };
+    }
+    
     this.markModified("threads");
     await this.save();
     const threadDoc = await targetThread.save();
@@ -144,16 +158,19 @@ export async function addThreadComment (this: IUserDocument,
       { postedByUser: this.id.toString(),
         ...data.threadCommentData});
         newThreadComment.postedByUserId = this.id.toString();
+    const newThreadCommentReference = createUserThreadCommentRefernce({ threadData: targetThread, commentData: newThreadComment });
 
     targetThread.comments[`${newThreadComment.id.toString()}`] = newThreadComment;
     targetThread.markModified("comments");
 
     if (!this.threads.commented[`${targetThread.id.toString()}`]) {
       this.threads.commented[`${targetThread.id.toString()}`] = { };
-      this.threads.commented[`${targetThread.id.toString()}`][`${newThreadComment.id.toString()}`] = newThreadComment;
+      this.threads.commented[`${targetThread.id.toString()}`][`${newThreadComment.id.toString()}`] = newThreadCommentReference;
     } else {
-      this.threads.commented[`${targetThread.id.toString()}`] = { ...this.threads.commented[`${targetThread.id.toString()}`],
-      [`${newThreadComment.id.toString()}`]: newThreadComment };
+      this.threads.commented[`${targetThread.id.toString()}`] = { 
+        ...this.threads.commented[`${targetThread.id.toString()}`],
+        [`${newThreadComment.id.toString()}`]: newThreadCommentReference 
+      };
     }
     this.markModified("threads");
     await this.save();
@@ -232,35 +249,26 @@ export async function forkThread(this: IUserDocument,
     if (targetThreadFromCollection.forks === undefined) {
       targetThreadFromCollection.forks = { };
     }
-    if (!this.threads.forked) {
-      this.threads.forked = { };
-    }
 
-    const threadFork: IThreadFork = {
-      threadForkType: data.threadForkType,
-      postedByUserId: targetThreadFromCollection.postedByUserId,
-      visibility: data.visibility || ThreadVisibility.Anyone,
-      content: targetThreadFromCollection.content,
-      threadType: targetThreadFromCollection.threadType,
-      comments: targetThreadFromCollection.comments,
-      reactions: targetThreadFromCollection.reactions,
-      forks: { } , // targetThreadFromCollection.forks,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
+    const newClonedThread = await createAndPostThread.call(this, targetThreadFromCollection, true);
+    const threadFork = newClonedThread.threadData;
+    
     targetThreadFromCollection.forks[this._id] = threadFork;
     targetThreadFromCollection.markModified("forks");
-    this.threads.forked[targetThreadFromCollection.id.toString()] = targetThreadFromCollection as IThreadForkDocument;
-    this.markModified("threads");
 
-    await this.save();
     await targetThreadFromCollection.save();
 
-    return {
-      updatedForkedThreads: this.threads.forked,
-      updatedThreadDocument: targetThreadFromCollection
+    const output: {
+      updatedUserThreads: IUserThread,
+      newClonedThread: IThreadFork,
+      originalThread: IThreadDocument
+    } = {
+      updatedUserThreads: this.threads,
+      newClonedThread,
+      originalThread: targetThreadFromCollection
     };
+
+    return output
   } else {
     throw new Error(`Thread with id ${targetThreadFromCollection.id.toString()} does not exist on user's threads.started object`);
   }
@@ -272,33 +280,41 @@ export async function forkThread(this: IUserDocument,
  * @param data
  */
 export async function deleteThreadFork (this: IUserDocument, data: { targetThreadForkId: string }) {
-  // Get all needed objects
-  const sourceThread = await ThreadModel.findById(data.targetThreadForkId);
+  return deleteThread.call(this, data);
+}
 
-  if (this.threads.forked[data.targetThreadForkId]) {
-    delete this.threads.forked[data.targetThreadForkId];
-    this.markModified("threads");
-    await this.save();
+export function createUserThreadReference(threadData: IThreadDocument): IThreadReference {
+  return ({
+    threadId: threadData._id.toString(),
+    createdAt: threadData.createdAt.toString(),
+    updatedAt: threadData.updatedAt.toString(),
+    contentSnippet: threadData.content.html.substr(0, 150),
+    postedByUserId: threadData.postedByUserId.toString()
+  });
+}
 
-    // Update the other documents
-    if (sourceThread) {
-      if (sourceThread.forks[this.id.toString()]) {
-        delete sourceThread.forks[this.id.toString()];
-        sourceThread.markModified("forks");
-        await sourceThread.save();
-        return {
-          updatedForkedThreads: this.threads.forked,
-          updatedThreadDocument: sourceThread
-        };
-      }
-    } else {
-      console.warn("Thread not found in thread collection");
-      return {
-        updatedForkedThreads: this.threads.forked,
-        updatedThreadDocument: sourceThread
-      };
+export function createUserThreadReactionReference({threadData, reactionData}: {threadData: IThreadDocument, reactionData: IThreadReactionDocument}): IThreadReactionReference {
+  return ({
+    threadData: createUserThreadReference(threadData),
+    reactionData: {
+      reactionId: reactionData._id.toString(),
+      postedByUserId: reactionData.postedByUserId.toString(),
+      title: reactionData.title,
+      createdAt: reactionData.createdAt.toString(),
+      updatedAt: reactionData.updatedAt.toString()
     }
-  } else {
-    throw new Error("Thread fork wasn't found in user's thread fork object");
-  }
+  });
+}
+
+export function createUserThreadCommentRefernce({threadData, commentData}: {threadData: IThreadDocument, commentData: IThreadCommentDocument}): IThreadCommentReference {
+  return ({
+    threadData: createUserThreadReference(threadData),
+    commentData: {
+      commentId: commentData._id.toString(),
+      postedByUserId: commentData.postedByUserId.toString(),
+      createdAt: commentData.createdAt.toString(),
+      updatedAt: commentData.updatedAt.toString(),
+      contentSnippet: commentData.content.substr(0, 150)
+    }
+  });
 }

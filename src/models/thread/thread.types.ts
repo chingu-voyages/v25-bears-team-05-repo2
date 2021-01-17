@@ -36,8 +36,17 @@ export interface IThread {
   comments: { [keyof: string]: IThreadComment };
   reactions: { [keyof: string]: IThreadReactionDocument };
   forks: { [keyof: string]: IThreadFork };
+  isAFork: boolean;
   readonly createdAt: Date;
   readonly updatedAt: Date;
+}
+
+export interface IThreadReference {
+  threadId: mongoose.Types.ObjectId;
+  createdAt: string;
+  updatedAt: string;
+  contentSnippet: string;
+  postedByUserId: string;
 }
 
 export interface IThreadPatchData {
