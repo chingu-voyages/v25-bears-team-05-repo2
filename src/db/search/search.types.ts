@@ -1,9 +1,12 @@
 import { ThreadType, ThreadVisibility } from "../../models/thread/thread.types";
 
 export interface ISearchResults {
+  query_string: string;
   users?: Array<IPublicUserDetails>;
   public_threads?: Array<IThreadDetails>;
   private_threads?: Array<IThreadDetails>;
+  public_thread_comments?: Array<IThreadCommentDetails>;
+  private_thread_comments?: Array<IThreadCommentDetails>;
 }
 
 export interface IPublicUserDetails {

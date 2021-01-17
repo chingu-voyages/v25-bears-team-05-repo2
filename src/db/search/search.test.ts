@@ -3,6 +3,8 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import { createTestUsers } from "../../models/user/user-test-helper/user-test-helper";
 import { UserModel } from "../../models/user/user.model";
 import { ThreadVisibility } from "../../models/thread/thread.types";
+import { search } from "./search";
+import { objectify } from "tslint/lib/utils";
 
 let mongoServer: any;
 
@@ -35,7 +37,8 @@ describe("main search function tests", () => {
     // Create secondary users
     const secondaryUsers = createTestUsers({ numberOfUsers: 3 });
     const dummySecondaryUsers = await UserModel.create(secondaryUsers);
-
+    dummySecondaryUsers[0].firstName = "Josie";
+    dummySecondaryUsers[0].lastName = "Jacobson";
     // source user adds secondary users as connections
     await dummySourceUsers[0].addConnectionToUser(
       dummySecondaryUsers[0].id.toString()
@@ -46,6 +49,9 @@ describe("main search function tests", () => {
     await dummySourceUsers[0].addConnectionToUser(
       dummySecondaryUsers[2].id.toString()
     );
+
+    const otherUser = createTestUsers({ numberOfUsers: 1 });
+    const otherDummyUser = await UserModel.create(otherUser);
 
     // Source user creates some public posts
     const thread1 = await dummySourceUsers[0].createAndPostThread({
@@ -58,8 +64,41 @@ describe("main search function tests", () => {
       hashTags: ["hash3", "hash4"],
     });
     const thread3 = await dummySourceUsers[0].createAndPostThread({
-      html: "third post datum",
+      html: "third post datum Jacobson",
       hashTags: ["hash55", "hash66"],
+      visibility: ThreadVisibility.Connections,
     });
+
+    await dummySecondaryUsers[0].addThreadComment({
+      targetThreadId: thread1.threadData.id,
+      threadCommentData: { content: "reply from secondary user 0 post" },
+    });
+    await dummySecondaryUsers[1].addThreadComment({
+      targetThreadId: thread2.threadData.id,
+      threadCommentData: { content: "reply from secondary user 1 post" },
+    });
+    await dummySecondaryUsers[2].addThreadComment({
+      targetThreadId: thread3.threadData.id,
+      threadCommentData: { content: "reply from secondary user 3 post" },
+    });
+
+    const query1 = await search({
+      queryString: "post Jacobson",
+      requestorId: dummySecondaryUsers[0].id,
+    });
+    const query2 = await search({
+      queryString: "secondary nine jacobson",
+      requestorId: otherDummyUser[0].id,
+    });
+    const query3 = await search({
+      queryString: "",
+      requestorId: otherDummyUser[0].id,
+    });
+
+    expect(query1).toHaveProperty("query_string");
+    expect(query2).toHaveProperty("users");
+    expect(query1).toHaveProperty("public_threads");
+    expect(query2).toHaveProperty("private_thread_comments");
+    expect(query3.private_thread_comments.length).toBe(0);
   });
 });

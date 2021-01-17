@@ -16,6 +16,5 @@
   "trailingComma": "es5",
   "useTabs": false,
   "vueIndentScriptAndStyle": false,
-  "filepath": "/d/dev/v25-bears-team-05-repo2/src/db/search/search.thread-comments.ts",
   "parser": "typescript"
 }
