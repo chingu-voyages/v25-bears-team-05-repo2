@@ -1,7 +1,8 @@
 import { IThreadFork } from "../models/thread-fork/thread-fork.types";
-import { ThreadReactionTypeTitle } from "../models/thread-reaction/thread-reaction.types";
+import { IThreadReaction, ThreadReactionTypeTitle } from "../models/thread-reaction/thread-reaction.types";
 import { ThreadVisibility } from "../models/thread/thread.types";
 import { Types } from "mongoose";
+import { IThreadComment } from "../models/thread-comment/thread-comment.types";
 
 export interface IProfileConnection {
   userId: string | Types.ObjectId;
@@ -55,6 +56,21 @@ export interface IProfile {
     reacted: { [threadId: string]: { [reactionId: string]: IProfileThreadsReactionReference } };
   };
   isCurrentUser: boolean;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface IThreadResponse {
+  id: string;
+  postedByUserId: string;
+  visibility: ThreadVisibility;
+  content: {
+    html: string;
+  };
+  comments: Array<IThreadComment>;
+  reactions: { [keyof: string]: IThreadReaction };
+  forks: { [userId: string]: IThreadFork };
+  isAFork: boolean;
   updatedAt: string;
   createdAt: string;
 }

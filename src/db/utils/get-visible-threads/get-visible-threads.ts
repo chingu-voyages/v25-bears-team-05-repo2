@@ -9,7 +9,6 @@ import { IUserThread } from "../../../models/user/user.types";
  */
 export function getVisibleThreads(sourceThread: IUserThread): IUserThread {
   const filteredStartedObjectKeys: string[] = [];
-  const filteredForkedObjectKeys: string[] = [];
   if (sourceThread.started) {
     for (const [key, _] of Object.entries(sourceThread.started)) {
       if (sourceThread.started[key].visibility === ThreadVisibility.Anyone) {
@@ -17,15 +16,6 @@ export function getVisibleThreads(sourceThread: IUserThread): IUserThread {
       }
     }
     sourceThread.started = _.pick(sourceThread.started, filteredStartedObjectKeys);
-  }
-
-  if (sourceThread.forked) {
-    for (const [key, _] of Object.entries(sourceThread.forked)) {
-      if (sourceThread.forked[key].visibility === ThreadVisibility.Anyone) {
-        filteredForkedObjectKeys.push(key);
-      }
-    }
-    sourceThread.forked = _.pick(sourceThread.forked, filteredForkedObjectKeys);
   }
   return sourceThread;
 }

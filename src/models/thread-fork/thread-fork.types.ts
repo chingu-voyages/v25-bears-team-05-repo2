@@ -1,9 +1,7 @@
-import { Document, Model, Types } from "mongoose";
+import { Document, Model } from "mongoose";
 import { IThread, IThreadReference } from "../thread/thread.types";
 
-export interface IThreadForkReference extends IThreadReference {
-  threadId: Types.ObjectId;
-}
+export interface IThreadForkReference extends IThreadReference {}
 
 export interface IThreadFork extends IThread {
   isAFolk: true;

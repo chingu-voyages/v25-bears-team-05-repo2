@@ -8,7 +8,6 @@ import { ThreadCommentModel } from "../../../models/thread-comment/thread-commen
 import { IAttachmentType, IThreadCommentDocument, IThreadCommentReference } from "../../../models/thread-comment/thread-comment.types";
 import { deleteUserCommentsForThreadByThreadId } from "./user.thread.deletion.methods";
 import { IThreadReactionDocument, IThreadReactionReference } from "../../../models/thread-reaction/thread-reaction.types";
-import { IThreadFork } from "../../../models/thread-fork/thread-fork.types";
 
 /**
  *
@@ -280,6 +279,7 @@ export async function deleteThreadFork (this: IUserDocument, data: { targetThrea
 export function createUserThreadReference(threadData: IThreadDocument): IThreadReference {
   return ({
     threadId: threadData._id,
+    visibility: threadData.visibility,
     createdAt: threadData.createdAt,
     updatedAt: threadData.updatedAt,
     contentSnippet: threadData.content.html.substr(0, 150),

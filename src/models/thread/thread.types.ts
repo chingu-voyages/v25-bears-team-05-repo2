@@ -43,6 +43,7 @@ export interface IThread {
 
 export interface IThreadReference {
   threadId: mongoose.Types.ObjectId;
+  visibility: ThreadVisibility;
   createdAt: Date;
   updatedAt: Date;
   contentSnippet: string;
