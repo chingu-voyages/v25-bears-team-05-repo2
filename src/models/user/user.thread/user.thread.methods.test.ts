@@ -38,7 +38,7 @@ describe("User creating thread tests", () => {
     expect(newThread.postedByUserId.toString()).toEqual(dummyUserDocuments[0].id.toString());
     expect(newThread.content.html).toBe("test-html");
     expect(dummyUserDocuments[0].threads.started[newThread.id.toString()]).toBeDefined();
-    expect(dummyUserDocuments[0].threads.started[newThread.id.toString()].content.html).toBe("test-html");
+    expect(dummyUserDocuments[0].threads.started[newThread.id.toString()].contentSnippet).toBe("test-html");
     expect(results.userData).toBeDefined();
     expect(results.threadData).toBeDefined();
 
@@ -65,8 +65,8 @@ describe("User creating thread tests", () => {
     expect(dummyUserDocuments[0].threads.started).toHaveProperty(thread3.threadData.id);
     expect(dummyUserDocuments[0].threads.started).toHaveProperty(thread4.threadData.id);
 
-    expect(dummyUserDocuments[0].threads.started[`${thread1.threadData.id}`].content.html).toBe("thread-1-test");
-    expect(dummyUserDocuments[0].threads.started[`${thread4.threadData.id}`].content.html).toBe("thread-4-test");
+    expect(dummyUserDocuments[0].threads.started[`${thread1.threadData.id}`].contentSnippet).toBe("thread-1-test");
+    expect(dummyUserDocuments[0].threads.started[`${thread4.threadData.id}`].contentSnippet).toBe("thread-4-test");
     expect(Object.keys(dummyUserDocuments[0].threads.started)).toHaveLength(4);
   });
 });
@@ -159,7 +159,7 @@ describe("thread reaction tests", () => {
     expect(updatedThread.reactions).toHaveProperty(threadReactionDocument.id.toString());
     expect(updatedThread.reactions[`${threadReactionDocument.id.toString()}`].title).toBe("thumbs-up!");
     expect(dummyUserDocuments[1].threads.reacted).toHaveProperty(updatedThread.id.toString());
-    expect(dummyUserDocuments[1].threads.reacted[`${updatedThread.id.toString()}`].id.toString())
+    expect(dummyUserDocuments[1].threads.reacted[thread1.threadData.id.toString()][threadReactionDocument.id.toString()].reactionData.reactionId.toString())
     .toBe(threadReactionDocument.id.toString());
   });
 
@@ -206,8 +206,8 @@ describe("create and delete threadComment tests", () => {
 
      const arrayOfKeys = (Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`]));
      expect(Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`])).toHaveLength(3);
-     expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[2]}`].content).toBe("This the third comment content");
-     expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[2]}`].postedByUserId).toBe(dummyUserDocuments[1].id.toString());
+     expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[2]}`].commentData.contentSnippet).toBe("This the third comment content");
+     expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[2]}`].commentData.postedByUserId).toBe(dummyUserDocuments[1].id.toString());
     });
 
     test("deletes a thread comment properly", async() => {
@@ -230,44 +230,9 @@ describe("create and delete threadComment tests", () => {
         targetThreadId: thread1.threadData.id,
       });
       const arrayOfKeys = (Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`]));
-      const threadCommentId = dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[0]}`]["_id"];
-      await dummyUserDocuments[1].deleteThreadComment({ targetThreadId: thread1.threadData.id, targetThreadCommentId: threadCommentId});
+      const threadCommentId = dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[0]}`].commentData.commentId;
+      await dummyUserDocuments[1].deleteThreadComment({ targetThreadId: thread1.threadData.id, targetThreadCommentId: threadCommentId.toString()});
       expect(thread1.threadData.comments[`${threadCommentId}`]).not.toBeDefined();
       expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${threadCommentId}`]).not.toBeDefined();
     });
-});
-
-
-describe("Thread fork tests", () => {
-  test("threads forked correctly", async() => {
-    // Source user posts a thread. User 2 forks it on its own profile. Expect documents to update
-    // correctly
-    const testUser = createTestUsers(2, undefined, undefined);
-    const dummyUserDocuments = await UserModel.create(testUser);
-    const thread1 = await dummyUserDocuments[0].createAndPostThread({
-      html: "thread-1-test",
-    });
-
-    const result = await dummyUserDocuments[1].forkThread({ targetThreadId: thread1.threadData.id.toString(),
-    sourceUserId: dummyUserDocuments[0].id.toString(), threadForkType: ThreadType.Post });
-
-    expect(result.updatedThreadDocument.forks[dummyUserDocuments[1].id.toString()]).toBeDefined();
-    expect(result.updatedThreadDocument.forks[dummyUserDocuments[1].id.toString()].content.html).toBe("thread-1-test");
-    expect(result.updatedForkedThreads[thread1.threadData.id.toString()]).toBeDefined();
-  });
-  test("threadforks deleted property", async() => {
-
-    const testUser = createTestUsers(2, undefined, undefined);
-    const dummyUserDocuments = await UserModel.create(testUser);
-    const thread1 = await dummyUserDocuments[0].createAndPostThread({
-      html: "thread-1-test",
-    });
-
-    await dummyUserDocuments[1].forkThread({ targetThreadId: thread1.threadData.id.toString(),
-    sourceUserId: dummyUserDocuments[0].id.toString(), threadForkType: ThreadType.Post });
-
-    const result = await dummyUserDocuments[1].deleteThreadFork({ targetThreadForkId: thread1.threadData.id.toString()});
-      expect(result.updatedForkedThreads[thread1.threadData.id]).not.toBeDefined();
-      expect(result.updatedThreadDocument.forks[dummyUserDocuments[1].id.toString()]).not.toBeDefined();
-  });
 });

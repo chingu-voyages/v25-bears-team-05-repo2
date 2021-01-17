@@ -43,10 +43,10 @@ export interface IThread {
 
 export interface IThreadReference {
   threadId: mongoose.Types.ObjectId;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   contentSnippet: string;
-  postedByUserId: string;
+  postedByUserId: mongoose.Types.ObjectId;
 }
 
 export interface IThreadPatchData {

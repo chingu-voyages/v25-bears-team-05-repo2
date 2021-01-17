@@ -1,4 +1,4 @@
-import { Document, Model } from "mongoose";
+import { Document, Model, Types } from "mongoose";
 import { IThreadReference } from "../thread/thread.types";
 
 export interface IAttachmentType {
@@ -6,7 +6,7 @@ export interface IAttachmentType {
 }
 
 export interface IThreadComment {
-  postedByUserId: string;
+  postedByUserId: Types.ObjectId;
   content: string;
   attachments?: Array<IAttachmentType>;
   readonly createdAt: Date;
@@ -16,11 +16,11 @@ export interface IThreadComment {
 export interface IThreadCommentReference {
   threadData: IThreadReference,
   commentData: {
-    commentId: string;
-    createdAt: string;
-    updatedAt: string;
+    commentId: Types.ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
     contentSnippet: string;
-    postedByUserId: string;
+    postedByUserId: Types.ObjectId;
   }
 }
 

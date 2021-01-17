@@ -1,4 +1,4 @@
-import { Document, Model } from "mongoose";
+import { Document, Model, Types } from "mongoose";
 import { IThreadReference } from "../thread/thread.types";
 
 export enum ThreadReactionTypeTitle {
@@ -8,7 +8,7 @@ export enum ThreadReactionTypeTitle {
 }
 
 export interface IThreadReaction {
-  postedByUserId: string;
+  postedByUserId: Types.ObjectId;
   title: ThreadReactionTypeTitle;
   readonly createdAt: Date;
   readonly updatedAt: Date;
@@ -17,11 +17,11 @@ export interface IThreadReaction {
 export interface IThreadReactionReference {
   threadData: IThreadReference,
   reactionData: {
-    reactionId: string;
-    postedByUserId: string;
+    reactionId: Types.ObjectId;
+    postedByUserId: Types.ObjectId;
     title: ThreadReactionTypeTitle;
-    createdAt: string;
-    updatedAt: string;
+    createdAt: Date;
+    updatedAt: Date;
   }
 }
 

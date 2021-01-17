@@ -71,7 +71,7 @@ export async function getConnectionThreads(this: IUserDocument): Promise<Array<I
     }
   });
 
-  return threads.sort((a, b) => parseInt(b.createdAt) - parseInt(a.createdAt));
+  return threads.sort((a, b) => b.createdAt.valueOf() - a.createdAt.valueOf());
 }
 
 export async function addReactionToThread(this: IUserDocument, data: { targetThreadId: string, title: string}) {
@@ -96,11 +96,11 @@ export async function addReactionToThread(this: IUserDocument, data: { targetThr
     
     if (!this.threads.reacted[targetThread.id]) {
       this.threads.reacted[targetThread.id] = { };
-      this.threads.reacted[targetThread.id][newThreadReactionReference.reactionData.reactionId] = newThreadReactionReference;
+      this.threads.reacted[targetThread.id][newThreadReactionReference.reactionData.reactionId.toHexString()] = newThreadReactionReference;
     } else {
       this.threads.reacted[targetThread.id] = { 
         ...this.threads.reacted[targetThread.id],
-        [newThreadReactionReference.reactionData.reactionId]: newThreadReactionReference 
+        [newThreadReactionReference.reactionData.reactionId.toString()]: newThreadReactionReference 
       };
     }
     
@@ -258,17 +258,11 @@ export async function forkThread(this: IUserDocument,
 
     await targetThreadFromCollection.save();
 
-    const output: {
-      updatedUserThreads: IUserThread,
-      newClonedThread: IThreadFork,
-      originalThread: IThreadDocument
-    } = {
+    return {
       updatedUserThreads: this.threads,
       newClonedThread,
       originalThread: targetThreadFromCollection
-    };
-
-    return output
+    }
   } else {
     throw new Error(`Thread with id ${targetThreadFromCollection.id.toString()} does not exist on user's threads.started object`);
   }
@@ -285,11 +279,11 @@ export async function deleteThreadFork (this: IUserDocument, data: { targetThrea
 
 export function createUserThreadReference(threadData: IThreadDocument): IThreadReference {
   return ({
-    threadId: threadData._id.toString(),
-    createdAt: threadData.createdAt.toString(),
-    updatedAt: threadData.updatedAt.toString(),
+    threadId: threadData._id,
+    createdAt: threadData.createdAt,
+    updatedAt: threadData.updatedAt,
     contentSnippet: threadData.content.html.substr(0, 150),
-    postedByUserId: threadData.postedByUserId.toString()
+    postedByUserId: threadData.postedByUserId
   });
 }
 
@@ -297,11 +291,11 @@ export function createUserThreadReactionReference({threadData, reactionData}: {t
   return ({
     threadData: createUserThreadReference(threadData),
     reactionData: {
-      reactionId: reactionData._id.toString(),
-      postedByUserId: reactionData.postedByUserId.toString(),
+      reactionId: reactionData._id,
+      postedByUserId: reactionData.postedByUserId,
       title: reactionData.title,
-      createdAt: reactionData.createdAt.toString(),
-      updatedAt: reactionData.updatedAt.toString()
+      createdAt: reactionData.createdAt,
+      updatedAt: reactionData.updatedAt
     }
   });
 }
@@ -310,10 +304,10 @@ export function createUserThreadCommentRefernce({threadData, commentData}: {thre
   return ({
     threadData: createUserThreadReference(threadData),
     commentData: {
-      commentId: commentData._id.toString(),
-      postedByUserId: commentData.postedByUserId.toString(),
-      createdAt: commentData.createdAt.toString(),
-      updatedAt: commentData.updatedAt.toString(),
+      commentId: commentData._id,
+      postedByUserId: commentData.postedByUserId,
+      createdAt: commentData.createdAt,
+      updatedAt: commentData.updatedAt,
       contentSnippet: commentData.content.substr(0, 150)
     }
   });
