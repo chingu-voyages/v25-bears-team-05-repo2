@@ -22,7 +22,7 @@ router.get("/:id", routeProtector, [ param("id").not().isEmpty().trim().escape()
       const homeProfileData = await getProfileById({userId: req.user._id, reqUserId: req.user._id});
       return res.status(200).send(homeProfileData);
     } else {
-      const otherUserData = await getProfileById({userId: req.user._id, reqUserId: req.user._id});
+      const otherUserData = await getProfileById({userId: req.params.id, reqUserId: req.user._id});
       return res.status(200).send(otherUserData);
     }
   } catch(err) {
