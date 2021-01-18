@@ -6,9 +6,7 @@ const ThreadSchema: Schema = new Schema({
   threadType: { type: String, default: "post"},
   visibility: { type: Number, default: 0 },
   content: {
-      html: { type: String },
-      hashTags: { type: [String], default: [] },
-      attachments: { type: [String], default: []}
+      html: { type: String }
   },
   comments: {
     type: Schema.Types.Mixed,
@@ -24,6 +22,10 @@ const ThreadSchema: Schema = new Schema({
     type: Schema.Types.Mixed,
     default: { },
     required: true,
+  },
+  isAFork: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: { }} );
 

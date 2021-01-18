@@ -12,21 +12,8 @@ const router = express.Router();
 
 router.post("/", routeProtector, [body("htmlContent").not().isEmpty().trim(), // Unsure whether or not to escape here?
 body("threadType").isNumeric().not().isEmpty(),
-body("visibility").not().isEmpty().isInt(), body("hashTags").custom((value) => {
-  if (!value) {
-    return true;
-  }
-  return Array.isArray(value);
-}),
-body("attachments").custom((value) => {
-  if (!value) {
-    return true;
-  }
-  return Array.isArray(value);
-}),
-sanitizeBody("hashTags"),
-sanitizeBody("htmlContent"),
-sanitizeBody("attachments")],
+body("visibility").not().isEmpty().isInt(),
+sanitizeBody("htmlContent")],
 async(req: any, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -35,10 +22,8 @@ async(req: any, res: Response) => {
 
   const threadDetails: IThreadPostDetails = {
     html: req.body.htmlContent,
-    hashTags: req.body.hashTags,
     threadType: req.body.threadType,
-    visibility: req.body.visibility,
-    attachments: req.body.attachments
+    visibility: req.body.visibility
   };
   try {
     const user = await UserModel.findById(req.user.id);
@@ -69,20 +54,7 @@ router.get("/:id", routeProtector, [ param("id").not().isEmpty().trim().escape()
 router.patch("/:id", routeProtector, [param("id").not().isEmpty().trim().escape(),
 body("threadType").trim().escape(),
 body("visibility").trim().escape(),
-sanitizeBody("hashTags").customSanitizer((value) => {
-  return value.toLowerCase();
-}),
 sanitizeBody("htmlContent"),
-sanitizeBody("attachments"),
-body("threadType").custom((value) => {
-  if (value) {
-    if (Number.isInteger(value)) {
-      return true;
-    }
-    return false;
-  }
-  return true;
-}),
 body("visibility").custom((value) => {
   if (value) {
     if (Number.isInteger(value)) {
@@ -91,12 +63,6 @@ body("visibility").custom((value) => {
     return false;
   }
   return true;
-}),
-body("attachments").custom((value) => {
-  if (!value) {
-    return true;
-  }
-  return Array.isArray(value);
 }),
 ], async(req: any, res: Response) => {
   const errors = validationResult(req);
@@ -107,11 +73,8 @@ body("attachments").custom((value) => {
   const threadPatchUpdates: IThreadPatchData = {
     threadId: req.params.id,
     userId: req.user.id,
-    threadType: req.body.threadType,
     visibility: req.body.visibility,
-    htmlContent: req.body.htmlContent,
-    hashTags: req.body.hashTags,
-    attachments: req.body.attachments,
+    htmlContent: req.body.htmlContent
   };
   // Use threadModel to update
   try {
@@ -182,17 +145,7 @@ async(req: any, res: Response) => {
 
 router.post("/:thread_id/comments", routeProtector,
 [param("thread_id").exists().trim().escape(),
-body("content").exists().trim().escape(),
-body("attachments").custom((value) => {
-  if (!value) {
-    return true;
-  }
-  if (Array.isArray(value)) {
-    true;
-  } else {
-    return false;
-  }
-})],
+body("content").exists().trim().escape()],
 async(req: any, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -202,7 +155,7 @@ async(req: any, res: Response) => {
     const result = await req.user.addThreadComment( {
       targetThreadId: req.params.thread_id,
       threadCommentData: {
-        content: req.body.content, attachments: req.body.attachments
+        content: req.body.content
       }
     });
     return res.status(200).send(result);

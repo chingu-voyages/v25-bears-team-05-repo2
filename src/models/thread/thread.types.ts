@@ -20,8 +20,6 @@ export interface IThreadPostDetails {
   threadType?: ThreadType;
   visibility?: ThreadVisibility;
   html: string;
-  hashTags?: Array<string>;
-  attachments?: Array<string>;
 }
 
 export interface IThread {
@@ -29,9 +27,7 @@ export interface IThread {
   threadType: ThreadType;
   visibility: ThreadVisibility;
   content: {
-    html: string,
-    hashTags: Array<string>,
-    attachments: Array<string>
+    html: string
   };
   comments: { [keyof: string]: IThreadComment };
   reactions: { [keyof: string]: IThreadReactionDocument };
@@ -56,8 +52,6 @@ export interface IThreadPatchData {
   threadType?: ThreadType;
   visibility?: ThreadVisibility;
   htmlContent?: string;
-  hashTags?: Array<string>;
-  attachments?: Array<string>;
 }
 
 export interface IThreadDocument extends IThread, Document { }

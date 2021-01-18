@@ -19,8 +19,7 @@ export function createUserFromGoogleData (profile: IGoogleOauthProfile): IUser {
       threads: {
         started: {},
         commented: {},
-        reacted: {},
-        forked: {},
+        reacted: {}
       },
       createdAt: new Date(),
       updatedAt: new Date()

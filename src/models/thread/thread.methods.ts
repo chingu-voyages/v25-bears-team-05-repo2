@@ -33,14 +33,6 @@ export async function patchThread(this: IThreadModel, data: IThreadPatchData): P
     if (data.htmlContent) {
       targetThread.content.html = data.htmlContent;
     }
-    if (data.hashTags) {
-      targetThread.content.hashTags = [...data.hashTags];
-      targetThread.content.hashTags = Array.from(new Set(targetThread.content.hashTags));
-    }
-    if (data.attachments) {
-      targetThread.content.attachments = [...data.attachments];
-      targetThread.content.attachments = Array.from(new Set(targetThread.content.attachments));
-    }
     return await targetThread.save();
   }
   throw new Error("Thread not found");

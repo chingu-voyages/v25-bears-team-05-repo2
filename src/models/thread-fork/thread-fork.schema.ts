@@ -7,9 +7,7 @@ const ThreadForkSchema: Schema = new Schema({
   visibility: Number,
   content: {
     thread: ThreadSchema,
-    html: { type: String },
-    hashTags: { type: [String], default: [] },
-    attachments: { type: [String], default: [] }
+    html: { type: String }
   },
   comments: {
     type: Schema.Types.Mixed,
@@ -26,6 +24,10 @@ const ThreadForkSchema: Schema = new Schema({
     default: {},
     required: true,
   },
+  isAFork: {
+    type: Boolean,
+    default: true
+  }
 }, { timestamps: {}});
 
 export default ThreadForkSchema;

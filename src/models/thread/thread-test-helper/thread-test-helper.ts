@@ -26,13 +26,12 @@ export function createDummyPublicThreads(count: number, forUserId: string): IThr
       threadType: ThreadType.Post,
       visibility: ThreadVisibility.Anyone,
       content: {
-        html: lorem.generateParagraphs(2),
-        hashTags: [],
-        attachments: []
+        html: lorem.generateParagraphs(2)
       },
       comments: { },
       reactions: { },
       forks: { },
+      isAFork: false,
       createdAt: new Date(),
       updatedAt: new Date()
     });

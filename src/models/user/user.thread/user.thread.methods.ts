@@ -1,11 +1,11 @@
-import { IUserDocument, IUserThread } from "../user.types";
+import { IUserDocument } from "../user.types";
 import { UserModel } from "../user.model";
 import { IThread, IThreadDocument, IThreadPostDetails, IThreadReference, ThreadType, ThreadVisibility } from "../../thread/thread.types";
 import { ThreadModel } from "../../thread/thread.model";
 import { ThreadReactionModel } from "../../../models/thread-reaction/thread-reaction.model";
 import sanitizeHtml from "sanitize-html";
 import { ThreadCommentModel } from "../../../models/thread-comment/thread-comment.model";
-import { IAttachmentType, IThreadCommentDocument, IThreadCommentReference } from "../../../models/thread-comment/thread-comment.types";
+import { IThreadCommentDocument, IThreadCommentReference } from "../../../models/thread-comment/thread-comment.types";
 import { deleteUserCommentsForThreadByThreadId } from "./user.thread.deletion.methods";
 import { IThreadReactionDocument, IThreadReactionReference } from "../../../models/thread-reaction/thread-reaction.types";
 
@@ -20,9 +20,7 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
     visibility: threadDetails.visibility,
     postedByUserId: this.id,
     content: {
-      html: sanitizeHtml(threadDetails.html),
-      attachments: threadDetails.attachments,
-      hashTags: threadDetails.hashTags
+      html: sanitizeHtml(threadDetails.html)
     },
     comments: { },
     reactions: { },
@@ -148,7 +146,7 @@ export async function deleteReactionFromThread(this: IUserDocument, data: {  tar
  */
 export async function addThreadComment (this: IUserDocument,
   data: { targetThreadId: string, threadCommentData:
-    { content: string, attachments?: Array<IAttachmentType>} }) {
+    { content: string } }) {
   const targetThread = await ThreadModel.findById(data.targetThreadId);
 
   if (targetThread) {

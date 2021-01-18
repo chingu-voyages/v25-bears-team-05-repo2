@@ -1,5 +1,5 @@
 import { Document, Model } from "mongoose";
-import { IAttachmentType, IThreadCommentDocument, IThreadCommentReference } from "../thread-comment/thread-comment.types";
+import { IThreadCommentDocument, IThreadCommentReference } from "../thread-comment/thread-comment.types";
 import { IThreadReactionDocument, IThreadReactionReference } from "../thread-reaction/thread-reaction.types";
 import { IThreadFork } from "../thread-fork/thread-fork.types";
 import { IThread, IThreadDocument, IThreadPostDetails, IThreadReference, ThreadType, ThreadVisibility } from "../thread/thread.types";
@@ -63,7 +63,6 @@ export interface IUserDocument extends IUser, Document {
     targetThreadId: string;
     threadCommentData: {
         content: string;
-        attachments?: Array<IAttachmentType>;
     };
 }) => Promise<{
     updatedThread: IThreadDocument;

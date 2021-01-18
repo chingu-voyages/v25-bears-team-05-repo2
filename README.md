@@ -100,7 +100,7 @@ Description: returns threads authored by connections, connection suggestions and
 
 Method: POST <br>
 Endpoint: `/threads` <br>
-Body: `htmlContent`, `threadType`, `visibility`, `hashTags`, `attachments`<br>
+Body: `htmlContent`, `threadType`, `visibility`<br>
 Description: Creates a thread for the requester's profile
 
 ### <b>Users</b>
