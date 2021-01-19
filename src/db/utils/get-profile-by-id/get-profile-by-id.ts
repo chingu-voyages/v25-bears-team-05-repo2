@@ -8,7 +8,6 @@ import { IProfile } from "../../../db/types";
 export async function getProfileById({userId, reqUserId}: {userId: string, reqUserId: string}): Promise<IProfile> {
   const result = await UserModel.findById(userId);
   if (!result) throw new Error(`Unable to find profile for id: ${userId}`);
-
   return {
     id: result._id.toString(),
     firstName: result.firstName,
@@ -16,7 +15,7 @@ export async function getProfileById({userId, reqUserId}: {userId: string, reqUs
     jobTitle: result.jobTitle,
     avatarUrls: result.avatarUrls,
     nOfConnections: Object.keys(result.connections).length, 
-    isAConnection: Object.keys(result.connectionOf).includes(reqUserId),
+    isAConnection: Object.keys(result.connectionOf).includes(reqUserId.toString()),
     connections: parseConnectionsData(result.connections),
     connectionOf: parseConnectionsData(result.connectionOf),
     threads: parseThreadsData(result.threads),
