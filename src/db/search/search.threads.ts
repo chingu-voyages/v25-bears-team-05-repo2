@@ -8,7 +8,7 @@ export async function queryPublicThreads(
   data: {
     queryString: string;
   },
-  options: ISearchOptions
+  options?: ISearchOptions
 ): Promise<IThreadDetails[]> {
   const query = { "$search": data.queryString };
   options = computeLimitAndSkip(options);
@@ -40,7 +40,7 @@ export async function queryPrivateThreads(
     requestorUserId: string;
     queryString: string;
   },
-  options: ISearchOptions
+  options?: ISearchOptions
 ): Promise<IThreadDetails[]> {
   const requestingUser = await UserModel.findById(data.requestorUserId);
   if (!requestingUser) {

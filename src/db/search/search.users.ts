@@ -3,7 +3,7 @@ import { computeLimitAndSkip } from "./helpers/compute-limit-skip";
 import { IPublicUserDetails, ISearchOptions } from "./search.types";
 export async function getUserSearchResults(
   data: { query: string },
-  options: ISearchOptions
+  options?: ISearchOptions
 ): Promise<IPublicUserDetails[]> {
   options = computeLimitAndSkip(options);
   const query = { "$search": data.query };

@@ -10,7 +10,7 @@ export async function queryPublicThreadComments(
   data: {
     queryString: string;
   },
-  options: ISearchOptions
+  options?: ISearchOptions
 ): Promise<IThreadCommentDetails[]> {
   options = computeLimitAndSkip(options);
   const query = { "$search": data.queryString };
@@ -36,7 +36,7 @@ export async function queryPrivateThreadComments(
     requestorUserId: string;
     queryString: string;
   },
-  options: ISearchOptions
+  options?: ISearchOptions
 ): Promise<IThreadCommentDetails[]> {
   const requestingUser = await UserModel.findById(data.requestorUserId);
   if (!requestingUser) {
