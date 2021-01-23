@@ -15,10 +15,13 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).send({ errors: errors.array() });
     }
+
+    const options = { limit: req.query.limit!, skip: req.query.limit! };
     try {
       const searchResults = await search({
         queryString: req.query.query,
         requestorId: req.user.id,
+        options,
       });
       return res.status(200).send(searchResults);
     } catch (err) {

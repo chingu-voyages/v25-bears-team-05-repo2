@@ -9,6 +9,16 @@ export interface ISearchResults {
   private_thread_comments?: Array<IThreadCommentDetails>;
 }
 
+export interface ISearchOptions {
+  limit?: number;
+  skip?: number;
+}
+export interface ISearchRequestParams {
+  queryString: string;
+  requestorId: string;
+  options?: ISearchOptions;
+}
+
 export interface IPublicUserDetails {
   id: string;
   firstName: string;

@@ -1,20 +1,27 @@
 import { UserModel } from "../../models/user/user.model";
 import { ThreadCommentModel } from "../../models/thread-comment/thread-comment.model";
 import { ThreadVisibility } from "../../models/thread/thread.types";
-import { IThreadCommentDetails } from "./search.types";
+import { ISearchOptions, IThreadCommentDetails } from "./search.types";
 import { IThreadCommentDocument } from "../../models/thread-comment/thread-comment.types";
 import { ThreadModel } from "../../models/thread/thread.model";
+import { computeLimitAndSkip } from "./helpers/compute-limit-skip";
 
-export async function queryPublicThreadComments(data: {
-  queryString: string;
-}): Promise<IThreadCommentDetails[]> {
+export async function queryPublicThreadComments(
+  data: {
+    queryString: string;
+  },
+  options: ISearchOptions
+): Promise<IThreadCommentDetails[]> {
+  options = computeLimitAndSkip(options);
   const query = { "$search": data.queryString };
   const queryResults = await ThreadCommentModel.find({
     "$and": [
       { "$text": query },
       { "parentThreadVisibility": ThreadVisibility.Anyone },
     ],
-  });
+  })
+    .limit(options.limit)
+    .skip(options.skip);
 
   if (queryResults) {
     return await matchParentThreadWithThreadComment({
@@ -24,14 +31,18 @@ export async function queryPublicThreadComments(data: {
   return [];
 }
 
-export async function queryPrivateThreadComments(data: {
-  requestorUserId: string;
-  queryString: string;
-}): Promise<IThreadCommentDetails[]> {
+export async function queryPrivateThreadComments(
+  data: {
+    requestorUserId: string;
+    queryString: string;
+  },
+  options: ISearchOptions
+): Promise<IThreadCommentDetails[]> {
   const requestingUser = await UserModel.findById(data.requestorUserId);
   if (!requestingUser) {
     throw new Error("Requesting user not found");
   }
+  options = computeLimitAndSkip(options);
 
   const connectionOfUserDocuments = await requestingUser.getUserDocumentsFromSourceUserConnectionOf();
   if (!connectionOfUserDocuments || connectionOfUserDocuments.length === 0) {
@@ -49,7 +60,9 @@ export async function queryPrivateThreadComments(data: {
       { "parentThreadVisibility": ThreadVisibility.Connections },
       { "parentThreadOriginatorId": { "$in": connectionOfIds } },
     ],
-  });
+  })
+    .limit(options.limit)
+    .skip(options.skip);
   return await matchParentThreadWithThreadComment({
     queryResultsThreadCommentDocuments: queryResults,
   });
