@@ -20,8 +20,5 @@ export function chunkList<T>(arg: T[], limit: number, offset: number): T[] {
     return arg;
   }
 
-  if (offset + limit > arg.length) {
-    return arg.slice(offset, arg.length);
-  }
-  return arg.slice(offset, offset + limit);
+  return offset + limit > arg.length ? arg.slice(offset, arg.length) : arg.slice(offset, offset + limit);
 }

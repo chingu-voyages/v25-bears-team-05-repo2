@@ -26,7 +26,7 @@ afterEach(async () => {
 
 describe("Profile update tests", () => {
   test("profile update requests single field updates correctly", async() => {
-    const testUser = createTestUsers(1, undefined, undefined);
+    const testUser = createTestUsers({ numberOfUsers: 1});
     const dummyUserDocuments = await UserModel.create(testUser);
     await dummyUserDocuments[0].updateUserProfile({
       firstName: "updatedFirstName",
@@ -39,7 +39,7 @@ describe("Profile update tests", () => {
   });
 
   test("profile update requests all provided fields update correctly", async() => {
-    const testUser = createTestUsers(1, undefined, undefined);
+    const testUser = createTestUsers({ numberOfUsers: 1});
     const dummyUserDocuments = await UserModel.create(testUser);
     await dummyUserDocuments[0].updateUserProfile({
       firstName: "uFirstName",
@@ -56,7 +56,7 @@ describe("Profile update tests", () => {
   });
 
   test("avatar url - ensures only adds unique url", async() => {
-    const testUser = createTestUsers(1, undefined, undefined);
+    const testUser = createTestUsers({ numberOfUsers: 1});
     const dummyUserDocuments = await UserModel.create(testUser);
     // Push some test avatar urls
     dummyUserDocuments[0].avatar.push({ url: "http://fake1.com"},

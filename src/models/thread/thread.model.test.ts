@@ -58,7 +58,7 @@ describe("CRUD operations for Thread model", () => {
   describe("getAllPublicThread tests", () => {
     test("get all public threads returns public threads", async() => {
       // Create a user
-      const testUsers = createTestUsers(10, undefined, undefined);
+      const testUsers = createTestUsers({ numberOfUsers: 10});
       const dummyUserDocuments = await UserModel.create(testUsers);
 
       // Create some threads
@@ -69,7 +69,7 @@ describe("CRUD operations for Thread model", () => {
       expect(resultingFlattenedThreads).toHaveLength(10);
     });
     test("get all public threads where the thread creator is excluded", async() => {
-      const testUsers = createTestUsers(2, undefined, undefined);
+      const testUsers = createTestUsers({ numberOfUsers: 2});
       const dummyUserDocuments = await UserModel.create(testUsers);
 
       const user1DummyThreads = createDummyPublicThreads(2, dummyUserDocuments[0].id);
@@ -86,7 +86,7 @@ describe("CRUD operations for Thread model", () => {
   });
   describe("thread patch tests", () => {
     test("updates (patching) to thread performs correctly", async() => {
-      const testUsers = createTestUsers(2, undefined, undefined);
+      const testUsers = createTestUsers({ numberOfUsers: 2});
       const dummyUserDocuments = await UserModel.create(testUsers);
       const dummyThread1 = createDummyPublicThreads(2, dummyUserDocuments[0].id);
       const createdThreads = await ThreadModel.create(dummyThread1);
@@ -113,7 +113,7 @@ describe("CRUD operations for Thread model", () => {
   });
   test("patch thread function throws when user tries to patch a thread that they didn't author"
   , async() => {
-    const testUsers = createTestUsers(2, undefined, undefined);
+    const testUsers = createTestUsers({ numberOfUsers: 2});
     const dummyUserDocuments = await UserModel.create(testUsers);
     const dummyThreadForUser2 = createDummyPublicThreads(2, dummyUserDocuments[1].id);
     const createdThreads = await ThreadModel.create(dummyThreadForUser2);

@@ -6,9 +6,10 @@ import logOutRouter from "./routes/logout";
 import usersRoute from "./routes/users";
 import threadsRoute from "./routes/threads";
 import feedRoute from "./routes/feed";
+import searchRouter from "./routes/search";
 import express from "express";
 import passport from "passport";
-import checkClientApiPass from "./middleware/checkClientApiPass";
+import checkClientApiPass from "./middleware/check-client-api-pass";
 
 import connectDB from "../config/database";
 import { createError } from "./utils/errors";
@@ -48,6 +49,7 @@ app.use("/logout", logOutRouter);
 app.use("/users", usersRoute);
 app.use("/threads", threadsRoute);
 app.use("/feed", feedRoute);
+app.use("/search", searchRouter);
 
 app.get("/", (_req, res) => {
   res.send("API Running");

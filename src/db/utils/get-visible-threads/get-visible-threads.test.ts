@@ -6,7 +6,7 @@ import { getVisibleThreads } from "./get-visible-threads";
 describe("getVisibleThread db tests", () => {
   test("correctly excludes the threads visible to only connections", () => {
     // Create some sample thread objects
-    const dummyUser = createTestUsers(1, [undefined]);
+    const dummyUser = createTestUsers({ numberOfUsers: 1 });
     dummyUser[0].threads.started = {
       "thread_1": {
         postedByUserId: mongoose.Types.ObjectId(),

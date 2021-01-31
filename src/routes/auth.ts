@@ -8,11 +8,19 @@ import GooglePassportStrategy from "../authentication-strategies/google-passport
 import { createError } from "../utils/errors";
 
 passport.use("google", GooglePassportStrategy);
-router.get("/google", logoutIfAuthenticated, passport.authenticate("google", { scope: ["profile", "email"]}));
+router.get(
+  "/google",
+  logoutIfAuthenticated,
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
 
-router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/"}), (_req: Request, res: Response) => {
-  res.redirect("/success");
-});
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/" }),
+  (_req: Request, res: Response) => {
+    res.redirect("/success");
+  }
+);
 
 router.post("/local", logoutIfAuthenticated, (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
@@ -21,14 +29,24 @@ router.post("/local", logoutIfAuthenticated, (req, res, next) => {
       return next(err);
     }
     if (!user) {
-      return res.status(401).send({ errors: [{ ...createError("local-login", info, "username and/or password" )}]});
+      return res
+        .status(401)
+        .send({
+          errors: [
+            { ...createError("local-login", info, "username and/or password") },
+          ],
+        });
     }
     req.logIn(user, () => {
-       res.status(200).send({ message: "Local authentication successful", id: user.id});
+      res
+        .status(200)
+        .send({ message: "Local authentication successful", id: user.id });
     });
-  }) (req, res, next);
+  })(req, res, next);
 });
 
-router.get("/", routeProtector, (req, res) => { res.status(200).send({authed: true}); })
+router.get("/", routeProtector, (req, res) => {
+  res.status(200).send({ authed: true });
+});
 
 export default router;
