@@ -85,7 +85,7 @@ forkThread: (this: IUserDocument, data: {
     originalThread: IThreadDocument
   }>;
 
-deleteThreadFork: (this: IUserDocument, data: { targetThreadForkId: string }) => Promise<{
+deleteThreadFork: (this: IUserDocument, data: { targetThreadId: string }) => Promise<{
   updatedForkdThreads: {
       [keyof: string]: IThreadFork;
   };

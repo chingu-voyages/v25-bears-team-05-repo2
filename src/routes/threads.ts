@@ -230,7 +230,7 @@ router.delete("/:thread_id",
   }
   try {
     const result = await req.user.deleteThreadFork({
-      targetThreadForkId: req.body.threadId
+      targetThreadId: req.body.threadId
     });
     return res.status(200).send(result);
   } catch (err) {

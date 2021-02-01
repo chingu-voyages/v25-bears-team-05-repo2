@@ -13,16 +13,16 @@ import { ThreadReactionModel } from "../../../models/thread-reaction/thread-reac
 import sanitizeHtml from "sanitize-html";
 import { ThreadCommentModel } from "../../../models/thread-comment/thread-comment.model";
 import { IThreadCommentDocument, IThreadCommentReference } from "../../../models/thread-comment/thread-comment.types";
-import { IAttachmentType } from "../../../models/thread-comment/thread-comment.types";
 import { deleteUserCommentsForThreadByThreadId } from "./user.thread.deletion.methods";
 import { IThreadReactionDocument, IThreadReactionReference } from "../../../models/thread-reaction/thread-reaction.types";
+import { Types } from "mongoose";
 
 /**
  *
  * @param this instance of IUserDocument
  * @param threadDetails data used to make a thread
  */
-export async function createAndPostThread(this: IUserDocument, threadDetails: IThreadPostDetails, isAFork: boolean = false) {
+export async function createAndPostThread(this: IUserDocument, threadDetails: IThreadPostDetails, aForkOfThreadId: undefined | Types.ObjectId) {
   const userThread: IThread = {
     threadType: threadDetails.threadType,
     visibility: threadDetails.visibility,
@@ -33,7 +33,7 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
     comments: { },
     reactions: { },
     forks: { },
-    isAFork,
+    aForkOfThreadId,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -284,8 +284,8 @@ export async function forkThread(
     if (targetThreadFromCollection.forks === undefined) {
       targetThreadFromCollection.forks = { };
     }
-
-    const newClonedThread = await createAndPostThread.call(this, targetThreadFromCollection, true);
+    const aForkOfThreadId = data.targetThreadId;
+    const newClonedThread = await createAndPostThread.call(this, targetThreadFromCollection, aForkOfThreadId);
     const threadFork = newClonedThread.threadData;
     
     targetThreadFromCollection.forks[this._id] = threadFork;
@@ -306,15 +306,45 @@ export async function forkThread(
 }
 
 /**
- * Deletes a thread fork from user's own thread fork object. It
+ * Deletes a thread fork from user's own thread fork object.
  * @param this instance of UserDocument
  * @param data
  */
-export async function deleteThreadFork (this: IUserDocument, data: { targetThreadForkId: string }) {
-  const threadDeletionResponse = await deleteThread.call(this, data);
-  return threadDeletionResponse;
+export async function deleteThreadFork (this: IUserDocument, data: { targetThreadId: string }) {
+  // Get all needed objects
+  const forkedThread = await ThreadModel.findById(data.targetThreadId);
+  if (!forkedThread.aForkOfThreadId) {
+    throw `SourceThread does not contain aForkOfThreadId, not a fork? SouceThread data: ${forkedThread}`;
+  }
+  const originalThread = await ThreadModel.findById(forkedThread.aForkOfThreadId);
+  await deleteThread.call(this, data);
+  if (this.threads.started[data.targetThreadId]) {
+    delete this.threads.started[data.targetThreadId];
+    this.markModified("threads");
+    await this.save();
+
+    // Update the other documents
+    if (originalThread) {
+      if (originalThread.forks[this.id.toString()]) {
+        delete originalThread.forks[this.id.toString()];
+        originalThread.markModified("forks");
+        await originalThread.save();
+        return {
+          updatedStartedThreads: this.threads.started,
+          updatedThreadDocument: originalThread,
+        };
+      }
+    } else {
+      console.warn("Thread not found in thread collection");
+      return {
+        updatedStartedThreads: this.threads.started,
+        updatedThreadDocument: originalThread,
+      };
+    }
+  } else {
+    throw new Error("Thread fork wasn't found in user's thread fork object");
+  }
 }
-  
 
 export function createUserThreadReference(threadData: IThreadDocument): IThreadReference {
   return ({
