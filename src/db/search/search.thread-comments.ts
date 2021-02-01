@@ -102,8 +102,8 @@ async function matchParentThreadWithThreadComment(data: {
         if (fndParentThreadsMatch) {
           matches.push({
             id: foundThreadCommentDocument._id.toString(),
-            parentThreadId: foundThreadCommentDocument.parentThreadId,
-            postedByUserId: foundThreadCommentDocument.postedByUserId,
+            parentThreadId: foundThreadCommentDocument.parentThreadId.toString(),
+            postedByUserId: foundThreadCommentDocument.postedByUserId.toString(),
             content: foundThreadCommentDocument.content,
             createdAt: foundThreadCommentDocument.createdAt,
             updatedAt: foundThreadCommentDocument.updatedAt,
@@ -119,8 +119,8 @@ async function matchParentThreadWithThreadComment(data: {
         } else {
           matches.push({
             id: foundThreadCommentDocument._id.toString(),
-            parentThreadId: foundThreadCommentDocument.parentThreadId,
-            postedByUserId: foundThreadCommentDocument.postedByUserId,
+            parentThreadId: foundThreadCommentDocument.parentThreadId.toString(),
+            postedByUserId: foundThreadCommentDocument.postedByUserId.toString(),
             content: foundThreadCommentDocument.content,
             createdAt: foundThreadCommentDocument.createdAt,
             updatedAt: foundThreadCommentDocument.updatedAt,
