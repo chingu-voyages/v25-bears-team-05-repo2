@@ -41,7 +41,6 @@ describe("CRUD operations for Thread model", () => {
       comments: { },
       reactions: { },
       forks: { },
-      isAFork: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };

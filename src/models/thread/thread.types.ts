@@ -32,7 +32,7 @@ export interface IThread {
   comments: { [keyof: string]: IThreadComment };
   reactions: { [keyof: string]: IThreadReactionDocument };
   forks: { [keyof: string]: IThreadFork };
-  isAFork: boolean;
+  aForkOfThreadId?: mongoose.Types.ObjectId;
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }

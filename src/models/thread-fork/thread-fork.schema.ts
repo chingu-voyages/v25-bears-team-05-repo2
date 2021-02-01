@@ -24,9 +24,9 @@ const ThreadForkSchema: Schema = new Schema({
     default: {},
     required: true,
   },
-  isAFork: {
-    type: Boolean,
-    default: true
+  aForkOfThreadId: {
+    type: Schema.Types.ObjectId,
+    required: true,
   }
 }, { timestamps: {}});
 

@@ -31,7 +31,6 @@ export function createDummyPublicThreads(count: number, forUserId: string): IThr
       comments: { },
       reactions: { },
       forks: { },
-      isAFork: false,
       createdAt: new Date(),
       updatedAt: new Date()
     });

@@ -72,7 +72,7 @@ export interface IThreadResponse {
   reactionsCount: number;
   currentUserReactions: { [keyof: string]: IThreadReaction };
   forks: { [userId: string]: IThreadFork };
-  isAFork: boolean;
+  aForkOfThreadId?: Types.ObjectId;
   updatedAt: string;
   createdAt: string;
 }

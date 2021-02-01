@@ -25,7 +25,7 @@ export async function getThreadById({threadId, reqUserId}: {threadId: string, re
     reactionsCount: reactionsAsArray.length,
     currentUserReactions,
     forks: result.forks,
-    isAFork: result.isAFork,
+    aForkOfThreadId: result.aForkOfThreadId,
     updatedAt: result.updatedAt.valueOf().toString(),
     createdAt: result.createdAt.valueOf().toString(),
   };
