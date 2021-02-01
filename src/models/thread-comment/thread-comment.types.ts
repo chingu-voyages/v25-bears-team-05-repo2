@@ -1,9 +1,17 @@
 import { Document, Model, Types } from "mongoose";
-import { IThreadReference } from "../thread/thread.types";
+import { IThreadReference, ThreadVisibility } from "../thread/thread.types";
+
+export interface IAttachmentType {
+  url: string;
+}
 
 export interface IThreadComment {
   postedByUserId: Types.ObjectId;
   content: string;
+  attachments?: Array<IAttachmentType>;
+  parentThreadId: Types.ObjectId;
+  parentThreadVisibility: ThreadVisibility;
+  parentThreadOriginatorId: Types.ObjectId;
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }
@@ -19,5 +27,5 @@ export interface IThreadCommentReference {
   }
 }
 
-export interface IThreadCommentDocument extends IThreadComment, Document { }
-export interface IThreadCommentModel extends Model<IThreadCommentDocument> { }
+export interface IThreadCommentDocument extends IThreadComment, Document {}
+export interface IThreadCommentModel extends Model<IThreadCommentDocument> {}

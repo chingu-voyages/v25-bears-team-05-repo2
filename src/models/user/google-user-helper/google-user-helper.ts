@@ -1,8 +1,8 @@
-import { IGoogleOauthProfile } from "google-oath-profile";
 import { IUser } from "../user.types";
 import { encrypt } from "../../../utils/crypto";
+import { IGoogleOauthProfile } from "../../../types/google-oath-profile";
 
-export function createUserFromGoogleData (profile: IGoogleOauthProfile): IUser {
+export function createUserFromGoogleData(profile: IGoogleOauthProfile): IUser {
   return {
     firstName: profile.name.givenName,
       lastName: profile.name.familyName,

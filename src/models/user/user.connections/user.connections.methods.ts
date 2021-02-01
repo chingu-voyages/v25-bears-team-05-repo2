@@ -1,7 +1,7 @@
 import { IUserConnection } from "../../user-connection/user-connection.types";
 import { UserModel } from "../user.model";
 import { IUserDocument } from "../user.types";
-
+import isEmpty from "lodash/isEmpty";
 /**
  *  Adds a connection object to user's profile and updates the connectionOf property
  * on the target.
@@ -82,6 +82,20 @@ export async function getConnectionOfFromConnections(this: IUserDocument): Promi
     }
   });
   return connectionsOf;
+}
+
+/**
+ *  Returns an array of IUserDocuments representing the users in the "connectionsOf" object
+ * on the source user
+ * @param this instance of IUserDocument
+ */
+export async function getUserDocumentsFromSourceUserConnectionOf(this: IUserDocument): Promise<IUserDocument[]> {
+  if (!this.connectionOf || isEmpty(this.connectionOf)) {
+    return [];
+  }
+
+  const connectionOfUserIds = Object.keys(this.connectionOf);
+  return await UserModel.find().where("_id").in(connectionOfUserIds).exec();
 }
 /**
  *

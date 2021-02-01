@@ -3,7 +3,7 @@ import { UserModel } from "../user.model";
 import { ThreadModel } from "../../thread/thread.model";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import { ThreadType } from "../../../models/thread/thread.types";
+
 let mongoServer: any;
 
 const options: mongoose.ConnectionOptions = {
@@ -28,7 +28,7 @@ afterEach(async () => {
 
 describe("User creating thread tests", () => {
   test("User creates thread. Thread is saved in threads collection and document is saved in user document", async() => {
-    const testUser = createTestUsers(1, undefined, undefined);
+    const testUser = createTestUsers({ numberOfUsers: 1});
     const dummyUserDocuments = await UserModel.create(testUser);
     const results = await dummyUserDocuments[0].createAndPostThread({
       html: "test-html",
@@ -45,7 +45,7 @@ describe("User creating thread tests", () => {
   });
 
   test("multiple threads save correctly in user document", async() => {
-    const testUser = createTestUsers(1, undefined, undefined);
+    const testUser = createTestUsers({ numberOfUsers: 1});
     const dummyUserDocuments = await UserModel.create(testUser);
     const thread1 = await dummyUserDocuments[0].createAndPostThread({
       html: "thread-1-test",
@@ -73,7 +73,7 @@ describe("User creating thread tests", () => {
 
 describe("thread deletion", () => {
   test("deletes thread from users threads.started object", async() => {
-    const testUsers = createTestUsers(1, undefined, undefined);
+    const testUsers = createTestUsers({ numberOfUsers: 1});
     const dummyUserDocuments = await UserModel.create(testUsers);
     const thread1 = await dummyUserDocuments[0].createAndPostThread({
       html: "thread-1-test",
@@ -90,7 +90,7 @@ describe("thread deletion", () => {
     await expect(() => dummyUserDocuments[0].deleteThread({ targetThreadId: invalidObjectId })).rejects.toThrow();
   });
   test("properly deletes threads across user documents", async() => {
-    const testUsers = createTestUsers(6, undefined, undefined);
+    const testUsers = createTestUsers({ numberOfUsers: 6});
     const dummyUserDocuments = await UserModel.create(testUsers);
     const thread1 = await dummyUserDocuments[0].createAndPostThread({
       html: "thread-1-test",
@@ -144,7 +144,7 @@ describe("thread deletion", () => {
 
 describe("thread reaction tests", () => {
   test("thread reaction stores correctly on appropriate documents", async() => {
-    const testUser = createTestUsers(2, undefined, undefined);
+    const testUser = createTestUsers({ numberOfUsers: 2 });
     const dummyUserDocuments = await UserModel.create(testUser);
     const thread1 = await dummyUserDocuments[0].createAndPostThread({
       html: "thread-1-test",
@@ -165,7 +165,7 @@ describe("thread reaction tests", () => {
 
   test("thread reaction is deleted", async() => {
     // Setup
-    const testUser = createTestUsers(2, undefined, undefined);
+    const testUser = createTestUsers({ numberOfUsers: 2 });
     const dummyUserDocuments = await UserModel.create(testUser);
     const thread1 = await dummyUserDocuments[0].createAndPostThread({
       html: "thread-1-test",
@@ -185,7 +185,7 @@ describe("thread reaction tests", () => {
 
 describe("create and delete threadComment tests", () => {
   test("creates thread comment properly", async() => {
-    const testUser = createTestUsers(2, undefined, undefined);
+    const testUser = createTestUsers({ numberOfUsers: 2 });
     const dummyUserDocuments = await UserModel.create(testUser);
     const thread1 = await dummyUserDocuments[0].createAndPostThread({
       html: "thread-1-test",
@@ -202,7 +202,7 @@ describe("create and delete threadComment tests", () => {
     await dummyUserDocuments[1].addThreadComment({
       threadCommentData: { content: "This the third comment content" },
       targetThreadId: thread1.threadData.id,
-     });
+    });
 
      const arrayOfKeys = (Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`]));
      expect(Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`])).toHaveLength(3);
@@ -211,7 +211,7 @@ describe("create and delete threadComment tests", () => {
     });
 
     test("deletes a thread comment properly", async() => {
-      const testUser = createTestUsers(2, undefined, undefined);
+      const testUser = createTestUsers({ numberOfUsers: 2 });
       const dummyUserDocuments = await UserModel.create(testUser);
       const thread1 = await dummyUserDocuments[0].createAndPostThread({
         html: "thread-1-test",

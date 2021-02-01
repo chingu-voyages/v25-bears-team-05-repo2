@@ -27,7 +27,7 @@ afterEach(async () => {
 describe("user add connection tests", () => {
   test("connections added correctly", async() => {
     // Setup - load a bunch of dummy users into the db
-    const testUsers = createTestUsers(90, undefined, undefined);
+    const testUsers = createTestUsers({ numberOfUsers: 90});
     const dummyUserDocuments = await UserModel.create(testUsers);
 
     // Complete the action of adding a connection
@@ -39,7 +39,7 @@ describe("user add connection tests", () => {
   });
 
   test("multiple connections save correctly", async() => {
-    const testUsers = createTestUsers(11, undefined, undefined);
+    const testUsers = createTestUsers({ numberOfUsers: 11});
     const dummyUserDocuments = await UserModel.create(testUsers);
 
     // create a bunch of connections for the first user and save them
@@ -63,7 +63,7 @@ describe("user add connection tests", () => {
 describe("delete user connection tests", () => {
   test("deletes successfully and target's connectionOf object is updated properly", async() => {
     // prepare by adding a bunch of users
-    const testUsers = createTestUsers(15, undefined, undefined);
+    const testUsers = createTestUsers({ numberOfUsers: 15});
     const dummyUserDocuments = await UserModel.create(testUsers);
 
     // create a bunch of connections for the first
@@ -81,4 +81,21 @@ describe("delete user connection tests", () => {
     expect(target1.connectionOf).not.toHaveProperty(dummyUserDocuments[0].id);
     expect(target2.connectionOf).not.toHaveProperty(dummyUserDocuments[0].id);
   });
+});
+
+test("gets user documents from users connectionOf object", async () => {
+  const testUsers = createTestUsers({ numberOfUsers: 5});
+  const dummyUserDocuments = await UserModel.create(testUsers);
+
+  // Users 1, 2, 3 add user 0 as a connection.
+  await dummyUserDocuments[1].addConnectionToUser(dummyUserDocuments[0].id.toString());
+  await dummyUserDocuments[2].addConnectionToUser(dummyUserDocuments[0].id.toString());
+  await dummyUserDocuments[3].addConnectionToUser(dummyUserDocuments[0].id.toString());
+
+  const refreshedUser = await UserModel.findById(dummyUserDocuments[0].id.toString());
+  const connectionsOfUserDocuments = await refreshedUser.getUserDocumentsFromSourceUserConnectionOf();
+
+  expect(connectionsOfUserDocuments.length).toBe(3);
+  const arrayOfConnectionsOfUserIds = connectionsOfUserDocuments.map(document => document.id.toString());
+  expect(arrayOfConnectionsOfUserIds.includes(dummyUserDocuments[1].id.toString()));
 });

@@ -27,7 +27,7 @@ afterEach(async () => {
 describe("get profile tests", () => {
   test("returns object with the correct properties (no auth)", async () => {
     // Setup test users and enter them into db
-    const testUsers = createTestUsers(5);
+    const testUsers = createTestUsers({ numberOfUsers: 5});
     const newUsers = await UserModel.create(testUsers);
 
     // Grab the id from one of the users so we can test the function

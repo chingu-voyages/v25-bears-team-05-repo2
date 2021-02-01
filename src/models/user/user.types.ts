@@ -85,11 +85,12 @@ forkThread: (this: IUserDocument, data: {
     originalThread: IThreadDocument
   }>;
 
-deleteThreadFork: (this: IUserDocument, threadDetails: {
-  targetThreadForkId: string;
-}) => Promise<{
-[keyof: string]: IThreadDocument;
-}>;
+deleteThreadFork: (this: IUserDocument, data: { targetThreadForkId: string }) => Promise<{
+  updatedForkdThreads: {
+      [keyof: string]: IThreadFork;
+  };
+  updatedThreadDocument: IThreadDocument}>;
+getUserDocumentsFromSourceUserConnectionOf: (this: IUserDocument) => Promise<IUserDocument[]>;
 }
 export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;

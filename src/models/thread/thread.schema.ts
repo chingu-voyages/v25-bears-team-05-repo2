@@ -29,6 +29,7 @@ const ThreadSchema: Schema = new Schema({
   }
 }, { timestamps: { }} );
 
+ThreadSchema.index({ "content.html": "text", "comments": "text" });
 ThreadSchema.statics.getAllPublicThreads = getAllPublicThreads;
 ThreadSchema.statics.patchThread = patchThread;
 export default ThreadSchema;

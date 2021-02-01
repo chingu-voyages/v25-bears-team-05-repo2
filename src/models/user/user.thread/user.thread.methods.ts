@@ -1,11 +1,19 @@
 import { IUserDocument } from "../user.types";
 import { UserModel } from "../user.model";
-import { IThread, IThreadDocument, IThreadPostDetails, IThreadReference, ThreadType, ThreadVisibility } from "../../thread/thread.types";
+import {
+  IThread,
+  IThreadDocument,
+  IThreadPostDetails,
+  IThreadReference,
+  ThreadType,
+  ThreadVisibility,
+} from "../../thread/thread.types";
 import { ThreadModel } from "../../thread/thread.model";
 import { ThreadReactionModel } from "../../../models/thread-reaction/thread-reaction.model";
 import sanitizeHtml from "sanitize-html";
 import { ThreadCommentModel } from "../../../models/thread-comment/thread-comment.model";
 import { IThreadCommentDocument, IThreadCommentReference } from "../../../models/thread-comment/thread-comment.types";
+import { IAttachmentType } from "../../../models/thread-comment/thread-comment.types";
 import { deleteUserCommentsForThreadByThreadId } from "./user.thread.deletion.methods";
 import { IThreadReactionDocument, IThreadReactionReference } from "../../../models/thread-reaction/thread-reaction.types";
 
@@ -27,7 +35,7 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
     forks: { },
     isAFork,
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   };
 
   const newlyCreatedThread = await ThreadModel.create(userThread);
@@ -35,19 +43,26 @@ export async function createAndPostThread(this: IUserDocument, threadDetails: IT
   // Forces the parent object to update: there may be a better way
   this.markModified("threads");
   await this.save();
-  return { userData: this, threadData: newlyCreatedThread};
+  return { userData: this, threadData: newlyCreatedThread };
 }
 
-export async function deleteThread (this: IUserDocument, threadDetails: { targetThreadId: string }) {
+export async function deleteThread(
+  this: IUserDocument,
+  threadDetails: { targetThreadId: string }
+) {
   // Rules: user can only delete a thread they started.
   if (this.threads.started[threadDetails.targetThreadId]) {
     delete this.threads.started[threadDetails.targetThreadId];
     this.markModified("threads");
     await this.save();
-    await deleteUserCommentsForThreadByThreadId({ sourceThreadId: threadDetails.targetThreadId});
+    await deleteUserCommentsForThreadByThreadId({
+      sourceThreadId: threadDetails.targetThreadId,
+    });
     return this.threads.started;
   } else {
-    throw new Error(`Thread not found on user object with id: ${threadDetails.targetThreadId}: unable to delete`);
+    throw new Error(
+      `Thread not found on user object with id: ${threadDetails.targetThreadId}: unable to delete`
+    );
   }
 }
 
@@ -63,7 +78,7 @@ export async function getConnectionThreads(this: IUserDocument): Promise<Array<I
   const threads: IThreadReference[] = [];
 
   users.forEach((user) => {
-    for (const[_, value] of Object.entries(user.threads.started)) {
+    for (const [_, value] of Object.entries(user.threads.started)) {
       threads.push(value);
     }
   });
@@ -129,7 +144,7 @@ export async function deleteReactionFromThread(this: IUserDocument, data: {  tar
       await targetThread.save();
       await this.save();
       return {
-        updatedThread: targetThread
+        updatedThread: targetThread,
       };
     } else {
       throw new Error("ThreadReaction id not found");
@@ -150,14 +165,22 @@ export async function addThreadComment (this: IUserDocument,
   const targetThread = await ThreadModel.findById(data.targetThreadId);
 
   if (targetThread) {
-    // Create a thread
-    const newThreadComment = await ThreadCommentModel.create(
-      { postedByUser: this.id.toString(),
-        ...data.threadCommentData});
-        newThreadComment.postedByUserId = this.id.toString();
+    // Create a comment
+    const newThreadComment = await ThreadCommentModel.create({
+      postedByUserId: this.id.toString(),
+      ...data.threadCommentData,
+      parentThreadId: targetThread.id.toString(),
+      parentThreadVisibility: targetThread.visibility,
+      parentThreadOriginatorId: targetThread.postedByUserId.toString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    newThreadComment.postedByUserId = this.id.toString();
     const newThreadCommentReference = createUserThreadCommentRefernce({ threadData: targetThread, commentData: newThreadComment });
 
-    targetThread.comments[`${newThreadComment.id.toString()}`] = newThreadComment;
+    targetThread.comments[
+      `${newThreadComment.id.toString()}`
+    ] = newThreadComment;
     targetThread.markModified("comments");
 
     if (!this.threads.commented[`${targetThread.id.toString()}`]) {
@@ -172,9 +195,10 @@ export async function addThreadComment (this: IUserDocument,
     this.markModified("threads");
     await this.save();
     await targetThread.save();
+    await newThreadComment.save();
     return {
       updatedThread: targetThread,
-      newComment: newThreadComment
+      newComment: newThreadComment,
     };
   }
 }
@@ -184,17 +208,26 @@ export async function addThreadComment (this: IUserDocument,
  * @param this
  * @param data
  */
-export async function deleteThreadComment (this: IUserDocument, data: { targetThreadId: string, targetThreadCommentId: string }) {
+export async function deleteThreadComment(
+  this: IUserDocument,
+  data: { targetThreadId: string; targetThreadCommentId: string }
+) {
   const targetThread = await ThreadModel.findById(data.targetThreadId);
 
   if (!targetThread) {
     throw new Error("Parent thread not found");
   }
-  if (!(targetThread.comments[data.targetThreadCommentId])) {
+  if (!targetThread.comments[data.targetThreadCommentId]) {
     throw new Error("Thread comment not found");
   }
 
-  if (this.threads.commented[targetThread.id.toString()][data.targetThreadCommentId]) {
+  await ThreadCommentModel.findByIdAndDelete(data.targetThreadCommentId);
+
+  if (
+    this.threads.commented[targetThread.id.toString()][
+      data.targetThreadCommentId
+    ]
+  ) {
     const targetThreadId = targetThread.id.toString();
     delete this.threads.commented[targetThreadId][data.targetThreadCommentId];
     delete targetThread.comments[data.targetThreadCommentId];
@@ -203,10 +236,10 @@ export async function deleteThreadComment (this: IUserDocument, data: { targetTh
     await targetThread.save();
     await this.save();
     return {
-      updatedThread: targetThread
+      updatedThread: targetThread,
     };
   } else {
-    throw new Error ("Thread comment not found on user object");
+    throw new Error("Thread comment not found on user object");
   }
 }
 
@@ -215,17 +248,22 @@ export async function deleteThreadComment (this: IUserDocument, data: { targetTh
  * @param this Instance of a User
  * @param data the thread to fork on user's profile
  */
-export async function forkThread(this: IUserDocument,
-  data: { targetThreadId: string,
+export async function forkThread(
+  this: IUserDocument,
+  data: { 
+    targetThreadId: string,
     sourceUserId: string,
     threadForkType: ThreadType,
-    visibility?: ThreadVisibility}) {
+    visibility?: ThreadVisibility
+  }) {
   // The targetThreadId has to exist on the source user.
   // The targetThreadId must be a public thread (cannot fork private)
   // ThreadForks (the forked object on the Thread document) is stored by the forkr's userId.
 
   // First find the thread in the collection
-  const targetThreadFromCollection = await ThreadModel.findById(data.targetThreadId.toString());
+  const targetThreadFromCollection = await ThreadModel.findById(
+    data.targetThreadId.toString()
+  );
   if (!targetThreadFromCollection) {
     throw new Error("Target thread not found in collection");
   }
@@ -261,7 +299,9 @@ export async function forkThread(this: IUserDocument,
       originalThread: targetThreadFromCollection
     }
   } else {
-    throw new Error(`Thread with id ${targetThreadFromCollection.id.toString()} does not exist on user's threads.started object`);
+    throw new Error(
+      `Thread with id ${targetThreadFromCollection.id.toString()} does not exist on user's threads.started object`
+    );
   }
 }
 
@@ -271,8 +311,10 @@ export async function forkThread(this: IUserDocument,
  * @param data
  */
 export async function deleteThreadFork (this: IUserDocument, data: { targetThreadForkId: string }) {
-  return deleteThread.call(this, data);
+  const threadDeletionResponse = await deleteThread.call(this, data);
+  return threadDeletionResponse;
 }
+  
 
 export function createUserThreadReference(threadData: IThreadDocument): IThreadReference {
   return ({
