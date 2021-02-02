@@ -2,8 +2,8 @@
 import { ThreadModel } from "../../../models/thread/thread.model";
 import { IThreadResponse } from "../../../db/types";
 /**
- * Finds user by ID and only returns relevant properties
- * @param userId ObjectId
+ * Finds thread by ID and transforms data into IThreadResponse
+ * @param threadId ObjectId
  */
 export async function getThreadById({threadId, reqUserId}: {threadId: string, reqUserId: string}): Promise<IThreadResponse> {
   const result = await ThreadModel.findById(threadId);
