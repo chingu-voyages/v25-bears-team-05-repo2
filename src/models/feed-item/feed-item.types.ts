@@ -1,6 +1,4 @@
 import { Model, Types, Document } from "mongoose";
-import { IProfile, IThreadResponse } from "../../db/types";
-import { IThreadComment } from "../thread-comment/thread-comment.types";
 
 export type TFeedDocumentType = "thread" | "user" | "comment" | "connection" | "reaction";
 
@@ -15,19 +13,6 @@ export interface IFeedItem {
     propertiesChanged: {
         [propertyName: string]: string;
     };
-}
-
-export interface IBucketItem extends IFeedItem {
-    documentData: IThreadResponse | IProfile | IThreadComment;
-    destination: "home feed" | "profile feed" | "notification feed";
-}
-
-export interface IBucket {
-    collection: {
-        [priority: number]: Array<IBucketItem>;
-    };
-    latestUpdate: Date;
-    oldestUpdate: Date;
 }
 
 export interface IAnyTimeStampedDocument {
