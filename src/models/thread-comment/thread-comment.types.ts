@@ -6,6 +6,7 @@ export interface IAttachmentType {
 }
 
 export interface IThreadComment {
+  threadId: Types.ObjectId;
   postedByUserId: Types.ObjectId;
   content: string;
   attachments?: Array<IAttachmentType>;
