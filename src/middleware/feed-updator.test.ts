@@ -33,7 +33,7 @@ afterAll(async () => {
   await mongoServer.stop();
 });
 
-describe("Feed updator middleware:", () => {
+describe("Feed updator middleware:", async () => {
     const testUserData = {
         firstName: "testFirstName",
         lastName: "testLastName",
@@ -63,16 +63,21 @@ describe("Feed updator middleware:", () => {
         createdAt: new Date(),
         updatedAt: new Date()
     };
+    const testThreadPatchData: IThreadPatchData = {
+        threadId: null, // will be set on "Thread document gets updated" section with threadDocument
+        userId: null, // will be set on "Thread document gets updated" section with userDocument
+        htmlContent: "some kind of new content here",
+        visibility: ThreadVisibility.Connections,
+        threadType: ThreadType.Photo
+    };
     
     let userDocument: IUserDocument;
     let threadDocument: IThreadDocument;
     
-    describe("Users:", () => {
+    await describe("Users:", async () => {
         describe("User document gets created", async () => {
             userDocument = await UserModel.create(testUserData);
             expect(userDocument).toBeInstanceOf(UserModel);
-        });
-        describe('Adds a feed item for new user', () => {
             let feedItemDocument: IFeedItemDocument;
             test("Feed has item for created user", async () => {
                 feedItemDocument = await FeedItemModel.findOne({ "documentId": userDocument._id });
@@ -94,16 +99,14 @@ describe("Feed updator middleware:", () => {
             });
         });
     });
-    describe("Threads:", () => {
+    await describe("Threads:", async () => {
         testThreadData.postedByUserId = userDocument._id;
-        test("Thread document gets created", async () => {
+        await test("Thread document gets created", async () => {
             threadDocument = await ThreadModel.create(testThreadData);
             expect(threadDocument).toBeInstanceOf(ThreadModel)
             expect(threadDocument.postedByUserId).toBe(testThreadData.postedByUserId);
-        });
-        describe('Adds a feed item for new thread posted', () => {
             let feedItemDocument: IFeedItemDocument;
-            test("Feed has item for created thread", async () => {
+            await test("Feed has item for created thread", async () => {
                 feedItemDocument = await FeedItemModel.findOne({ "documentId": threadDocument._id });
                 expect(feedItemDocument).toBeInstanceOf(FeedItemModel);
             });
@@ -122,25 +125,17 @@ describe("Feed updator middleware:", () => {
                 }).toEqual(testProperties);
             });
         });
-        describe('Adds a feed item for thread update', () => {
-            /* 
-            Currently any user can update any thread they have access by adding a reaction or comment. And thus a feed item will be added erroneously
-            */
-            const testThreadPatchData: IThreadPatchData = {
-                threadId: threadDocument._id,
-                userId: userDocument._id.toString(),
-                htmlContent: "some kind of new content here",
-                visibility: ThreadVisibility.Connections,
-                threadType: ThreadType.Photo
-            };
+        /* 
+        Currently any user can update any thread they have access by adding a reaction or comment. And thus a feed item will be added erroneously
+        */
+        test("Thread document gets updated", async () => {
+            testThreadPatchData.threadId = threadDocument._id;
+            testThreadPatchData.userId = userDocument._id.toString();
             let feedItemDocument: IFeedItemDocument;
-            let patchedThread: IThreadDocument;
-            test("Thread document gets updated", async () => {
-                patchedThread = await ThreadModel.patchThread(testThreadPatchData);
-                expect(patchedThread).toBeInstanceOf(ThreadModel);
-                expect(patchedThread.content.html).toBe(testThreadPatchData.htmlContent);
-            });
-            test("Feed has item for updated thread", async () => {
+            const patchedThread = await ThreadModel.patchThread(testThreadPatchData);
+            expect(patchedThread).toBeInstanceOf(ThreadModel);
+            expect(patchedThread.content.html).toBe(testThreadPatchData.htmlContent);
+            await test("Feed has item for updated thread", async () => {
                 feedItemDocument = await FeedItemModel.findOne({ "documentId": threadDocument._id, action: { $ne: "posted" } });
                 expect(feedItemDocument).toBeInstanceOf(FeedItemModel);
             });
@@ -169,7 +164,7 @@ describe("Feed updator middleware:", () => {
             });
         });
     });
-    describe("Comments:", () => {
+    describe("Comments:", async () => {
         let commentDocument: IThreadCommentDocument;
         test("Comment document gets created", async () => {
             commentDocument = await (await userDocument.addThreadComment({
@@ -177,56 +172,83 @@ describe("Feed updator middleware:", () => {
                 targetThreadId: threadDocument._id.toString(),
             })).newComment;
             expect(commentDocument).toBeInstanceOf(ThreadCommentModel);
-        });
-        let feedItemDocument: IFeedItemDocument;
-        describe('Adds a feed item for new comment', () => {
+            let feedItemDocument: IFeedItemDocument;
             test("Feed has item for created comment", async () => {
-                feedItemDocument = await FeedItemModel.findOne({ "documentId":  });
+                feedItemDocument = await FeedItemModel.findOne({ "documentId": commentDocument._id });
                 expect(feedItemDocument).toBeInstanceOf(FeedItemModel);
             });
             test("Feed item has correct values for created comment", async () => {
-
+                const testProperties: Partial<IFeedItemDocument> = {
+                    action: "commented",
+                    documentType: "comment",
+                    documentUpdateAt: commentDocument.updatedAt,
+                    byUserId: commentDocument.postedByUserId
+                };
+                expect({
+                    action: feedItemDocument.action,
+                    documentType: feedItemDocument.documentType,
+                    documentUpdateAt: feedItemDocument.documentUpdateAt,
+                    byUserId: feedItemDocument.byUserId
+                }).toEqual(testProperties);
             });
         });
-        test("Feed has item for updated comment", async () => {
-
-        });
-        test("Feed item has correct values for updated comment", async () => {
-
-        });
     });
-    describe("Reactions:", () => {
+    describe("Reactions:", async () => {
         let reactionDocument: IThreadReactionDocument;
         describe("Reaction document gets created", async () => {
             reactionDocument = await (await userDocument.addReactionToThread({ targetThreadId: threadDocument._id.toString(), title: "star"})).threadReactionDocument;
             expect(reactionDocument).toBeInstanceOf(ThreadReactionModel);
-        });
-        let feedItemDocument: IFeedItemDocument;
-        describe('Adds a feed item for new reaction', () => {
-            test("Feed has item for created reactionr", async () => {
-
-            });
-            test("Feed item has correct values for created reaction", async () => {
-
+            let feedItemDocument: IFeedItemDocument;
+            describe('Adds a feed item for new reaction', () => {
+                test("Feed has item for created reaction", async () => {
+                    feedItemDocument = await FeedItemModel.findOne({ "documentId": reactionDocument._id });
+                    expect(feedItemDocument).toBeInstanceOf(FeedItemModel);
+                });
+                test("Feed item has correct values for created reaction", async () => {
+                    const testProperties: Partial<IFeedItemDocument> = {
+                        action: "reacted to",
+                        documentType: "reaction",
+                        documentUpdateAt: reactionDocument.updatedAt,
+                        byUserId: reactionDocument.postedByUserId
+                    };
+                    expect({
+                        action: feedItemDocument.action,
+                        documentType: feedItemDocument.documentType,
+                        documentUpdateAt: feedItemDocument.documentUpdateAt,
+                        byUserId: feedItemDocument.byUserId
+                    }).toEqual(testProperties);
+                });
             });
         });
     });
-    describe("Connections:", () => {
+    describe("Connections:", async () => {
         let connectionDocument: IUserDocument;
-        describe("Connection document gets created", async () => {
+        await describe("Connection document gets created", async () => {
             const anotherUserDocument = await UserModel.create(testUserData);
             expect(anotherUserDocument).toBeInstanceOf(UserModel);
             connectionDocument = await userDocument.addConnectionToUser(anotherUserDocument._id.toString(), true);
             expect(connectionDocument).toBeInstanceOf(UserModel);
             expect(connectionDocument.connections).toHaveProperty(anotherUserDocument._id.toString());
-        });
-        let feedItemDocument: IFeedItemDocument;
-        describe('Adds a feed item for new connection', () => {
-            test("Feed has item for created connection", async () => {
-
-            });
-            test("Feed item has correct values for created connection", async () => {
-
+            let feedItemDocument: IFeedItemDocument;
+            describe('Adds a feed item for new connection', () => {
+                test("Feed has item for created connection", async () => {
+                    feedItemDocument = await FeedItemModel.findOne({ "documentId": connectionDocument._id });
+                    expect(feedItemDocument).toBeInstanceOf(FeedItemModel);
+                });
+                test("Feed item has correct values for created connection", async () => {
+                    const testProperties: Partial<IFeedItemDocument> = {
+                        action: "connected with",
+                        documentType: "reaction",
+                        documentUpdateAt: connectionDocument.updatedAt,
+                        byUserId: userDocument._id
+                    };
+                    expect({
+                        action: feedItemDocument.action,
+                        documentType: feedItemDocument.documentType,
+                        documentUpdateAt: feedItemDocument.documentUpdateAt,
+                        byUserId: feedItemDocument.byUserId
+                    }).toEqual(testProperties);
+                });
             });
         });
     });
