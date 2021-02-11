@@ -66,7 +66,7 @@ app.get("/fail", (req, res) => {
 });
 const port = app.get("port");
 const server = app.listen(port, () =>
-  console.log(`Server started on port ${port}`)
+  console.log(`Server started on ports ${port}`)
 );
 
 export default server;

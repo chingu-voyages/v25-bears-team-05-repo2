@@ -29,6 +29,7 @@ export async function queryPublicThreads(
         likes: (result.likes && Object.entries(result.likes).length) || 0,
         shares: (result.shares && Object.entries(result.shares).length) || 0,
         updatedAt: result.updatedAt,
+        comments: result.comments && Object.values(result.comments),
       };
     });
   }
@@ -74,6 +75,7 @@ export async function queryPrivateThreads(
           likes: (result.likes && Object.entries(result.likes).length) || 0,
           shares: (result.shares && Object.entries(result.shares).length) || 0,
           updatedAt: result.updatedAt,
+          comments: result.comments && Object.values(result.comments),
         };
       });
     }

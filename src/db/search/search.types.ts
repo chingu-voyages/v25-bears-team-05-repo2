@@ -1,3 +1,4 @@
+import { IThreadComment } from "../../models/thread-comment/thread-comment.types";
 import { ThreadType, ThreadVisibility } from "../../models/thread/thread.types";
 
 export interface ISearchResults {
@@ -36,6 +37,7 @@ export interface IThreadDetails {
     hashTags?: Array<string>;
     attachments?: Array<string>;
   };
+  comments?: Array<IThreadComment>;
   visibility: ThreadVisibility;
   likes?: number;
   shares?: number;
