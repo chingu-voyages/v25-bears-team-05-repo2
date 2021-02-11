@@ -4,41 +4,42 @@ import { FeedItemModel } from "../models/feed-item/feed-item.model";
 import { IFeedItem, TDocumentForTheFeed, TFeedChangeSummeryAction } from "../models/feed-item/feed-item.types";
 
 function findAction({doc, propertiesChanged, documentType}: {doc: TDocumentForTheFeed, propertiesChanged: IFeedItem["propertiesChanged"], documentType: IFeedItem["documentType"]}) {
-    let action: TFeedChangeSummeryAction | undefined;
+    let action: TFeedChangeSummeryAction = "no action defined";
+    const isNew = doc.createdAt === doc.updatedAt;
     switch(documentType) {
         case "thread": {
-            if (doc.isNew) {
+            if (isNew) {
                 action = "posted";
-            } else if (propertiesChanged.hasOwnProperty("content")) {
+            } else if (Object.keys(propertiesChanged).includes("content")) {
                 action = "updated";
             }
             break;
         }
         case "comment": {
-            if (doc.isNew) {
+            if (isNew) {
                 action = "commented";
-            } else if (propertiesChanged.hasOwnProperty("content")) {
+            } else if (Object.keys(propertiesChanged).includes("content")) {
                 action = "updated their comment";
             }
             break;
         }
         case "user": {
+            if (isNew) {
+                action = "joined";
+            }
             break;
         }
         case "connection": {
-            if (doc.isNew) {
+            if (isNew) {
                 action = "connected with";
             }
             break;
         }
         case "reaction": {
-            if (doc.isNew) {
+            if (isNew) {
                 action = "reacted to";
             }
             break;
-        }
-        default: {
-            action = "no action defined";
         }
     }
     return action;
@@ -46,12 +47,14 @@ function findAction({doc, propertiesChanged, documentType}: {doc: TDocumentForTh
 
 async function addToFeed(doc: TDocumentForTheFeed, originalDoc: TDocumentForTheFeed | undefined) {
     const documentType = (doc.collection.collectionName as IFeedItem["documentType"]);
-    const propertiesChanged = getObjectDiffs(doc, originalDoc);
+    const docObject = doc.toObject(); // So we don't get mongoose InternalCache object properties 
+    const propertiesChanged = originalDoc ? getObjectDiffs(docObject, originalDoc, ["content", "html"]) : {};
     const action = findAction({doc, propertiesChanged, documentType});
-    const byUserId = doc.hasOwnProperty("postedByUserId") ? doc.postedByUserId : doc.hasOwnProperty("userId") && doc.userId;
+    const byUserId = doc.postedByUserId ? doc.postedByUserId : doc.userId ? doc.userId : doc._id;
     const feedData = {
+        documentId: doc._id,
         documentType,
-        documentUpdatedAt: doc.updatedAt,
+        documentUpdatedAt: doc.dateTimeConnected ? doc.dateTimeConnected : doc.updatedAt,
         action,
         byUserId,
         propertiesChanged
@@ -63,11 +66,11 @@ async function addToFeed(doc: TDocumentForTheFeed, originalDoc: TDocumentForTheF
 export default function feedUpdator(schema: Schema) {
     let preDoc: undefined | Document;
     schema.pre('save', async function(this) { 
-        preDoc = this;
+        preDoc = await this.collection.findOne({"_id": this._id});
     });
     schema.post('save', async function(doc) {
-        if (!doc.hasOwnProperty("updatedAt") || !(doc.hasOwnProperty("postedByUserId") || doc.hasOwnProperty("userId"))) {
-            console.warn(`Item not added to feed because ${doc} does not contain properties for updatedAt and postedByUserId or userId`);
+        if ( !(doc as unknown as TDocumentForTheFeed).updatedAt ) {
+            console.warn(`Item not added to feed because ${doc} does not contain properties for updatedAt`);
         } else {
             await addToFeed((doc as unknown as TDocumentForTheFeed), (preDoc as unknown as TDocumentForTheFeed));
         }

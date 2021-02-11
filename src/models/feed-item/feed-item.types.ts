@@ -2,7 +2,7 @@ import { Model, Types, Document } from "mongoose";
 
 export type TFeedDocumentType = "thread" | "user" | "comment" | "connection" | "reaction";
 
-export type TFeedChangeSummeryAction = "posted" | "updated" | "commented" | "updated their comment" | "reacted to" | "connected with" | "no action defined";
+export type TFeedChangeSummeryAction = "posted" | "updated" | "commented" | "updated their comment" | "reacted to" | "connected with" | "joined" | "no action defined";
 
 export interface IFeedItem {
     documentId: Types.ObjectId;
