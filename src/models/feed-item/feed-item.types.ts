@@ -11,7 +11,7 @@ export interface IFeedItem {
     action: TFeedChangeSummeryAction;
     byUserId: Types.ObjectId;
     propertiesChanged: {
-        [propertyName: string]: string;
+        [propertyName: string]: any;
     };
 }
 

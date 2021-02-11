@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 let mongoServer: any;
-import { IThread, IThreadDocument, IThreadModel, IThreadPatchData, ThreadType, ThreadVisibility } from "../models/thread/thread.types";
+import { IThread, IThreadDocument, IThreadPatchData, ThreadType, ThreadVisibility } from "../models/thread/thread.types";
 import { ThreadModel }  from "../models/thread/thread.model";
 import _ from "lodash";
 import { FeedItemModel } from "../models/feed-item/feed-item.model";
