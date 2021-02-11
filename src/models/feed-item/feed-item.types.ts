@@ -7,7 +7,7 @@ export type TFeedChangeSummeryAction = "posted" | "updated" | "commented" | "upd
 export interface IFeedItem {
     documentId: Types.ObjectId;
     documentType: TFeedDocumentType;
-    documentUpdateAt: Date;
+    documentUpdatedAt: Date;
     action: TFeedChangeSummeryAction;
     byUserId: Types.ObjectId;
     propertiesChanged: {

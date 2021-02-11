@@ -51,7 +51,7 @@ async function addToFeed(doc: TDocumentForTheFeed, originalDoc: TDocumentForTheF
     const byUserId = doc.hasOwnProperty("postedByUserId") ? doc.postedByUserId : doc.hasOwnProperty("userId") && doc.userId;
     const feedData = {
         documentType,
-        documentUpdateAt: doc.updatedAt,
+        documentUpdatedAt: doc.updatedAt,
         action,
         byUserId,
         propertiesChanged
