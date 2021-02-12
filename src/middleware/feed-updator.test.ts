@@ -281,49 +281,50 @@ describe("Feed updator middleware:", () => {
             }).toEqual(testProperties);
         });
     });
-    describe("Connections:", () => {
-        let connectionDocumentPromise: Promise<IUserConnection>;
-        let feedItemDocumentPromise: Promise<IFeedItemDocument>;
-        test("Connection document gets created", async () => {
-            const userDocument = await userDocumentPromise;
-            const anotherUserDocument = await UserModel.create(testUserData);
-            expect(anotherUserDocument).toBeInstanceOf(UserModel);
-            connectionDocumentPromise = new Promise(async (resolve, reject) => {
-                try {
-                    await userDocument.addConnectionToUser(anotherUserDocument._id.toString(), true);
-                    const connectionDocument = await UserConnectionModel.findOne({"userId": anotherUserDocument._id});
-                    resolve(connectionDocument);
-                } catch (err) {
-                    reject(err)
-                }
-            }); 
-            const connectionDocument = await connectionDocumentPromise;
-            expect(connectionDocument).toBeInstanceOf(UserModel);
-        });
-        test("Feed has item for created connection", async () => {
-            const connectionDocument = await connectionDocumentPromise;
-            feedItemDocumentPromise = new Promise((resolve,reject) => {
-                FeedItemModel.findOne({ "documentId": connectionDocument.userId }).then(item => resolve(item), err => reject(err));
-            });
-            const feedItemDocument = await feedItemDocumentPromise;
-            expect(feedItemDocument).toBeInstanceOf(FeedItemModel);
-        });
-        test("Feed item has correct values for created connection", async () => {
-            const connectionDocument = await connectionDocumentPromise;
-            const userDocument = await userDocumentPromise;
-            const feedItemDocument = await feedItemDocumentPromise;
-            const testProperties: Partial<IFeedItemDocument> = {
-                action: "connected with",
-                documentType: "connection",
-                documentUpdatedAt: connectionDocument.dateTimeConnected,
-                byUserId: userDocument._id
-            };
-            expect({
-                action: feedItemDocument.action,
-                documentType: feedItemDocument.documentType,
-                documentUpdatedAt: feedItemDocument.documentUpdatedAt,
-                byUserId: feedItemDocument.byUserId
-            }).toEqual(testProperties);
-        });
-    });
+    /* Connections in feed disabled until we reimplement connections */
+    // describe("Connections:", () => {
+    //     let connectionDocumentPromise: Promise<IUserConnection>;
+    //     let feedItemDocumentPromise: Promise<IFeedItemDocument>;
+    //     test("Connection document gets created", async () => {
+    //         const userDocument = await userDocumentPromise;
+    //         const anotherUserDocument = await UserModel.create(testUserData);
+    //         expect(anotherUserDocument).toBeInstanceOf(UserModel);
+    //         connectionDocumentPromise = new Promise(async (resolve, reject) => {
+    //             try {
+    //                 await userDocument.addConnectionToUser(anotherUserDocument._id.toString(), true);
+    //                 const connectionDocument = await UserConnectionModel.findOne({"userId": anotherUserDocument._id});
+    //                 resolve(connectionDocument);
+    //             } catch (err) {
+    //                 reject(err)
+    //             }
+    //         }); 
+    //         const connectionDocument = await connectionDocumentPromise;
+    //         expect(connectionDocument).toBeInstanceOf(UserModel);
+    //     });
+    //     test("Feed has item for created connection", async () => {
+    //         const connectionDocument = await connectionDocumentPromise;
+    //         feedItemDocumentPromise = new Promise((resolve,reject) => {
+    //             FeedItemModel.findOne({ "documentId": connectionDocument.userId }).then(item => resolve(item), err => reject(err));
+    //         });
+    //         const feedItemDocument = await feedItemDocumentPromise;
+    //         expect(feedItemDocument).toBeInstanceOf(FeedItemModel);
+    //     });
+    //     test("Feed item has correct values for created connection", async () => {
+    //         const connectionDocument = await connectionDocumentPromise;
+    //         const userDocument = await userDocumentPromise;
+    //         const feedItemDocument = await feedItemDocumentPromise;
+    //         const testProperties: Partial<IFeedItemDocument> = {
+    //             action: "connected with",
+    //             documentType: "connection",
+    //             documentUpdatedAt: connectionDocument.dateTimeConnected,
+    //             byUserId: userDocument._id
+    //         };
+    //         expect({
+    //             action: feedItemDocument.action,
+    //             documentType: feedItemDocument.documentType,
+    //             documentUpdatedAt: feedItemDocument.documentUpdatedAt,
+    //             byUserId: feedItemDocument.byUserId
+    //         }).toEqual(testProperties);
+    //     });
+    // });
 });
