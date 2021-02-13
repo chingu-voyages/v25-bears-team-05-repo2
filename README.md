@@ -87,6 +87,9 @@ Other tools:
    - `$ heroku config:set $(<.env)`
 1. Deploy a branch to heroku master
    - `$ git push heroku <your branch to deploy>:master`
+   
+#### Run jest tests
+-  `$ npm t`
 
 ## API Routes
 
