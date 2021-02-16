@@ -91,7 +91,7 @@ describe("Feed updator middleware:", () => {
             const feedItemDocument = await feedItemDocumentPromise;
             expect(feedItemDocument).toBeInstanceOf(FeedItemModel);
         });
-        test("Feed item has correct values for created thread", async () => {
+        test("Feed item has correct values for created user", async () => {
             const feedItemDocument = await feedItemDocumentPromise;
             const userDocument = await userDocumentPromise;
             const testProperties: Partial<IFeedItemDocument> = {
