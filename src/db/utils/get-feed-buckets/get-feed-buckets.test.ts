@@ -5,6 +5,10 @@ import mongoose from "mongoose";
 import { FeedItemModel } from "../../../models/feed-item/feed-item.model";
 import { IUserDocument } from "../../../models/user/user.types";
 import { IFeedItemDocument } from "../../../models/feed-item/feed-item.types";
+import getFeedBuckets from "./get-feed-buckets";
+import { IThreadDocument } from "../../../models/thread/thread.types";
+import { createDummyPublicThreads } from "../../../models/thread/thread-test-helper/thread-test-helper";
+import { ThreadModel } from "../../../models/thread/thread.model";
 let mongoServer: any;
 
 const options: mongoose.ConnectionOptions = {
@@ -15,6 +19,7 @@ const options: mongoose.ConnectionOptions = {
 };
 
 let dummyUsers: IUserDocument[];
+let dummyThreads: IThreadDocument[];
 let dummyFeedItems: IFeedItemDocument[];
 
 beforeAll(async () => {
@@ -26,8 +31,9 @@ beforeAll(async () => {
 
     const usersTestData = createTestUsers({numberOfUsers: 2});
     dummyUsers = await Promise.all(usersTestData.map(data => UserModel.create(data)));
+    const user0DummyThreads = createDummyPublicThreads(1, dummyUsers[0].id);
+    dummyThreads = await Promise.all(user0DummyThreads.map(data => ThreadModel.create(data)));
 
-    const threadId = mongoose.Types.ObjectId();
     const storyLine = [
         {
             byUserId: dummyUsers[0].id,
@@ -45,7 +51,7 @@ beforeAll(async () => {
             byUserId: dummyUsers[0].id,
             action: "posted",
             documentType: "thread",
-            documentId: threadId,
+            documentId: dummyThreads[0].id,
         },
         {
             byUserId: dummyUsers[1].id,
@@ -57,7 +63,7 @@ beforeAll(async () => {
             byUserId: dummyUsers[0].id,
             action: "updated",
             documentType: "thread",
-            documentId: threadId,
+            documentId: dummyThreads[0].id,
             propertiesChanged: {
                 content: {
                     html: ""
@@ -78,7 +84,7 @@ beforeAll(async () => {
         },
     ];
     const getFeedItemDataBase = ({offsetUpdatedAt}: {offsetUpdatedAt?: number}) => ({
-        documentId: mongoose.Types.ObjectId(),
+        documentId: dummyThreads[0].id,
         documentType: "thread",
         documentUpdatedAt: new Date(offsetUpdatedAt || 0),
         action: "posted",
@@ -94,12 +100,30 @@ afterAll(async () => {
   await mongoServer.stop();
 });
 
-describe("Buckets", async () => {
+describe("Buckets", () => {
     it("Returns with correct structure", async () => {
-        
+        const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: dummyUsers[0]}, destination: "home"});
+        expect(buckets).toEqual(expect.objectContaining({
+            collection: expect.any(Object),
+            latestUpdate: expect.any(Date),
+            oldestUpdate: expect.any(Date),
+        }));
+        const collectionKeys = Object.keys(buckets.collection);
+        expect(collectionKeys.some(key => isNaN(parseInt(key)))).toBeFalsy;
     });
     it("Has bucket items with correct structure", async () => {
-
+        const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: dummyUsers[0]}, destination: "home"});
+        const bucketArrays = Object.values(buckets?.collection || {});
+        const bucketItem = bucketArrays?.[0]?.[0];
+        expect(bucketItem).toEqual(expect.objectContaining({
+            documentId: expect.any(Object),
+            documentType: expect.any(String),
+            documentUpdatedAt: expect.any(Date),
+            action: expect.any(String),
+            byUserId: expect.any(Object),
+            documentData: expect.any(Object),
+            destination: expect.any(String),
+        }));
     });
     it("Gives bucket items a priority relative to current user", async () => {
     

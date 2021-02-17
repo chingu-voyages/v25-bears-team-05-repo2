@@ -90,8 +90,17 @@ async function createBucket({feedItems, req, destination}: {feedItems: IFeedItem
     const reqUserData = (req.user as IUserDocument);
     const reqUserId = reqUserData._id;
     const collection: IBucket["collection"] = {};
+    let latestUpdate: Date;
+    let oldestUpdate: Date;
     await Promise.all(feedItems.map(async (item) => {
-        const {documentType, documentId} = item;
+        item = item.toObject();
+        const {documentType, documentId, documentUpdatedAt} = item;
+        if (!latestUpdate || documentUpdatedAt > latestUpdate) {
+            latestUpdate = documentUpdatedAt;
+        }
+        if (!oldestUpdate || documentUpdatedAt < oldestUpdate) {
+            oldestUpdate = documentUpdatedAt;
+        }
         // transform each item to bucketItem by attaching documentData
         const documentData: IBucketItem["documentData"] = await getDocumentData({documentType, documentId, reqUserId});
         // make collection by sorting into priority groups
@@ -99,6 +108,12 @@ async function createBucket({feedItems, req, destination}: {feedItems: IFeedItem
         const bucketItem = {...item, documentData, destination};
         collection[priority] = [...(collection[priority] || []), bucketItem];
     }));
+
+    return {
+        collection,
+        latestUpdate,
+        oldestUpdate,
+    }
 }
 
 async function getFeedItemsFilteredByDestination({destination, req, updatedAt, limit = 20}: IGetFeedItemsFilteredByDestinationProps) {
@@ -173,7 +188,7 @@ async function generateFeedUpdateBuckets({latestBucketRecieved, req, limit, dest
     return bucket;
 }
 
-async function generateNextFeedBuckets({oldestBucketRecieved, req, limit = 20, destination}: IGenerateNextFeedBucketsProps) {
+async function generateNextFeedBuckets({oldestBucketRecieved, req, limit, destination}: IGenerateNextFeedBucketsProps) {
     // dated before oldestBucketRecieved
     const feedItems = await getFeedItemsFilteredByDestination({destination, req, updatedAt: { $lt: oldestBucketRecieved }, limit});
     const bucket = await createBucket({feedItems, req, destination});
