@@ -10,7 +10,7 @@ export interface IFeedItem {
     documentUpdatedAt: Date;
     action: TFeedChangeSummeryAction;
     byUserId: Types.ObjectId;
-    propertiesChanged: {
+    propertiesChanged?: {
         [propertyName: string]: any;
     };
 }
