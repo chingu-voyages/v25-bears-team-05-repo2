@@ -128,11 +128,15 @@ async function getFeedItemsFilteredByDestination({destination, req, updatedAt, l
                         { documentType: { $in: ["thread"] } }, 
                         { 
                             $or: [
-                                { action: { $in: [ "posted" ] } }, // threads posted by anyone
-                                { $and: [ // thread updates only by connections or a thread current user has interacted with
-                                    { action: { $in: ["updated", "commented", "reacted to" ] } },
+                                // threads posted by anyone
+                                { action: { $in: [ "posted" ] } }, 
+                                { $and: [ 
+                                    // or thread updates
+                                    { action: { $in: ["updated"] } }, 
                                     { $or: [
+                                        // by connections
                                         { postedByUserId: { $in: [ ...Object.keys(reqUserData.connections)] } },
+                                        // or a thread current user has interacted with
                                         { documentId: { $in: [ ...Object.keys(reqUserData.threads.commented), ...Object.keys(reqUserData.threads.reacted) ] } }
                                     ] }
                                 ]},
@@ -141,21 +145,26 @@ async function getFeedItemsFilteredByDestination({destination, req, updatedAt, l
                     ] },
                     { $and: [
                         { documentType: { $in: ["comment"] } }, 
-                        { $and: [ // only comments and comment updates by a connection or from a thread current user has interacted with
+                        { $and: [ 
+                            // comments and comment updates 
                             { action: { $in: ["commented", "updated their comment"] } },
                             { $or: [
+                                // by a connection
                                 { postedByUserId: { $in: [ ...Object.keys(reqUserData.connections)] } },
+                                // or from a thread current user has interacted with
                                 { documentId: { $in: [ ...Object.keys(reqUserData.threads.commented), ...Object.keys(reqUserData.threads.reacted) ] } }
                             ] },
                         ] },
                     ]},
                     { $and: [
+                        // only connetions made by a connection
                         { documentType: { $in: ["connection"] } }, 
-                        { postedByUserId: { $in: [ ...Object.keys(reqUserData.connections)] } }, // only connetions made by a connection
+                        { postedByUserId: { $in: [ ...Object.keys(reqUserData.connections)] } },
                     ]},
                     { $and: [
+                        // only reactions made by a connection
                         { documentType: { $in: ["reaction"] } }, 
-                        { postedByUserId: { $in: [ ...Object.keys(reqUserData.connections)] } }, // only reactions made by a connection
+                        { postedByUserId: { $in: [ ...Object.keys(reqUserData.connections)] } },
                     ]},
                 ]
             }
