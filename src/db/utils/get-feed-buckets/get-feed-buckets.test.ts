@@ -4,7 +4,7 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { FeedItemModel } from "../../../models/feed-item/feed-item.model";
 import { IUserDocument } from "../../../models/user/user.types";
-import { IFeedItemDocument } from "../../../models/feed-item/feed-item.types";
+import { IFeedItem, IFeedItemDocument } from "../../../models/feed-item/feed-item.types";
 import getFeedBuckets from "./get-feed-buckets";
 import { IThreadDocument } from "../../../models/thread/thread.types";
 import { createDummyPublicThreads } from "../../../models/thread/thread-test-helper/thread-test-helper";
@@ -18,8 +18,10 @@ const options: mongoose.ConnectionOptions = {
   useUnifiedTopology: true,
 };
 
-let dummyUsers: IUserDocument[];
-let dummyThreads: IThreadDocument[];
+let [primaryUser, connectionUser, connectionOfConnectionUser, secondaryUser]: Array<IUserDocument | undefined> = [];
+let primaryUserThreads: IThreadDocument[] = [];
+let secondaryUserThreads: IThreadDocument[] = [];
+let connectionUserThreads: IThreadDocument[] = [];
 let dummyFeedItems: IFeedItemDocument[];
 
 beforeAll(async () => {
@@ -29,70 +31,253 @@ beforeAll(async () => {
         if (err) console.error(err);
     });
 
-    const usersTestData = createTestUsers({numberOfUsers: 2});
-    dummyUsers = await Promise.all(usersTestData.map(data => UserModel.create(data)));
-    const user0DummyThreads = createDummyPublicThreads(1, dummyUsers[0].id);
-    dummyThreads = await Promise.all(user0DummyThreads.map(data => ThreadModel.create(data)));
+    // create 3 test users, primary current user, connection of primary, secondary current user not a connection
+    const usersTestData = createTestUsers({numberOfUsers: 4});
+    [primaryUser, connectionUser, connectionOfConnectionUser, secondaryUser] = await Promise.all(usersTestData.map(data => UserModel.create(data)));
+    const primaryUserThreadsData = createDummyPublicThreads(1, primaryUser.id);
+    const secondaryUserThreadsData = createDummyPublicThreads(1, secondaryUser.id);
+    const connectionUserThreadsData = createDummyPublicThreads(1, connectionUser.id);
+    
+    let currentDate = Date.now();
+    const NextDate = () => {
+        const nextDate = new Date(currentDate + 60*1000);
+        currentDate = nextDate.getTime();
+        return nextDate;
+    };
 
-    const storyLine = [
+    let feedItemsTestData: Array<IFeedItem> = [
+        // primaryUser and connectionUser join
         {
-            byUserId: dummyUsers[0].id,
+            byUserId: primaryUser.id,
             action: "joined",
             documentType: "user",
-            documentId: dummyUsers[0].id,
+            documentId: primaryUser.id,
+            documentUpdatedAt: NextDate(),
         },
         {
-            byUserId: dummyUsers[1].id,
+            byUserId: connectionUser.id,
             action: "joined",
             documentType: "user",
-            documentId: dummyUsers[1].id,
+            documentId: connectionUser.id,
+            documentUpdatedAt: NextDate(),
+        },
+        // connectionOfConnectionUser and secondaryUser join
+        {
+            byUserId: connectionOfConnectionUser.id,
+            action: "joined",
+            documentType: "user",
+            documentId: connectionOfConnectionUser.id,
+            documentUpdatedAt: NextDate(),
         },
         {
-            byUserId: dummyUsers[0].id,
+            byUserId: secondaryUser.id,
+            action: "joined",
+            documentType: "user",
+            documentId: secondaryUser.id,
+            documentUpdatedAt: NextDate(),
+        },
+    ];
+
+    // primaryUser and connectionUser add each other as connections
+    primaryUser.addConnectionToUser(connectionUser.id);
+    connectionUser.addConnectionToUser(primaryUser.id);
+    feedItemsTestData = [...feedItemsTestData,   
+        {
+            byUserId: primaryUser.id,
+            action: "connected with",
+            documentType: "connection",
+            documentId: connectionUser.id,
+            documentUpdatedAt: NextDate(),
+        },
+        {
+            byUserId: connectionUser.id,
+            action: "connected with",
+            documentType: "connection",
+            documentId: primaryUser.id,
+            documentUpdatedAt: NextDate(),
+        },
+    ];
+
+    // connectionUser and connectionOfConnectionUser add each other as connections
+    connectionUser.addConnectionToUser(connectionOfConnectionUser.id);
+    connectionOfConnectionUser.addConnectionToUser(connectionUser.id);
+    feedItemsTestData = [...feedItemsTestData,   
+        {
+            byUserId: connectionUser.id,
+            action: "connected with",
+            documentType: "connection",
+            documentId: connectionOfConnectionUser.id,
+            documentUpdatedAt: NextDate(),
+        },
+        {
+            byUserId: connectionOfConnectionUser.id,
+            action: "connected with",
+            documentType: "connection",
+            documentId: connectionUser.id,
+            documentUpdatedAt: NextDate(),
+        },
+    ];
+
+    // primaryUser posts thread
+    primaryUserThreads = await Promise.all([...primaryUserThreads, ThreadModel.create(primaryUserThreadsData[0])]);
+    feedItemsTestData = [...feedItemsTestData,    
+        {
+            byUserId: primaryUser.id,
             action: "posted",
             documentType: "thread",
-            documentId: dummyThreads[0].id,
+            documentId: primaryUserThreads[0].id,
+            documentUpdatedAt: NextDate(),
         },
+    ];
+
+    // connectionUser comments on thread
+    const connectionUsersComment = (await connectionUser.addThreadComment({
+        targetThreadId: primaryUserThreads[0].id,
+        threadCommentData: {content: "test comment"}
+    })).newComment;
+    feedItemsTestData = [...feedItemsTestData,   
         {
-            byUserId: dummyUsers[1].id,
+            byUserId: connectionUser.id,
             action: "commented",
             documentType: "comment",
-            documentId: mongoose.Types.ObjectId(),
+            documentId: connectionUsersComment.id,
+            documentUpdatedAt: NextDate(),
         },
+    ];
+        
+    // connectionUser updates comment
+    
+    feedItemsTestData = [...feedItemsTestData,   
         {
-            byUserId: dummyUsers[0].id,
+            byUserId: connectionUser.id,
+            action: "updated their comment",
+            documentType: "comment",
+            documentId: connectionUsersComment.id,
+            documentUpdatedAt: NextDate(),
+            propertiesChanged: {
+                content: ""
+            }
+        },
+    ];
+
+    // connectionUser reacts to thread
+    const connectionUsersReaction = (await connectionUser.addReactionToThread({
+        targetThreadId: primaryUserThreads[0].id,
+        title: "star"
+    })).threadReactionDocument;
+    feedItemsTestData = [...feedItemsTestData,
+        {
+            byUserId: connectionUser.id,
+            action: "reacted to",
+            documentType: "reaction",
+            documentId: connectionUsersReaction.id,
+            documentUpdatedAt: NextDate(),
+        },
+    ];
+        
+    // secondaryUser comments on thread
+    const secondaryUsersComment = (await secondaryUser.addThreadComment({
+        targetThreadId: primaryUserThreads[0].id,
+        threadCommentData: {content: "test comment"}
+    })).newComment;
+    feedItemsTestData = [...feedItemsTestData,
+        {
+            byUserId: secondaryUser.id,
+            action: "commented",
+            documentType: "comment",
+            documentId: secondaryUsersComment.id,
+            documentUpdatedAt: NextDate(),
+        },
+    ];
+        
+    // secondaryUser reacts to thread
+    const secondaryUsersReaction = (await secondaryUser.addReactionToThread({
+        targetThreadId: primaryUserThreads[0].id,
+        title: "star"
+    })).threadReactionDocument;
+    feedItemsTestData = [...feedItemsTestData,
+        {
+            byUserId: secondaryUser.id,
+            action: "reacted to",
+            documentType: "reaction",
+            documentId: secondaryUsersReaction.id,
+            documentUpdatedAt: NextDate(),
+        },
+    ];
+        
+    // primaryUser updates thread
+    feedItemsTestData = [...feedItemsTestData,
+        {
+            byUserId: primaryUser.id,
             action: "updated",
             documentType: "thread",
-            documentId: dummyThreads[0].id,
+            documentId: primaryUserThreads[0].id,
+            documentUpdatedAt: NextDate(),
             propertiesChanged: {
                 content: {
                     html: ""
                 }
             }
         },
+    ];
+        
+    // connectionUser posts thread
+    connectionUserThreads = await Promise.all([...connectionUserThreads, ThreadModel.create(connectionUserThreadsData[0])]);
+    feedItemsTestData = [...feedItemsTestData,
         {
-            byUserId: dummyUsers[1].id,
-            action: "updated their comment",
-            documentType: "comment",
-            documentId: mongoose.Types.ObjectId(),
-        },
-        {
-            byUserId: dummyUsers[1].id,
-            action: "reacted to",
-            documentType: "reaction",
-            documentId: mongoose.Types.ObjectId(),
+            byUserId: connectionUser.id,
+            action: "posted",
+            documentType: "thread",
+            documentId: connectionUserThreads[0].id,
+            documentUpdatedAt: NextDate(),
         },
     ];
-    const getFeedItemDataBase = ({offsetUpdatedAt}: {offsetUpdatedAt?: number}) => ({
-        documentId: dummyThreads[0].id,
-        documentType: "thread",
-        documentUpdatedAt: new Date(offsetUpdatedAt || 0),
-        action: "posted",
-        byUserId: dummyUsers[0].id,
-        propertiesChanged: {}
-    });
-    dummyFeedItems = await Promise.all(storyLine.map((data, i) => FeedItemModel.create({...getFeedItemDataBase({offsetUpdatedAt: i*1000}), ...data})));
+        
+    // connectionUser updates thread
+    feedItemsTestData = [...feedItemsTestData,
+        {
+            byUserId: connectionUser.id,
+            action: "updated",
+            documentType: "thread",
+            documentId: connectionUserThreads[0].id,
+            documentUpdatedAt: NextDate(),
+            propertiesChanged: {
+                content: {
+                    html: ""
+                }
+            }
+        },
+    ];
+        
+    // secondaryUser posts thread
+    secondaryUserThreads = await Promise.all([...secondaryUserThreads, ThreadModel.create(secondaryUserThreadsData[0])]);
+    feedItemsTestData = [...feedItemsTestData,
+        {
+            byUserId: secondaryUser.id,
+            action: "posted",
+            documentType: "thread",
+            documentId: secondaryUserThreads[0].id,
+            documentUpdatedAt: NextDate(),
+        },
+    ];
+        
+    // secondaryUser updates thread
+    feedItemsTestData = [...feedItemsTestData,   
+        {
+            byUserId: secondaryUser.id,
+            action: "updated",
+            documentType: "thread",
+            documentId: secondaryUserThreads[0].id,
+            documentUpdatedAt: NextDate(),
+            propertiesChanged: {
+                content: {
+                    html: ""
+                }
+            }
+        },
+    ];
 
+    dummyFeedItems = await Promise.all(feedItemsTestData.map(data => FeedItemModel.create(data)));
 });
 
 afterAll(async () => {
@@ -101,51 +286,60 @@ afterAll(async () => {
 });
 
 describe("Buckets", () => {
-    it("Returns with correct structure", async () => {
-        const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: dummyUsers[0]}, destination: "home"});
-        expect(buckets).toEqual(expect.objectContaining({
-            collection: expect.any(Object),
-            latestUpdate: expect.any(Date),
-            oldestUpdate: expect.any(Date),
-        }));
-        const collectionKeys = Object.keys(buckets.collection);
-        expect(collectionKeys.some(key => isNaN(parseInt(key)))).toBeFalsy;
-    });
-    it("Has bucket items with correct structure", async () => {
-        const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: dummyUsers[0]}, destination: "home"});
-        const bucketArrays = Object.values(buckets?.collection || {});
-        const bucketItem = bucketArrays?.[0]?.[0];
-        expect(bucketItem).toEqual(expect.objectContaining({
-            documentId: expect.any(Object),
-            documentType: expect.any(String),
-            documentUpdatedAt: expect.any(Date),
-            action: expect.any(String),
-            byUserId: expect.any(Object),
-            documentData: expect.any(Object),
-            destination: expect.any(String),
-        }));
-    });
-    it("Gives bucket items a priority relative to current user", async () => {
-    
-    })
-    describe("getFeedBucket with prop {latestBucketRecieved: 0}", () => {
-        it("Returns the lastest set of buckets", async () => {
-    
+    describe("home feed", () => {
+        it("Returns with correct structure", async () => {
+            const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
+            expect(buckets).toEqual(expect.objectContaining({
+                collection: expect.any(Object),
+                latestUpdate: expect.any(Date),
+                oldestUpdate: expect.any(Date),
+            }));
+            const collectionKeys = Object.keys(buckets.collection);
+            expect(collectionKeys.some(key => isNaN(parseInt(key)))).toBeFalsy;
         });
-    });
-    describe("getFeedBucket with prop {latestBucketRecieved: <date from a few buckets in>}", () => {
-        it("Returns the lastest set of buckets after latestBucketRecieved date", async () => {
-    
+        it("Has bucket items with correct structure", async () => {
+            const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
+            const bucketArrays = Object.values(buckets?.collection || {});
+            const bucketItem = bucketArrays?.[0]?.[0];
+            expect(bucketItem).toEqual(expect.objectContaining({
+                documentId: expect.any(Object),
+                documentType: expect.any(String),
+                documentUpdatedAt: expect.any(Date),
+                action: expect.any(String),
+                byUserId: expect.any(Object),
+                documentData: expect.any(Object),
+                destination: expect.any(String),
+            }));
         });
-    });
-    describe("getFeedBucket with prop {oldestBucketRecieved: <date from a few buckets in>}", () => {
-        it("Returns the lastest set of buckets", async () => {
-    
+        it("Gives bucket items a priority relative to current user", async () => {
+            const buckets0 = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
+            console.log({bucketArrays0: JSON.stringify(buckets0)})
+            const buckets1 = await getFeedBuckets({latestBucketRecieved: "0", req: {user: connectionUser}, destination: "home"});
+            console.log({bucketArrays1: JSON.stringify(buckets1)})
+            const buckets2 = await getFeedBuckets({latestBucketRecieved: "0", req: {user: secondaryUser}, destination: "home"});
+            console.log({bucketArrays2: JSON.stringify(buckets2)})
+        })
+        describe("getFeedBucket with prop {latestBucketRecieved: 0}", () => {
+            it("Returns the lastest set of buckets", async () => {
+                const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
+                const bucketArrays = Object.values(buckets?.collection || {});
+                const bucketItem = bucketArrays?.[0]?.[0];
+            });
         });
-    });
-    describe("getFeedBucket with prop {oldestBucketRecieved: <date of oldest bucket>}", () => {
-        it("Returns bucket with empty collection object (as there are no more buckets)", async () => {
-    
+        describe("getFeedBucket with prop {latestBucketRecieved: <date from a few buckets in>}", () => {
+            it("Returns the lastest set of buckets after latestBucketRecieved date", async () => {
+        
+            });
+        });
+        describe("getFeedBucket with prop {oldestBucketRecieved: <date from a few buckets in>}", () => {
+            it("Returns the lastest set of buckets", async () => {
+        
+            });
+        });
+        describe("getFeedBucket with prop {oldestBucketRecieved: <date of oldest bucket>}", () => {
+            it("Returns bucket with empty collection object (as there are no more buckets)", async () => {
+        
+            });
         });
     });
 });
