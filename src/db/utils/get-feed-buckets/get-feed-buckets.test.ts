@@ -320,63 +320,128 @@ describe("Buckets", () => {
             console.log({bucketArrays2: JSON.stringify(buckets2)})
         })
         describe("getFeedBucket with prop {latestBucketRecieved: 0}", () => {
-            it("Returns the lastest set of buckets", async () => {
-                const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
-                const bucketArrays = Object.values(buckets?.collection || {});
-                const bucketItem = bucketArrays?.[0]?.[0];
-            });
             it("Contains bucket items for new threads", async () => {
-
+                const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
+                const bucketItems = Object.values(buckets.collection);
+                expect(bucketItems).toEqual(expect.arrayContaining(expect.objectContaining({
+                    documentType: expect.stringContaining("thread"),
+                    action: expect.stringContaining("posted")
+                })));
             });
             it("Contains bucket items for threads updated by connections", async () => {
-
+                const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
+                const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
+                const connections = Object.keys(primaryUser.connections);
+                const itemsByConnections = bucketItems.filter(item => connections.includes(item.byUserId.toHexString()));
+                expect(itemsByConnections).toEqual(expect.arrayContaining(expect.objectContaining({
+                    documentType: expect.stringContaining("thread"),
+                    action: expect.stringContaining("updated")
+                })));
             });
             it("Contains bucket items for comments by connections", async () => {
-
+                const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
+                const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
+                const connections = Object.keys(primaryUser.connections);
+                const itemsByConnections = bucketItems.filter(item => connections.includes(item.byUserId.toHexString()));
+                expect(itemsByConnections).toEqual(expect.arrayContaining(expect.objectContaining({
+                    documentType: expect.stringContaining("comment"),
+                    action: expect.stringContaining("commented")
+                })));
             });
             it("Contains bucket items for reactions by connections", async () => {
-
+                const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
+                const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
+                const connections = Object.keys(primaryUser.connections);
+                const itemsByConnections = bucketItems.filter(item => connections.includes(item.byUserId.toHexString()));
+                expect(itemsByConnections).toEqual(expect.arrayContaining(expect.objectContaining({
+                    documentType: expect.stringContaining("reaction"),
+                    action: expect.stringContaining("reacted to")
+                })));
+            });
+            it("Doesn't contain bucket items made by current user", async () => {
+                const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
+                const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
+                const itemsByCurrentUser = bucketItems.filter(item => item.byUserId.toString === primaryUser.id.toString());
+                expect(itemsByCurrentUser).toHaveLength(0);
             });
         });
-        describe("getFeedBucket with prop {latestBucketRecieved: <date from a few buckets in>}", () => {
-            it("Returns the lastest set of buckets after latestBucketRecieved date", async () => {
+        // TODO
+        // describe("getFeedBucket with prop {latestBucketRecieved: <date from a few buckets in>}", () => {
+        //     it("Returns the lastest set of buckets after latestBucketRecieved date", async () => {
         
-            });
-        });
-        describe("getFeedBucket with prop {oldestBucketRecieved: <date from a few buckets in>}", () => {
-            it("Returns bucket items older then oldestBucketRecieved", async () => {
+        //     });
+        // });
+        // describe("getFeedBucket with prop {oldestBucketRecieved: <date from a few buckets in>}", () => {
+        //     it("Returns bucket items older then oldestBucketRecieved", async () => {
         
-            });
-        });
-        describe("getFeedBucket with prop {oldestBucketRecieved: <date of oldest bucket>}", () => {
-            it("Returns bucket with empty collection object (as there are no more buckets)", async () => {
+        //     });
+        // });
+        // describe("getFeedBucket with prop {oldestBucketRecieved: <date of oldest bucket>}", () => {
+        //     it("Returns bucket with empty collection object (as there are no more buckets)", async () => {
         
-            });
-        });
+        //     });
+        // });
     });
     describe("Profile feed", () => {
         describe("getFeedBucket with prop {latestBucketRecieved: 0}", () => {
             it("Contains bucket items for threads and thread updates by current user", async () => {
-
+                const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "profile"});
+                const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
+                const itemsByCurrentUser = bucketItems.filter(item => item.byUserId.toString === primaryUser.id.toString());
+                expect(itemsByCurrentUser).toEqual(expect.arrayContaining(expect.objectContaining({
+                    documentType: expect.stringContaining("thread"),
+                    action: expect.stringMatching(/posted|updated/)
+                })));
             });
             it("Contains bucket items for new connections made by current user", async () => {
-
+                const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "profile"});
+                const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
+                const itemsByCurrentUser = bucketItems.filter(item => item.byUserId.toString === primaryUser.id.toString());
+                expect(itemsByCurrentUser).toEqual(expect.arrayContaining(expect.objectContaining({
+                    documentType: expect.stringContaining("connection"),
+                    action: expect.stringContaining("connected with")
+                })));
             });
             it("Contains bucket items for comments and reactions made by current user", async () => {
-
+                const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "profile"});
+                const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
+                const itemsByCurrentUser = bucketItems.filter(item => item.byUserId.toString === primaryUser.id.toString());
+                expect(itemsByCurrentUser).toEqual(expect.arrayContaining(expect.objectContaining({
+                    documentType: expect.stringMatching(/comment|reaction/),
+                    action: expect.stringMatching(/commented|reacted to/)
+                })));
             });
             it("Contains bucket items for profile updates made by current user", async () => {
-
+                const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "profile"});
+                const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
+                const itemsByCurrentUser = bucketItems.filter(item => item.byUserId.toString === primaryUser.id.toString());
+                expect(itemsByCurrentUser).toEqual(expect.arrayContaining(expect.objectContaining({
+                    documentType: expect.stringContaining("user"),
+                    action: expect.stringContaining("updated")
+                })));
+            });
+            it("Doesn't contain bucket items made by other users", async () => {
+                const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
+                const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
+                const itemsByOtherUsers = bucketItems.filter(item => item.byUserId.toString !== primaryUser.id.toString());
+                expect(itemsByOtherUsers).toHaveLength(0);
             });
         })
     });
     describe("Notifcation feed", () => {
         describe("getFeedBucket with prop {latestBucketRecieved: 0}", () => {
             it("Contains bucket items for reactions and comments on current users threads", async () => {
-                
+                // TODO: maybe need to add optional parentDocument[id+type]... or maybe even a new 'scope' array: [{docType, docId}, ...]
+                // const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "notification"});
+                // const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
+                // const itemsByCurrentUser = bucketItems.filter(item => item.byUserId.toString === primaryUser.id.toString());
+                // expect(itemsByCurrentUser).toEqual(expect.arrayContaining(expect.objectContaining({
+                //     documentType: expect.stringMatching(/comment|reaction/),
+                //     action: expect.stringMatching(/commented|reacted to/)
+                // })));
             });
             it("Contains bucket items for connections made by current user", async () => {
-
+           
             });
         });
     });
