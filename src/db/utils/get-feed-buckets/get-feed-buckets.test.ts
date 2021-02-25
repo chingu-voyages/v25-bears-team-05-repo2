@@ -286,7 +286,7 @@ afterAll(async () => {
 });
 
 describe("Buckets", () => {
-    describe("home feed", () => {
+    describe("Home feed", () => {
         it("Returns with correct structure", async () => {
             const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
             expect(buckets).toEqual(expect.objectContaining({
@@ -325,6 +325,18 @@ describe("Buckets", () => {
                 const bucketArrays = Object.values(buckets?.collection || {});
                 const bucketItem = bucketArrays?.[0]?.[0];
             });
+            it("Contains bucket items for new threads", async () => {
+
+            });
+            it("Contains bucket items for threads updated by connections", async () => {
+
+            });
+            it("Contains bucket items for comments by connections", async () => {
+
+            });
+            it("Contains bucket items for reactions by connections", async () => {
+
+            });
         });
         describe("getFeedBucket with prop {latestBucketRecieved: <date from a few buckets in>}", () => {
             it("Returns the lastest set of buckets after latestBucketRecieved date", async () => {
@@ -332,7 +344,7 @@ describe("Buckets", () => {
             });
         });
         describe("getFeedBucket with prop {oldestBucketRecieved: <date from a few buckets in>}", () => {
-            it("Returns the lastest set of buckets", async () => {
+            it("Returns bucket items older then oldestBucketRecieved", async () => {
         
             });
         });
@@ -340,6 +352,43 @@ describe("Buckets", () => {
             it("Returns bucket with empty collection object (as there are no more buckets)", async () => {
         
             });
+        });
+    });
+    describe("Profile feed", () => {
+        describe("getFeedBucket with prop {latestBucketRecieved: 0}", () => {
+            it("Contains bucket items for threads and thread updates by current user", async () => {
+
+            });
+            it("Contains bucket items for new connections made by current user", async () => {
+
+            });
+            it("Contains bucket items for comments and reactions made by current user", async () => {
+
+            });
+            it("Contains bucket items for profile updates made by current user", async () => {
+
+            });
+        })
+    });
+    describe("Notifcation feed", () => {
+        describe("getFeedBucket with prop {latestBucketRecieved: 0}", () => {
+            it("Contains bucket items for reactions and comments on current users threads", async () => {
+                
+            });
+            it("Contains bucket items for connections made by current user", async () => {
+
+            });
+        });
+    });
+    describe("Connections feed", () => {
+        it("Contains bucket items for connection requests to current user", async () => {
+
+        });
+        it("Contains bucket items for connection requests made by current user", async () => {
+
+        });
+        it("Contains bucket items for connections made by current users connections", async () => {
+
         });
     });
 });
