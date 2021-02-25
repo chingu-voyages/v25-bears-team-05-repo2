@@ -2,12 +2,8 @@ import { createTestUsers } from "../../../models/user/user-test-helper/user-test
 import { UserModel } from "../../../models/user/user.model";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import { FeedItemModel } from "../../../models/feed-item/feed-item.model";
 import { IUserDocument } from "../../../models/user/user.types";
-import { IFeedItem, IFeedItemDocument } from "../../../models/feed-item/feed-item.types";
 import getFeedBuckets from "./get-feed-buckets";
-import { IThreadDocument } from "../../../models/thread/thread.types";
-import { createDummyPublicThreads } from "../../../models/thread/thread-test-helper/thread-test-helper";
 import { ThreadModel } from "../../../models/thread/thread.model";
 let mongoServer: any;
 
@@ -19,10 +15,6 @@ const options: mongoose.ConnectionOptions = {
 };
 
 let [primaryUser, connectionUser, connectionOfConnectionUser, secondaryUser]: Array<IUserDocument | undefined> = [];
-let primaryUserThreads: IThreadDocument[] = [];
-let secondaryUserThreads: IThreadDocument[] = [];
-let connectionUserThreads: IThreadDocument[] = [];
-let dummyFeedItems: IFeedItemDocument[];
 
 beforeAll(async () => {
     mongoServer = new MongoMemoryServer();
@@ -34,250 +26,75 @@ beforeAll(async () => {
     // create 3 test users, primary current user, connection of primary, secondary current user not a connection
     const usersTestData = createTestUsers({numberOfUsers: 4});
     [primaryUser, connectionUser, connectionOfConnectionUser, secondaryUser] = await Promise.all(usersTestData.map(data => UserModel.create(data)));
-    const primaryUserThreadsData = createDummyPublicThreads(1, primaryUser.id);
-    const secondaryUserThreadsData = createDummyPublicThreads(1, secondaryUser.id);
-    const connectionUserThreadsData = createDummyPublicThreads(1, connectionUser.id);
     
-    let currentDate = Date.now();
-    const NextDate = () => {
-        const nextDate = new Date(currentDate + 60*1000);
-        currentDate = nextDate.getTime();
-        return nextDate;
-    };
-
-    let feedItemsTestData: Array<IFeedItem> = [
-        // primaryUser and connectionUser join
-        {
-            byUserId: primaryUser.id,
-            action: "joined",
-            documentType: "user",
-            documentId: primaryUser.id,
-            documentUpdatedAt: NextDate(),
-        },
-        {
-            byUserId: connectionUser.id,
-            action: "joined",
-            documentType: "user",
-            documentId: connectionUser.id,
-            documentUpdatedAt: NextDate(),
-        },
-        // connectionOfConnectionUser and secondaryUser join
-        {
-            byUserId: connectionOfConnectionUser.id,
-            action: "joined",
-            documentType: "user",
-            documentId: connectionOfConnectionUser.id,
-            documentUpdatedAt: NextDate(),
-        },
-        {
-            byUserId: secondaryUser.id,
-            action: "joined",
-            documentType: "user",
-            documentId: secondaryUser.id,
-            documentUpdatedAt: NextDate(),
-        },
-    ];
-
     // primaryUser and connectionUser add each other as connections
-    primaryUser.addConnectionToUser(connectionUser.id);
-    connectionUser.addConnectionToUser(primaryUser.id);
-    feedItemsTestData = [...feedItemsTestData,   
-        {
-            byUserId: primaryUser.id,
-            action: "connected with",
-            documentType: "connection",
-            documentId: connectionUser.id,
-            documentUpdatedAt: NextDate(),
-        },
-        {
-            byUserId: connectionUser.id,
-            action: "connected with",
-            documentType: "connection",
-            documentId: primaryUser.id,
-            documentUpdatedAt: NextDate(),
-        },
-    ];
+    await primaryUser.addConnectionToUser(connectionUser.id);
+    await connectionUser.addConnectionToUser(primaryUser.id);
 
     // connectionUser and connectionOfConnectionUser add each other as connections
-    connectionUser.addConnectionToUser(connectionOfConnectionUser.id);
-    connectionOfConnectionUser.addConnectionToUser(connectionUser.id);
-    feedItemsTestData = [...feedItemsTestData,   
-        {
-            byUserId: connectionUser.id,
-            action: "connected with",
-            documentType: "connection",
-            documentId: connectionOfConnectionUser.id,
-            documentUpdatedAt: NextDate(),
-        },
-        {
-            byUserId: connectionOfConnectionUser.id,
-            action: "connected with",
-            documentType: "connection",
-            documentId: connectionUser.id,
-            documentUpdatedAt: NextDate(),
-        },
-    ];
+    await connectionUser.addConnectionToUser(connectionOfConnectionUser.id);
+    await connectionOfConnectionUser.addConnectionToUser(connectionUser.id);
 
     // primaryUser posts thread
-    primaryUserThreads = await Promise.all([...primaryUserThreads, ThreadModel.create(primaryUserThreadsData[0])]);
-    feedItemsTestData = [...feedItemsTestData,    
-        {
-            byUserId: primaryUser.id,
-            action: "posted",
-            documentType: "thread",
-            documentId: primaryUserThreads[0].id,
-            documentUpdatedAt: NextDate(),
-        },
-    ];
+    const primaryUsersThread = (await primaryUser.createAndPostThread({html: "test-html"})).threadData;
 
     // connectionUser comments on thread
-    const connectionUsersComment = (await connectionUser.addThreadComment({
-        targetThreadId: primaryUserThreads[0].id,
+    await connectionUser.addThreadComment({
+        targetThreadId: primaryUsersThread.id,
         threadCommentData: {content: "test comment"}
-    })).newComment;
-    feedItemsTestData = [...feedItemsTestData,   
-        {
-            byUserId: connectionUser.id,
-            action: "commented",
-            documentType: "comment",
-            documentId: connectionUsersComment.id,
-            documentUpdatedAt: NextDate(),
-        },
-    ];
+    });
         
     // connectionUser updates comment
-    
-    feedItemsTestData = [...feedItemsTestData,   
-        {
-            byUserId: connectionUser.id,
-            action: "updated their comment",
-            documentType: "comment",
-            documentId: connectionUsersComment.id,
-            documentUpdatedAt: NextDate(),
-            propertiesChanged: {
-                content: ""
-            }
-        },
-    ];
+    await connectionUser.addThreadComment({
+        targetThreadId: primaryUsersThread.id,
+        threadCommentData: {content: "test comment"}
+    });
 
     // connectionUser reacts to thread
-    const connectionUsersReaction = (await connectionUser.addReactionToThread({
-        targetThreadId: primaryUserThreads[0].id,
+    await connectionUser.addReactionToThread({
+        targetThreadId: primaryUsersThread.id,
         title: "star"
-    })).threadReactionDocument;
-    feedItemsTestData = [...feedItemsTestData,
-        {
-            byUserId: connectionUser.id,
-            action: "reacted to",
-            documentType: "reaction",
-            documentId: connectionUsersReaction.id,
-            documentUpdatedAt: NextDate(),
-        },
-    ];
+    });
         
     // secondaryUser comments on thread
-    const secondaryUsersComment = (await secondaryUser.addThreadComment({
-        targetThreadId: primaryUserThreads[0].id,
+    await secondaryUser.addThreadComment({
+        targetThreadId: primaryUsersThread.id,
         threadCommentData: {content: "test comment"}
-    })).newComment;
-    feedItemsTestData = [...feedItemsTestData,
-        {
-            byUserId: secondaryUser.id,
-            action: "commented",
-            documentType: "comment",
-            documentId: secondaryUsersComment.id,
-            documentUpdatedAt: NextDate(),
-        },
-    ];
+    });
         
     // secondaryUser reacts to thread
-    const secondaryUsersReaction = (await secondaryUser.addReactionToThread({
-        targetThreadId: primaryUserThreads[0].id,
+    await secondaryUser.addReactionToThread({
+        targetThreadId: primaryUsersThread.id,
         title: "star"
-    })).threadReactionDocument;
-    feedItemsTestData = [...feedItemsTestData,
-        {
-            byUserId: secondaryUser.id,
-            action: "reacted to",
-            documentType: "reaction",
-            documentId: secondaryUsersReaction.id,
-            documentUpdatedAt: NextDate(),
-        },
-    ];
+    });
         
     // primaryUser updates thread
-    feedItemsTestData = [...feedItemsTestData,
-        {
-            byUserId: primaryUser.id,
-            action: "updated",
-            documentType: "thread",
-            documentId: primaryUserThreads[0].id,
-            documentUpdatedAt: NextDate(),
-            propertiesChanged: {
-                content: {
-                    html: ""
-                }
-            }
-        },
-    ];
+    await ThreadModel.patchThread({
+        threadId: primaryUsersThread.id,
+        userId: primaryUser.id,
+        htmlContent: "test-update-threads-html"
+    });
         
     // connectionUser posts thread
-    connectionUserThreads = await Promise.all([...connectionUserThreads, ThreadModel.create(connectionUserThreadsData[0])]);
-    feedItemsTestData = [...feedItemsTestData,
-        {
-            byUserId: connectionUser.id,
-            action: "posted",
-            documentType: "thread",
-            documentId: connectionUserThreads[0].id,
-            documentUpdatedAt: NextDate(),
-        },
-    ];
+    const connectionUsersThread = (await connectionUser.createAndPostThread({html: "test-html"})).threadData;
         
     // connectionUser updates thread
-    feedItemsTestData = [...feedItemsTestData,
-        {
-            byUserId: connectionUser.id,
-            action: "updated",
-            documentType: "thread",
-            documentId: connectionUserThreads[0].id,
-            documentUpdatedAt: NextDate(),
-            propertiesChanged: {
-                content: {
-                    html: ""
-                }
-            }
-        },
-    ];
+    await ThreadModel.patchThread({
+        threadId: connectionUsersThread.id,
+        userId: connectionUser.id,
+        htmlContent: "test-update-threads-html"
+    });
         
     // secondaryUser posts thread
-    secondaryUserThreads = await Promise.all([...secondaryUserThreads, ThreadModel.create(secondaryUserThreadsData[0])]);
-    feedItemsTestData = [...feedItemsTestData,
-        {
-            byUserId: secondaryUser.id,
-            action: "posted",
-            documentType: "thread",
-            documentId: secondaryUserThreads[0].id,
-            documentUpdatedAt: NextDate(),
-        },
-    ];
-        
-    // secondaryUser updates thread
-    feedItemsTestData = [...feedItemsTestData,   
-        {
-            byUserId: secondaryUser.id,
-            action: "updated",
-            documentType: "thread",
-            documentId: secondaryUserThreads[0].id,
-            documentUpdatedAt: NextDate(),
-            propertiesChanged: {
-                content: {
-                    html: ""
-                }
-            }
-        },
-    ];
+    const secondaryUsersThread = (await secondaryUser.createAndPostThread({html: "test-html"})).threadData;
 
-    dummyFeedItems = await Promise.all(feedItemsTestData.map(data => FeedItemModel.create(data)));
+    // secondaryUser updates thread
+    await ThreadModel.patchThread({
+        threadId: secondaryUsersThread.id,
+        userId: secondaryUser.id,
+        htmlContent: "test-update-threads-html"
+    });
+
 });
 
 afterAll(async () => {
@@ -313,56 +130,56 @@ describe("Buckets", () => {
         });
         it("Gives bucket items a priority relative to current user", async () => {
             const buckets0 = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
-            console.log({bucketArrays0: JSON.stringify(buckets0)})
             const buckets1 = await getFeedBuckets({latestBucketRecieved: "0", req: {user: connectionUser}, destination: "home"});
-            console.log({bucketArrays1: JSON.stringify(buckets1)})
             const buckets2 = await getFeedBuckets({latestBucketRecieved: "0", req: {user: secondaryUser}, destination: "home"});
-            console.log({bucketArrays2: JSON.stringify(buckets2)})
+
+            // TODO
         })
         describe("getFeedBucket with prop {latestBucketRecieved: 0}", () => {
+            it("Doesn't contain bucket items made by current user", async () => {
+                const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
+                const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
+                const itemsByCurrentUser = bucketItems.filter(item => item.byUserId.toString === primaryUser.id.toString());
+                expect(itemsByCurrentUser).toHaveLength(0);
+            });
             it("Contains bucket items for new threads", async () => {
                 const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
-                const bucketItems = Object.values(buckets.collection);
-                expect(bucketItems).toEqual(expect.arrayContaining(expect.objectContaining({
+                const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
+                expect(bucketItems).toEqual(expect.arrayContaining([expect.objectContaining({
                     documentType: expect.stringContaining("thread"),
                     action: expect.stringContaining("posted")
-                })));
+                })]));
             });
             it("Contains bucket items for threads updated by connections", async () => {
                 const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
                 const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
                 const connections = Object.keys(primaryUser.connections);
                 const itemsByConnections = bucketItems.filter(item => connections.includes(item.byUserId.toHexString()));
-                expect(itemsByConnections).toEqual(expect.arrayContaining(expect.objectContaining({
+                console.log({itemsByConnections})
+                expect(itemsByConnections).toEqual(expect.arrayContaining([expect.objectContaining({
                     documentType: expect.stringContaining("thread"),
                     action: expect.stringContaining("updated")
-                })));
+                })]));
             });
             it("Contains bucket items for comments by connections", async () => {
                 const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
                 const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
                 const connections = Object.keys(primaryUser.connections);
                 const itemsByConnections = bucketItems.filter(item => connections.includes(item.byUserId.toHexString()));
-                expect(itemsByConnections).toEqual(expect.arrayContaining(expect.objectContaining({
+                expect(itemsByConnections).toEqual(expect.arrayContaining([expect.objectContaining({
                     documentType: expect.stringContaining("comment"),
                     action: expect.stringContaining("commented")
-                })));
+                })]));
             });
             it("Contains bucket items for reactions by connections", async () => {
                 const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
                 const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
                 const connections = Object.keys(primaryUser.connections);
                 const itemsByConnections = bucketItems.filter(item => connections.includes(item.byUserId.toHexString()));
-                expect(itemsByConnections).toEqual(expect.arrayContaining(expect.objectContaining({
+                expect(itemsByConnections).toEqual(expect.arrayContaining([expect.objectContaining({
                     documentType: expect.stringContaining("reaction"),
                     action: expect.stringContaining("reacted to")
-                })));
-            });
-            it("Doesn't contain bucket items made by current user", async () => {
-                const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
-                const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
-                const itemsByCurrentUser = bucketItems.filter(item => item.byUserId.toString === primaryUser.id.toString());
-                expect(itemsByCurrentUser).toHaveLength(0);
+                })]));
             });
         });
         // TODO
@@ -388,37 +205,37 @@ describe("Buckets", () => {
                 const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "profile"});
                 const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
                 const itemsByCurrentUser = bucketItems.filter(item => item.byUserId.toString === primaryUser.id.toString());
-                expect(itemsByCurrentUser).toEqual(expect.arrayContaining(expect.objectContaining({
+                expect(itemsByCurrentUser).toEqual(expect.arrayContaining([expect.objectContaining({
                     documentType: expect.stringContaining("thread"),
                     action: expect.stringMatching(/posted|updated/)
-                })));
+                })]));
             });
             it("Contains bucket items for new connections made by current user", async () => {
                 const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "profile"});
                 const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
                 const itemsByCurrentUser = bucketItems.filter(item => item.byUserId.toString === primaryUser.id.toString());
-                expect(itemsByCurrentUser).toEqual(expect.arrayContaining(expect.objectContaining({
+                expect(itemsByCurrentUser).toEqual(expect.arrayContaining([expect.objectContaining({
                     documentType: expect.stringContaining("connection"),
                     action: expect.stringContaining("connected with")
-                })));
+                })]));
             });
             it("Contains bucket items for comments and reactions made by current user", async () => {
                 const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "profile"});
                 const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
                 const itemsByCurrentUser = bucketItems.filter(item => item.byUserId.toString === primaryUser.id.toString());
-                expect(itemsByCurrentUser).toEqual(expect.arrayContaining(expect.objectContaining({
+                expect(itemsByCurrentUser).toEqual(expect.arrayContaining([expect.objectContaining({
                     documentType: expect.stringMatching(/comment|reaction/),
                     action: expect.stringMatching(/commented|reacted to/)
-                })));
+                })]));
             });
             it("Contains bucket items for profile updates made by current user", async () => {
                 const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "profile"});
                 const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
                 const itemsByCurrentUser = bucketItems.filter(item => item.byUserId.toString === primaryUser.id.toString());
-                expect(itemsByCurrentUser).toEqual(expect.arrayContaining(expect.objectContaining({
+                expect(itemsByCurrentUser).toEqual(expect.arrayContaining([expect.objectContaining({
                     documentType: expect.stringContaining("user"),
                     action: expect.stringContaining("updated")
-                })));
+                })]));
             });
             it("Doesn't contain bucket items made by other users", async () => {
                 const buckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
