@@ -9,7 +9,7 @@ import { IBucket, IBucketItem, IGenerateFeedUpdateBucketsProps, IGenerateNextFee
 
 function calculateBucketPriority({item, reqUserData, documentData}: {item: IFeedItemDocument, reqUserData: IUserDocument, documentData: IBucketItem["documentData"]}) {
     let priority = 0;
-    const isByAConnection = Object.values(reqUserData.connections).map(({userId}) => userId).includes(item.byUserId);
+    const isByAConnection = Object.keys(reqUserData.connections).map((userId) => userId).includes(item.byUserId.toString());
     if (isByAConnection) {
         priority += 50;
     }
