@@ -6,6 +6,8 @@ import { IUserDocument } from "../../../models/user/user.types";
 import { getCommentById } from "../get-comment-by-id/get-comment-by-id";
 import { IThreadResponse } from "../../types";
 import { IBucket, IBucketItem, IGenerateFeedUpdateBucketsProps, IGenerateNextFeedBucketsProps, IGetFeedBucketsProps, IGetFeedItemsFilteredByDestinationProps } from "./feed-buckets.types";
+import { ThreadReactionModel } from "../../../models/thread-reaction/thread-reaction.model";
+import { UserConnectionModel } from "../../../models/user-connection/user-connection.model";
 
 function calculateBucketPriority({item, reqUserData, documentData}: {item: IFeedItemDocument, reqUserData: IUserDocument, documentData: IBucketItem["documentData"]}) {
     let priority = 0;
@@ -80,6 +82,14 @@ async function getDocumentData({documentType, documentId, reqUserId}: {documentT
         }
         case "user": {
             documentData = await getProfileById({ userId: documentId.toString(), reqUserId });
+            break;
+        }
+        case "reaction": {
+            documentData = await ThreadReactionModel.findById(documentId);
+            break;
+        }
+        case "connection": {
+            documentData = await UserConnectionModel.findById(documentId);
             break;
         }
     }
