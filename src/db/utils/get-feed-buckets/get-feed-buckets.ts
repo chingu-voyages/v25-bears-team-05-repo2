@@ -129,15 +129,15 @@ async function getFeedItemsFilteredByDestination({destination, req, updatedAt, l
                         { 
                             $or: [
                                 // threads posted by anyone
-                                { action: { $in: [ "posted" ] } }, 
+                                { action: { $in: ["posted"] } }, 
                                 { $and: [ 
                                     // or thread updates
                                     { action: { $in: ["updated"] } }, 
                                     { $or: [
                                         // by connections
-                                        { postedByUserId: { $in: [ ...Object.keys(reqUserData.connections)] } },
+                                        { byUserId: { $in: [...Object.keys(reqUserData.connections)] } },
                                         // or a thread current user has interacted with
-                                        { documentId: { $in: [ ...Object.keys(reqUserData.threads.commented), ...Object.keys(reqUserData.threads.reacted) ] } }
+                                        { documentId: { $in: [...Object.keys(reqUserData.threads.commented), ...Object.keys(reqUserData.threads.reacted) ] } }
                                     ] }
                                 ]},
                             ]
@@ -150,7 +150,7 @@ async function getFeedItemsFilteredByDestination({destination, req, updatedAt, l
                             { action: { $in: ["commented", "updated their comment"] } },
                             { $or: [
                                 // by a connection
-                                { postedByUserId: { $in: [ ...Object.keys(reqUserData.connections)] } },
+                                { byUserId: { $in: [ ...Object.keys(reqUserData.connections)] } },
                                 // or from a thread current user has interacted with
                                 { documentId: { $in: [ ...Object.keys(reqUserData.threads.commented), ...Object.keys(reqUserData.threads.reacted) ] } }
                             ] },
@@ -159,24 +159,24 @@ async function getFeedItemsFilteredByDestination({destination, req, updatedAt, l
                     { $and: [
                         // only connetions made by a connection
                         { documentType: { $in: ["connection"] } }, 
-                        { postedByUserId: { $in: [ ...Object.keys(reqUserData.connections)] } },
+                        { byUserId: { $in: [ ...Object.keys(reqUserData.connections)] } },
                     ]},
                     { $and: [
                         // only reactions made by a connection
                         { documentType: { $in: ["reaction"] } }, 
-                        { postedByUserId: { $in: [ ...Object.keys(reqUserData.connections)] } },
+                        { byUserId: { $in: [ ...Object.keys(reqUserData.connections)] } },
                     ]},
                 ]
             }
             break;
         }
         case "profile": {
-            preFilter = { postedByUserId: { $eq: reqUserId }, documentType: { $in: ["thread", "comment", "connection", "reaction"] } }
+            preFilter = { byUserId: { $eq: reqUserId }, documentType: { $in: ["thread", "comment", "connection", "reaction"] } }
             break;
         }
         case "notification": {
             preFilter = { 
-                postedByUserId: { $ne: reqUserId }, 
+                byUserId: { $ne: reqUserId }, 
                 documentType: {$in: ["comment", "reaction"] }, 
                 action: { $in: ["commented", "reaction", "updated their comment" ] },
                 documentId: { $in: [ ...Object.keys(reqUserData.threads.started) ] }
