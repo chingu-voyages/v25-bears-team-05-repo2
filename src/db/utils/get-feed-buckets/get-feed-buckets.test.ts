@@ -28,47 +28,47 @@ beforeAll(async () => {
     [primaryUser, connectionUser, connectionOfConnectionUser, secondaryUser] = await Promise.all(usersTestData.map(data => UserModel.create(data)));
     
     // primaryUser and connectionUser add each other as connections
-    await primaryUser.addConnectionToUser(connectionUser.id);
-    await connectionUser.addConnectionToUser(primaryUser.id);
+    connectionUser = await primaryUser.addConnectionToUser(connectionUser.id);
+    primaryUser = await connectionUser.addConnectionToUser(primaryUser.id);
 
     // connectionUser and connectionOfConnectionUser add each other as connections
-    await connectionUser.addConnectionToUser(connectionOfConnectionUser.id);
-    await connectionOfConnectionUser.addConnectionToUser(connectionUser.id);
+    connectionOfConnectionUser = await connectionUser.addConnectionToUser(connectionOfConnectionUser.id);
+    connectionUser = await connectionOfConnectionUser.addConnectionToUser(connectionUser.id);
 
     // primaryUser posts thread
     const primaryUsersThread = (await primaryUser.createAndPostThread({html: "test-html"})).threadData;
 
-    // connectionUser comments on thread
+    // connectionUser comments on primaryUser thread
     await connectionUser.addThreadComment({
         targetThreadId: primaryUsersThread.id,
         threadCommentData: {content: "test comment"}
     });
         
-    // connectionUser updates comment
+    // connectionUser updates comment on primaryUser thread
     await connectionUser.addThreadComment({
         targetThreadId: primaryUsersThread.id,
         threadCommentData: {content: "test comment"}
     });
 
-    // connectionUser reacts to thread
+    // connectionUser reacts to primaryUser thread
     await connectionUser.addReactionToThread({
         targetThreadId: primaryUsersThread.id,
         title: "star"
     });
         
-    // secondaryUser comments on thread
+    // secondaryUser comments on primaryUser thread
     await secondaryUser.addThreadComment({
         targetThreadId: primaryUsersThread.id,
         threadCommentData: {content: "test comment"}
     });
         
-    // secondaryUser reacts to thread
+    // secondaryUser reacts to primaryUser thread
     await secondaryUser.addReactionToThread({
         targetThreadId: primaryUsersThread.id,
         title: "star"
     });
         
-    // primaryUser updates thread
+    // primaryUser updates primaryUser thread
     await ThreadModel.patchThread({
         threadId: primaryUsersThread.id,
         userId: primaryUser.id,
@@ -129,11 +129,14 @@ describe("Buckets", () => {
             }));
         });
         it("Gives bucket items a priority relative to current user", async () => {
-            const buckets0 = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
-            const buckets1 = await getFeedBuckets({latestBucketRecieved: "0", req: {user: connectionUser}, destination: "home"});
-            const buckets2 = await getFeedBuckets({latestBucketRecieved: "0", req: {user: secondaryUser}, destination: "home"});
-
-            // TODO
+            const getHighestKey = (colllection: object) => parseInt(Object.keys(colllection).sort((a, b) => parseInt(b) - parseInt(a))[0]);
+            const primaryUserBuckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: primaryUser}, destination: "home"});
+            const connectionUserBuckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: connectionUser}, destination: "home"});
+            const secondaryUserBuckets = await getFeedBuckets({latestBucketRecieved: "0", req: {user: secondaryUser}, destination: "home"});
+            // connectionUser should have a bucket with highest priority, as they're a conenction of primaryUser
+            expect(getHighestKey(connectionUserBuckets.collection)).toBeGreaterThan(getHighestKey(secondaryUserBuckets.collection));
+            // secondaryUser should have a bucket with higher priority then primaryUser
+            expect(getHighestKey(secondaryUserBuckets.collection)).toBeGreaterThan(getHighestKey(primaryUserBuckets.collection));
         })
         describe("getFeedBucket with prop {latestBucketRecieved: 0}", () => {
             it("Doesn't contain bucket items made by current user", async () => {
@@ -155,7 +158,6 @@ describe("Buckets", () => {
                 const bucketItems = Object.values(buckets.collection).reduce((items, bucket) => [...items, ...bucket]);
                 const connections = Object.keys(primaryUser.connections);
                 const itemsByConnections = bucketItems.filter(item => connections.includes(item.byUserId.toHexString()));
-                console.log({itemsByConnections})
                 expect(itemsByConnections).toEqual(expect.arrayContaining([expect.objectContaining({
                     documentType: expect.stringContaining("thread"),
                     action: expect.stringContaining("updated")
