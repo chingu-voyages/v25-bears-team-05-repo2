@@ -181,7 +181,7 @@ async function getFeedItemsFilteredByDestination({destination, req, updatedAt, l
             break;
         }
         case "profile": {
-            preFilter = { byUserId: { $eq: reqUserId }, documentType: { $in: ["thread", "comment", "connection", "reaction"] } }
+            preFilter = { byUserId: { $eq: reqUserId } }
             break;
         }
         case "notification": {
