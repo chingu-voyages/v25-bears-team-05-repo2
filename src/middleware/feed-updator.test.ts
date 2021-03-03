@@ -107,6 +107,12 @@ describe("Feed updator middleware:", () => {
                 byUserId: feedItemDocument.byUserId
             }).toEqual(testProperties);
         });
+        test("Feed has item for profile update", async () => {
+            const userDocument = await userDocumentPromise;
+            await userDocument.updateUserProfile({jobTitle: "test"});
+            const updatedFeedItemDocument = await FeedItemModel.findOne({ "documentId": (await userDocumentPromise)._id, "action": "updated" });
+            expect(updatedFeedItemDocument).toBeInstanceOf(FeedItemModel);
+        });
     });
     describe("Thread created:", () => {
         let feedItemDocumentPromise: Promise<IFeedItemDocument>;

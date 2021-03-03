@@ -26,6 +26,12 @@ function findAction({doc, propertiesChanged, documentType}: {doc: TDocumentForTh
         case "user": {
             if (isNew) {
                 action = "joined";
+            } else if (
+                Object.keys(propertiesChanged).includes("firstName") || 
+                Object.keys(propertiesChanged).includes("lastName") ||
+                Object.keys(propertiesChanged).includes("jobTitle")
+            ) {
+                action = "updated";
             }
             break;
         }
@@ -48,7 +54,7 @@ function findAction({doc, propertiesChanged, documentType}: {doc: TDocumentForTh
 async function addToFeed(doc: TDocumentForTheFeed, originalDoc: TDocumentForTheFeed | undefined) {
     const documentType = (doc.collection.collectionName as IFeedItem["documentType"]);
     const docObject = doc.toObject(); // So we don't get mongoose InternalCache object properties 
-    const propertiesChanged = originalDoc ? getObjectDiffs(docObject, originalDoc, ["content", "html"]) : {};
+    const propertiesChanged = originalDoc ? getObjectDiffs(docObject, originalDoc, ["content", "html", "firstName", "lastName", "jobTitle"]) : {};
     const action = findAction({doc, propertiesChanged, documentType});
     const byUserId = doc.postedByUserId ? doc.postedByUserId : doc.userId ? doc.userId : doc._id;
     const feedData = {
