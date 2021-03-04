@@ -5,7 +5,7 @@ import { IFeedItem, IFeedItemDocument, TFeedDocumentType } from "../../../models
 import { IUserDocument } from "../../../models/user/user.types";
 import { getCommentById } from "../get-comment-by-id/get-comment-by-id";
 import { IThreadResponse } from "../../types";
-import { IBucket, IBucketItem, IGenerateFeedUpdateBucketsProps, IGenerateNextFeedBucketsProps, IGetFeedBucketsProps, IGetFeedItemsFilteredByDestinationProps } from "./feed-buckets.types";
+import { IBucket, IBucketItem, IGetFeedBucketsProps, IGetFeedItemsFilteredByDestinationProps } from "./feed-buckets.types";
 import { ThreadReactionModel } from "../../../models/thread-reaction/thread-reaction.model";
 import { UserConnectionModel } from "../../../models/user-connection/user-connection.model";
 
@@ -200,25 +200,20 @@ async function getFeedItemsFilteredByDestination({destination, req, updatedAt, l
     return feedItems;
 }
 
-async function generateFeedUpdateBuckets({latestBucketRecieved, req, limit, destination}: IGenerateFeedUpdateBucketsProps) {
-    // dated after latestBucketRecieved
-    const feedItems = await getFeedItemsFilteredByDestination({destination, req, updatedAt: { $gte: latestBucketRecieved }, limit});
+export default async function getFeedBuckets(props: IGetFeedBucketsProps) {
+    const {req, limit, destination} = props;
+    let dateFilter = {};
+    if (props.olderThanDate) {
+        dateFilter = {
+            $lt: props.olderThanDate
+        }
+    }
+    if (props.newerThanDate) {
+        dateFilter = {
+            $gte: props.olderThanDate
+        }
+    }
+    const feedItems = await getFeedItemsFilteredByDestination({destination, req, updatedAt: dateFilter, limit});
     const bucket = await createBucket({feedItems, req, destination});
     return bucket;
-}
-
-async function generateNextFeedBuckets({oldestBucketRecieved, req, limit, destination}: IGenerateNextFeedBucketsProps) {
-    // dated before oldestBucketRecieved
-    const feedItems = await getFeedItemsFilteredByDestination({destination, req, updatedAt: { $lt: oldestBucketRecieved }, limit});
-    const bucket = await createBucket({feedItems, req, destination});
-    return bucket;
-}
-
-export default function getFeedBuckets(props: IGetFeedBucketsProps) {
-    if (props.oldestBucketRecieved) {
-        return generateNextFeedBuckets((props as IGenerateNextFeedBucketsProps));
-    }
-    if (props.latestBucketRecieved) {
-        return generateFeedUpdateBuckets((props as IGenerateFeedUpdateBucketsProps));
-    }
 }

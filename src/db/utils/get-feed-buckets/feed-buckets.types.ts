@@ -1,9 +1,11 @@
 import { IProfile, IThreadResponse } from "../../types";
-import { IThreadComment } from "../../../models/thread-comment/thread-comment.types";
+import { IThreadCommentDocument } from "../../../models/thread-comment/thread-comment.types";
 import { IFeedItem } from "../../../models/feed-item/feed-item.types";
+import { IThreadReactionDocument } from "../../../models/thread-reaction/thread-reaction.types";
+import { IUserConnectionDocument } from "../../../models/user-connection/user-connection.types";
 
 export interface IBucketItem extends IFeedItem {
-    documentData: IThreadResponse | IProfile | IThreadComment;
+    documentData: IThreadResponse | IProfile | IThreadCommentDocument | IThreadReactionDocument | IUserConnectionDocument;
     destination: "home" | "profile" | "notification";
 }
 
@@ -21,17 +23,9 @@ export interface IBaseFeedBucketsProps {
     destination: IBucketItem["destination"];
 }
 
-export interface IGenerateFeedUpdateBucketsProps extends IBaseFeedBucketsProps {
-    latestBucketRecieved: string;
-}
-
-export interface IGenerateNextFeedBucketsProps extends IBaseFeedBucketsProps {
-    oldestBucketRecieved: string;
-}
-
 export interface IGetFeedBucketsProps extends IBaseFeedBucketsProps {
-    latestBucketRecieved?: string;
-    oldestBucketRecieved?: string;
+    newerThanDate?: string;
+    olderThanDate?: string;
 };
 
 export interface IGetFeedItemsFilteredByDestinationProps extends IBaseFeedBucketsProps {
