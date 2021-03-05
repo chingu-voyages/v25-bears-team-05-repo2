@@ -6,10 +6,6 @@ const connectDB = async () => {
     const isProduction =
       process.env.NODE_ENV && process.env.NODE_ENV.match("production");
 
-    // let mongoURI = process.env.DEV_MONGO_DB_URI;
-    // if (isProduction) {
-    //   mongoURI = process.env.PRODUCTION_MONGO_DB_URI;
-    // }
     const mongoURI = isProduction
       ? process.env.PRODUCTION_MONGO_DB_URI
       : process.env.DEV_MONGO_DB_URI;
