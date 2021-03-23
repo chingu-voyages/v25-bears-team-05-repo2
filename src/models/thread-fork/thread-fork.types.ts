@@ -4,7 +4,7 @@ import { IThread, IThreadReference } from "../thread/thread.types";
 export interface IThreadForkReference extends IThreadReference {}
 
 export interface IThreadFork extends IThread {
-  isAFolk: true;
+  isAFork: true;
 }
 
 export interface IThreadForkDocument extends IThreadFork, Document { }
