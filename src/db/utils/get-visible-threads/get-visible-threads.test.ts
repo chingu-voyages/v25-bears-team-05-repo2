@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { createTestUsers } from "../../../models/user/user-test-helper/user-test-helper";
-import { IThreadDocument, ThreadType, ThreadVisibility } from "../../../models/thread/thread.types";
+import { IThreadReference, ThreadVisibility } from "../../../models/thread/thread.types";
 import { getVisibleThreads } from "./get-visible-threads";
 
 describe("getVisibleThread db tests", () => {
@@ -9,65 +9,37 @@ describe("getVisibleThread db tests", () => {
     const dummyUser = createTestUsers({ numberOfUsers: 1 });
     dummyUser[0].threads.started = {
       "thread_1": {
-        postedByUserId: mongoose.Types.ObjectId(),
-        threadType: ThreadType.Article,
+        threadId: mongoose.Types.ObjectId(),
         visibility: ThreadVisibility.Anyone,
-        content: {
-          html: "sample-html-1",
-          hashTags: [],
-          attachments: [],
-        },
-        comments: { },
-        likes: { },
-        shares: { },
         createdAt: new Date(),
-        updatedAt: new Date()
-      } as IThreadDocument,
+        updatedAt: new Date(),
+        contentSnippet: "sample-html-1",
+        postedByUserId: mongoose.Types.ObjectId(),
+      } as IThreadReference,
       "thread_2": {
-        postedByUserId: mongoose.Types.ObjectId(),
-        threadType: ThreadType.Article,
+        threadId: mongoose.Types.ObjectId(),
         visibility: ThreadVisibility.Connections,
-        content: {
-          html: "sample-html-2",
-          hashTags: [],
-          attachments: [],
-        },
-        comments: { },
-        likes: { },
-        shares: { },
         createdAt: new Date(),
-        updatedAt: new Date()
-      } as IThreadDocument,
+        updatedAt: new Date(),
+        contentSnippet: "sample-html-2",
+        postedByUserId: mongoose.Types.ObjectId(),
+      } as IThreadReference,
       "thread_3": {
-        postedByUserId: mongoose.Types.ObjectId(),
-        threadType: ThreadType.Article,
+        threadId: mongoose.Types.ObjectId(),
         visibility: ThreadVisibility.Anyone,
-        content: {
-          html: "sample-html-3",
-          hashTags: [],
-          attachments: [],
-        },
-        comments: { },
-        likes: { },
-        shares: { },
         createdAt: new Date(),
-        updatedAt: new Date()
-      } as IThreadDocument,
-      "thread_4": {
+        updatedAt: new Date(),
+        contentSnippet: "sample-html-3",
         postedByUserId: mongoose.Types.ObjectId(),
-        threadType: ThreadType.Article,
+      } as IThreadReference,
+      "thread_4": {
+        threadId: mongoose.Types.ObjectId(),
         visibility: ThreadVisibility.Connections,
-        content: {
-          html: "sample-html-1",
-          hashTags: [],
-          attachments: [],
-        },
-        comments: { },
-        likes: { },
-        shares: { },
         createdAt: new Date(),
-        updatedAt: new Date()
-      } as IThreadDocument
+        updatedAt: new Date(),
+        contentSnippet: "sample-html-4",
+        postedByUserId: mongoose.Types.ObjectId(),
+      } as IThreadReference
     };
 
     const result = getVisibleThreads(dummyUser[0].threads);

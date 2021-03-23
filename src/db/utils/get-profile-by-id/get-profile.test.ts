@@ -32,7 +32,7 @@ describe("get profile tests", () => {
 
     // Grab the id from one of the users so we can test the function
     const id = newUsers[0]._id.toString();
-    const result = await getProfileById(id);
+    const result = await getProfileById({userId: id, reqUserId: "na"});
 
     expect(result.id.toString()).toBe(id);
     expect(result).not.toHaveProperty("auth");
@@ -41,7 +41,7 @@ describe("get profile tests", () => {
     expect(result).toHaveProperty("connections");
     expect(result).toHaveProperty("connectionOf");
     expect(result).toHaveProperty("threads");
-    expect(result).toHaveProperty("avatar");
+    expect(result).toHaveProperty("avatarUrls");
     expect(result).toHaveProperty("id");
     expect(result).toHaveProperty("jobTitle");
   });

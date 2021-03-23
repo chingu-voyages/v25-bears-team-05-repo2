@@ -53,14 +53,14 @@ export async function registerUser(this: IUserModel, details: IUserRegistrationD
           email: details.encryptedEmail,
           password: hashedPassword
         },
-        avatar: [{ url: "defaultAvatar"}],
+        avatarUrls: [{ url: "defaultAvatar"}],
         connections: { },
         connectionOf: { },
         threads: {
           started: { },
           commented: { },
-          liked: { },
-          shared: { }
+          reacted: { },
+          forked: { }
         }
       });
       return newUser;

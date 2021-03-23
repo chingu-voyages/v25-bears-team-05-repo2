@@ -55,16 +55,13 @@ describe("main search function tests", () => {
     // Source user creates some public posts
     const thread1 = await dummySourceUsers[0].createAndPostThread({
       html: "first post lora",
-      hashTags: ["hash1", "hash2"],
       visibility: ThreadVisibility.Anyone,
     });
     const thread2 = await dummySourceUsers[0].createAndPostThread({
       html: "second post annum",
-      hashTags: ["hash3", "hash4"],
     });
     const thread3 = await dummySourceUsers[0].createAndPostThread({
       html: "third post datum Jacobson",
-      hashTags: ["hash55", "hash66"],
       visibility: ThreadVisibility.Connections,
     });
 

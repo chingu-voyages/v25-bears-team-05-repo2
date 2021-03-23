@@ -103,7 +103,7 @@ Description: returns threads authored by connections, connection suggestions and
 
 Method: POST <br>
 Endpoint: `/threads` <br>
-Body: `htmlContent`, `threadType`, `visibility`, `hashTags`, `attachments`<br>
+Body: `htmlContent`, `threadType`, `visibility`<br>
 Description: Creates a thread for the requester's profile
 
 ### <b>Users</b>
@@ -131,7 +131,7 @@ Parameter: userId to delete from connection
 Method: PATCH <br>
 Endpoint: `/users/:id` <br>
 Description: Update requester's profile details <br>
-Body: optional parameters: `firstName`, `lastName` `avatar`, `jobTitle`
+Body: optional parameters: `firstName`, `lastName` `avatarUrls`, `jobTitle`
 
 Method: GET <br>
 Endpoint: `/users/:id/threads` <br>

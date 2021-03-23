@@ -1,16 +1,16 @@
 import { Document, Model } from "mongoose";
-import { IAttachmentType, IThreadCommentDocument } from "../thread-comment/thread-comment.types";
-import { IThreadLikeDocument } from "../thread-like/thread-like.types";
-import { IThreadShare } from "../thread-share/thread-share.types";
-
-import { IThread, IThreadDocument, IThreadPostDetails, ThreadType, ThreadVisibility } from "../thread/thread.types";
+import { IThreadCommentDocument, IThreadCommentReference } from "../thread-comment/thread-comment.types";
+import { IThreadReactionDocument, IThreadReactionReference } from "../thread-reaction/thread-reaction.types";
+import { IThreadFork } from "../thread-fork/thread-fork.types";
+import { IThread, IThreadDocument, IThreadPostDetails, IThreadReference, ThreadType, ThreadVisibility } from "../thread/thread.types";
 import { IUserConnection } from "../user-connection/user-connection.types";
+
 export interface IUserThread {
-  started: { [keyof: string]: IThreadDocument };
-  commented: { [keyof: string]: { [keyof: string]: IThreadCommentDocument }};
-  liked: { [keyof: string]: IThreadLikeDocument };
-  shared: { [keyof: string]: IThreadShare };
+  started: { [threadId: string]: IThreadReference };
+  commented: { [threadId: string]: { [commentId: string]: IThreadCommentReference }};
+  reacted: { [threadId: string]: { [reactionId: string]: IThreadReactionReference } };
 }
+
 export interface IUser {
   firstName: string;
   lastName: string;
@@ -21,7 +21,7 @@ export interface IUser {
     password?: string,
     oauth?: string,
   };
-  avatar: Array<{ url: string }>;
+  avatarUrls: Array<{ url: string }>;
   connections: { [keyof: string]: IUserConnection };
   connectionOf: { [keyof: string]: IUserConnection };
   threads: IUserThread;
@@ -55,15 +55,14 @@ export interface IUserDocument extends IUser, Document {
   isConnectionOf: (this: IUserDocument, targetId: string) =>  boolean;
   getConnectionThreads: (this: IUserDocument) => Promise<Array<IThread>>;
   getConnectionOfFromConnections: (this: IUserDocument) => Promise<IUserConnection[]>;
-  addLikeToThread: (this: IUserDocument, data: { targetThreadId: string, title: string }) => Promise<{ updatedThread: IThreadDocument,
-    threadLikeDocument: IThreadLikeDocument
+  addReactionToThread: (this: IUserDocument, data: { targetThreadId: string, title: string }) => Promise<{ updatedThread: IThreadDocument,
+    threadReactionDocument: IThreadReactionDocument
   }>;
-  deleteLikeFromThread: (this: IUserDocument, data: {  targetThreadId: string, targetLikeId: string }) => Promise<{ updatedThread: IThreadDocument}>;
+  deleteReactionFromThread: (this: IUserDocument, data: {  targetThreadId: string, targetReactionId: string }) => Promise<{ updatedThread: IThreadDocument}>;
   addThreadComment: (this: IUserDocument, data: {
     targetThreadId: string;
     threadCommentData: {
         content: string;
-        attachments?: Array<IAttachmentType>;
     };
 }) => Promise<{
     updatedThread: IThreadDocument;
@@ -75,20 +74,20 @@ deleteThreadComment: (this: IUserDocument, data: {
 }) => Promise<{
   updatedThread: IThreadDocument;
 }>;
-shareThread: (this: IUserDocument, data: {
+forkThread: (this: IUserDocument, data: {
   targetThreadId: string;
   sourceUserId: string;
-  threadShareType: ThreadType;
+  threadForkType: ThreadType;
   visibility?: ThreadVisibility
 }) => Promise<{
-  updatedSharedThreads: {
-      [keyof: string]: IThreadShare;
-  };
-  updatedThreadDocument: IThreadDocument}>;
+    updatedUserThreads: IUserThread,
+    newClonedThread: IThreadFork,
+    originalThread: IThreadDocument
+  }>;
 
-deleteThreadShare: (this: IUserDocument, data: { targetThreadShareId: string }) => Promise<{
-  updatedSharedThreads: {
-      [keyof: string]: IThreadShare;
+deleteThreadFork: (this: IUserDocument, data: { targetThreadId: string }) => Promise<{
+  updatedForkdThreads: {
+      [keyof: string]: IThreadFork;
   };
   updatedThreadDocument: IThreadDocument}>;
 getUserDocumentsFromSourceUserConnectionOf: (this: IUserDocument) => Promise<IUserDocument[]>;

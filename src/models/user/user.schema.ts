@@ -9,15 +9,15 @@ import { addConnectionToUser,
   getUserDocumentsFromSourceUserConnectionOf }
   from "./user.connections/user.connections.methods";
 import { updateUserProfile } from "./user.profile/user.profile.methods";
-import { addLikeToThread,
+import { addReactionToThread,
   addThreadComment,
   createAndPostThread,
-  deleteLikeFromThread,
+  deleteReactionFromThread,
   deleteThread,
   deleteThreadComment,
-  deleteThreadShare,
+  deleteThreadFork,
   getConnectionThreads,
-  shareThread }
+  forkThread }
 from "./user.thread/user.thread.methods";
 
 interface SchemaOptionsWithPojoToMixed extends SchemaOptions {
@@ -50,7 +50,7 @@ const UserSchema: Schema = new Schema({
       required: false
     }
   },
-  avatar: {
+  avatarUrls: {
     type: [{ url: String}],
   },
   connections: {
@@ -74,12 +74,12 @@ const UserSchema: Schema = new Schema({
       required: true,
       default: { },
     },
-    liked: {
+    reacted: {
       type: Schema.Types.Mixed,
       required: true,
       default: { },
     },
-    shared: {
+    forked: {
       type: Schema.Types.Mixed,
       required: true,
       default: { },
@@ -100,12 +100,12 @@ UserSchema.methods.updateUserProfile = updateUserProfile;
 UserSchema.methods.createAndPostThread = createAndPostThread;
 UserSchema.methods.getConnectionThreads = getConnectionThreads;
 UserSchema.methods.getConnectionOfFromConnections = getConnectionOfFromConnections;
-UserSchema.methods.addLikeToThread = addLikeToThread;
-UserSchema.methods.deleteLikeFromThread = deleteLikeFromThread;
+UserSchema.methods.addReactionToThread = addReactionToThread;
+UserSchema.methods.deleteReactionFromThread = deleteReactionFromThread;
 UserSchema.methods.addThreadComment = addThreadComment;
 UserSchema.methods.deleteThreadComment = deleteThreadComment;
-UserSchema.methods.shareThread = shareThread;
-UserSchema.methods.deleteThreadShare = deleteThreadShare;
+UserSchema.methods.forkThread = forkThread;
+UserSchema.methods.deleteThreadFork = deleteThreadFork;
 UserSchema.methods.deleteThread = deleteThread;
 UserSchema.methods.getUserDocumentsFromSourceUserConnectionOf = getUserDocumentsFromSourceUserConnectionOf;
 

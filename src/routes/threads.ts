@@ -7,25 +7,13 @@ import { createError } from "../utils/errors";
 import { UserModel } from "../models/user/user.model";
 import { sanitizeBody } from "express-validator/filter";
 import { ThreadModel } from "../models/thread/thread.model";
+import { getThreadById } from "../db/utils/get-thread-by-id/get-thread-by-id";
 const router = express.Router();
 
 router.post("/", routeProtector, [body("htmlContent").not().isEmpty().trim(), // Unsure whether or not to escape here?
 body("threadType").isNumeric().not().isEmpty(),
-body("visibility").not().isEmpty().isInt(), body("hashTags").custom((value) => {
-  if (!value) {
-    return true;
-  }
-  return Array.isArray(value);
-}),
-body("attachments").custom((value) => {
-  if (!value) {
-    return true;
-  }
-  return Array.isArray(value);
-}),
-sanitizeBody("hashTags"),
-sanitizeBody("htmlContent"),
-sanitizeBody("attachments")],
+body("visibility").not().isEmpty().isInt(),
+sanitizeBody("htmlContent")],
 async(req: any, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -34,10 +22,8 @@ async(req: any, res: Response) => {
 
   const threadDetails: IThreadPostDetails = {
     html: req.body.htmlContent,
-    hashTags: req.body.hashTags,
     threadType: req.body.threadType,
-    visibility: req.body.visibility,
-    attachments: req.body.attachments
+    visibility: req.body.visibility
   };
   try {
     const user = await UserModel.findById(req.user.id);
@@ -50,23 +36,25 @@ async(req: any, res: Response) => {
   }
 });
 
+router.get("/:id", routeProtector, [ param("id").not().isEmpty().trim().escape()], async (req: any, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+  try {
+    const threadData = await getThreadById({threadId: req.params.id, reqUserId: req.user.id});
+    return res.status(200).send(threadData);
+  } catch(err) {
+    res.status(404).send({ errors: [{ ...createError("get thread by id",
+    `thread not found ${err.Message}`,
+    "id")} ]});
+  }
+});
+
 router.patch("/:id", routeProtector, [param("id").not().isEmpty().trim().escape(),
 body("threadType").trim().escape(),
 body("visibility").trim().escape(),
-sanitizeBody("hashTags").customSanitizer((value) => {
-  return value.toLowerCase();
-}),
 sanitizeBody("htmlContent"),
-sanitizeBody("attachments"),
-body("threadType").custom((value) => {
-  if (value) {
-    if (Number.isInteger(value)) {
-      return true;
-    }
-    return false;
-  }
-  return true;
-}),
 body("visibility").custom((value) => {
   if (value) {
     if (Number.isInteger(value)) {
@@ -75,12 +63,6 @@ body("visibility").custom((value) => {
     return false;
   }
   return true;
-}),
-body("attachments").custom((value) => {
-  if (!value) {
-    return true;
-  }
-  return Array.isArray(value);
 }),
 ], async(req: any, res: Response) => {
   const errors = validationResult(req);
@@ -91,11 +73,8 @@ body("attachments").custom((value) => {
   const threadPatchUpdates: IThreadPatchData = {
     threadId: req.params.id,
     userId: req.user.id,
-    threadType: req.body.threadType,
     visibility: req.body.visibility,
-    htmlContent: req.body.htmlContent,
-    hashTags: req.body.hashTags,
-    attachments: req.body.attachments,
+    htmlContent: req.body.htmlContent
   };
   // Use threadModel to update
   try {
@@ -108,7 +87,7 @@ body("attachments").custom((value) => {
   }
 });
 
-router.post("/:id/likes", routeProtector, [param("id").exists().trim().escape(),
+router.post("/:id/reactions", routeProtector, [param("id").exists().trim().escape(),
 body("title").exists().trim().escape(),
 ], async(req: any, res: Response) => {
   const errors = validationResult(req);
@@ -117,30 +96,30 @@ body("title").exists().trim().escape(),
   }
 
   try {
-    const result = await req.user.addLikeToThread({ targetThreadId: req.params.id,
+    const result = await req.user.addReactionToThread({ targetThreadId: req.params.id,
       title: req.body.title});
       return res.status(200).send(result);
   } catch (err) {
-    res.status(400).send({ errors: [{ ...createError("Add a like to a thread",
+    res.status(400).send({ errors: [{ ...createError("Add a reaction to a thread",
     `error. ${err}`,
     "Server error")} ]});
   }
 });
 
 
-router.delete("/:id/likes", routeProtector, [param("id").exists().trim().escape(),
-body("threadLikeId").exists().trim().escape()],
+router.delete("/:id/reactions", routeProtector, [param("id").exists().trim().escape(),
+body("threadReactionId").exists().trim().escape()],
 async(req: any, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).send({ errors: errors.array() });
   }
   try {
-    const result = await req.user.deleteLikeFromThread({ targetThreadId: req.params.id,
-      targetLikeId: req.body.threadLikeId});
+    const result = await req.user.deleteReactionFromThread({ targetThreadId: req.params.id,
+      targetReactionId: req.body.threadReactionId});
     return res.status(200).send(result);
   } catch (err) {
-    res.status(400).send({ errors: [{ ...createError("Delete a like from a thread",
+    res.status(400).send({ errors: [{ ...createError("Delete a reaction from a thread",
     `error. ${err}`,
     "Server error")} ]});
   }
@@ -166,17 +145,7 @@ async(req: any, res: Response) => {
 
 router.post("/:thread_id/comments", routeProtector,
 [param("thread_id").exists().trim().escape(),
-body("content").exists().trim().escape(),
-body("attachments").custom((value) => {
-  if (!value) {
-    return true;
-  }
-  if (Array.isArray(value)) {
-    true;
-  } else {
-    return false;
-  }
-})],
+body("content").exists().trim().escape()],
 async(req: any, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -186,7 +155,7 @@ async(req: any, res: Response) => {
     const result = await req.user.addThreadComment( {
       targetThreadId: req.params.thread_id,
       threadCommentData: {
-        content: req.body.content, attachments: req.body.attachments
+        content: req.body.content
       }
     });
     return res.status(200).send(result);
@@ -232,7 +201,7 @@ routeProtector, async(req: any, res: Response) => {
   }
 });
 
-router.post("/:thread_id/share", [body("threadId").exists().trim().escape(),
+router.post("/:thread_id/fork", [body("threadId").exists().trim().escape(),
 body("sourceUserId").exists().trim().escape()],
 routeProtector,
 async(req: any, res: Response) => {
@@ -241,12 +210,12 @@ async(req: any, res: Response) => {
     return res.status(400).send({ errors: errors.array() });
   }
   try {
-    const result = await req.user.shareThread({ targetThreadId: req.body.threadId,
+    const result = await req.user.forkThread({ targetThreadId: req.body.threadId,
       sourceUserId: req.body.sourceUserId
     });
     return res.status(200).send(result);
   } catch (err) {
-    res.status(400).send({ errors: [{ ...createError("Unable to share thread",
+    res.status(400).send({ errors: [{ ...createError("Unable to fork thread",
     `${err}`,
     "Error")} ]});
   }
@@ -260,12 +229,12 @@ router.delete("/:thread_id",
     return res.status(400).send({ errors: errors.array() });
   }
   try {
-    const result = await req.user.deleteThreadShare({
-      targetThreadShareId: req.body.threadId
+    const result = await req.user.deleteThreadFork({
+      targetThreadId: req.body.threadId
     });
     return res.status(200).send(result);
   } catch (err) {
-    res.status(400).send({ errors: [{ ...createError("Unable to delete threadShare",
+    res.status(400).send({ errors: [{ ...createError("Unable to delete threadFork",
     `${err}`,
     "Error")} ]});
   }

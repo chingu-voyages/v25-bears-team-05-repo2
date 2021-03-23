@@ -19,10 +19,10 @@ router.get("/:id", routeProtector, [ param("id").not().isEmpty().trim().escape()
 
   try {
     if (req.params.id === "me") {
-      const homeProfileData = await getProfileById(req.user._id);
+      const homeProfileData = await getProfileById({userId: req.user._id, reqUserId: req.user._id});
       return res.status(200).send(homeProfileData);
     } else {
-      const otherUserData = await getProfileById(req.params.id);
+      const otherUserData = await getProfileById({userId: req.params.id, reqUserId: req.user._id});
       return res.status(200).send(otherUserData);
     }
   } catch(err) {
@@ -113,7 +113,7 @@ router.delete("/connections/:id", routeProtector, [ param("id").not().isEmpty().
 
 
 router.patch("/:id", routeProtector, [body("firstName").trim().escape(),
-body("lastName").trim().escape(), body("avatar").custom((value) => {
+body("lastName").trim().escape(), body("avatarUrls").custom((value) => {
   if (value) {
     try {
       new URL(value);
@@ -125,7 +125,7 @@ body("lastName").trim().escape(), body("avatar").custom((value) => {
     return true;
   }
 }),
-sanitizeBody("avatar").customSanitizer((value) => {
+sanitizeBody("avatarUrls").customSanitizer((value) => {
   return value.trim();
 }),
 body("jobTitle").trim().escape(),
@@ -147,7 +147,7 @@ param("id").not().isEmpty().trim().escape()],
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       jobTitle: req.body.jobTitle,
-      avatarUrl: req.body.avatar
+      avatarUrl: req.body.avatarUrls
     };
 
     try {
@@ -155,7 +155,7 @@ param("id").not().isEmpty().trim().escape()],
       return res.status(200).send({ firstName: req.user.firstName,
         lastName: req.user.lastName,
         jobTitle: req.user.jobTitle,
-        avatar: req.body.avatar,
+        avatarUrls: req.body.avatarUrls,
         email: decrypt(req.user.auth.email) });
     } catch (err) {
       return res.status(500).send({ errors: [{

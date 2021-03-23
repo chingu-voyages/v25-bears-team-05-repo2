@@ -17,7 +17,7 @@ export async function getUserSearchResults(
         firstName: user.firstName,
         lastName: user.lastName,
         jobTitle: user.jobTitle,
-        avatar: Array.from(user.avatar),
+        avatarUrls: Array.from(user.avatarUrls),
       };
     });
   }

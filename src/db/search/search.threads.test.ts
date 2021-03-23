@@ -80,7 +80,6 @@ describe("thread search tests", () => {
     });
     await userDocuments[4].createAndPostThread({
       html: "There once was something worthy bah!",
-      hashTags: ["apples", "plumbing"],
       visibility: ThreadVisibility.Connections,
     });
 
@@ -97,7 +96,7 @@ describe("thread search tests", () => {
     });
     const result3 = await queryPrivateThreads({
       requestorUserId: userDocuments[1].id.toString(),
-      queryString: "plumbing",
+      queryString: "bah!",
     });
     expect(result1.length).toBe(1);
     expect(result1[0].content.html).toBe(

@@ -24,7 +24,7 @@ export interface IPublicUserDetails {
   firstName: string;
   lastName: string;
   jobTitle?: string;
-  avatars?: Array<{ url: string }>;
+  avatarUrls?: Array<{ url: string }>;
 }
 
 export interface IThreadDetails {
@@ -33,12 +33,11 @@ export interface IThreadDetails {
   threadType: ThreadType;
   content: {
     html: string;
-    hashTags?: Array<string>;
     attachments?: Array<string>;
   };
   visibility: ThreadVisibility;
-  likes?: number;
-  shares?: number;
+  reactions?: number;
+  forks?: number;
   updatedAt: Date;
 }
 
@@ -48,7 +47,6 @@ export interface IParentThreadDetails {
   visibility: ThreadVisibility;
   content: {
     html: string;
-    hashTags: Array<string>;
   };
   createdAt: Date;
   updatedAt: Date;

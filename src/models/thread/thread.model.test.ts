@@ -36,13 +36,11 @@ describe("CRUD operations for Thread model", () => {
       postedByUserId: sampleId,
       visibility: ThreadVisibility.Anyone,
       content: {
-        html: "someSampleHTML",
-        hashTags: ["#hashTag1", "#hashTag2"],
-        attachments: ["a1490dfw4", "b90d*hd*734"],
+        html: "someSampleHTML"
       },
       comments: { },
-      likes: { },
-      shares: { },
+      reactions: { },
+      forks: { },
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -53,7 +51,6 @@ describe("CRUD operations for Thread model", () => {
     expect(result.postedByUserId).toBe(sampleId);
     expect(result.visibility).toBe(ThreadVisibility.Anyone);
     expect(result.content.html).toBe("someSampleHTML");
-    expect(result.content.attachments[1]).toBe("b90d*hd*734");
   });
   describe("getAllPublicThread tests", () => {
     test("get all public threads returns public threads", async() => {
@@ -98,16 +95,11 @@ describe("CRUD operations for Thread model", () => {
         userId: dummyUserDocuments[0].id,
         htmlContent: "some kind of new content here",
         visibility: ThreadVisibility.Connections,
-        threadType: ThreadType.Photo,
-        attachments: ["https://some-photo.com/photo1"],
-        hashTags: ["#tag1", "#tag2", "#tag2"]
+        threadType: ThreadType.Photo
       };
       const patchedThread = await ThreadModel.patchThread(patchData);
       expect(patchedThread.content.html).toBe("some kind of new content here");
-      expect(patchedThread.content.hashTags).toHaveLength(2);
-      expect(patchedThread.content.hashTags[1]).toBe("#tag2");
       expect(patchedThread.visibility).toBe(ThreadVisibility.Connections);
-      expect(patchedThread.content.attachments[0]).toBe("https://some-photo.com/photo1");
       expect(patchedThread.threadType).toBe(ThreadType.Photo);
     });
   });

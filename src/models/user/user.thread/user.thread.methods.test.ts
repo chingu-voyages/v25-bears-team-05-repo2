@@ -3,7 +3,6 @@ import { UserModel } from "../user.model";
 import { ThreadModel } from "../../thread/thread.model";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import { ThreadType } from "../../../models/thread/thread.types";
 
 let mongoServer: any;
 
@@ -39,7 +38,7 @@ describe("User creating thread tests", () => {
     expect(newThread.postedByUserId.toString()).toEqual(dummyUserDocuments[0].id.toString());
     expect(newThread.content.html).toBe("test-html");
     expect(dummyUserDocuments[0].threads.started[newThread.id.toString()]).toBeDefined();
-    expect(dummyUserDocuments[0].threads.started[newThread.id.toString()].content.html).toBe("test-html");
+    expect(dummyUserDocuments[0].threads.started[newThread.id.toString()].contentSnippet).toBe("test-html");
     expect(results.userData).toBeDefined();
     expect(results.threadData).toBeDefined();
 
@@ -66,8 +65,8 @@ describe("User creating thread tests", () => {
     expect(dummyUserDocuments[0].threads.started).toHaveProperty(thread3.threadData.id);
     expect(dummyUserDocuments[0].threads.started).toHaveProperty(thread4.threadData.id);
 
-    expect(dummyUserDocuments[0].threads.started[`${thread1.threadData.id}`].content.html).toBe("thread-1-test");
-    expect(dummyUserDocuments[0].threads.started[`${thread4.threadData.id}`].content.html).toBe("thread-4-test");
+    expect(dummyUserDocuments[0].threads.started[`${thread1.threadData.id}`].contentSnippet).toBe("thread-1-test");
+    expect(dummyUserDocuments[0].threads.started[`${thread4.threadData.id}`].contentSnippet).toBe("thread-4-test");
     expect(Object.keys(dummyUserDocuments[0].threads.started)).toHaveLength(4);
   });
 });
@@ -143,44 +142,44 @@ describe("thread deletion", () => {
   });
 });
 
-describe("thread like tests", () => {
-  test("thread like stores correctly on appropriate documents", async() => {
+describe("thread reaction tests", () => {
+  test("thread reaction stores correctly on appropriate documents", async() => {
     const testUser = createTestUsers({ numberOfUsers: 2 });
     const dummyUserDocuments = await UserModel.create(testUser);
     const thread1 = await dummyUserDocuments[0].createAndPostThread({
       html: "thread-1-test",
     });
-    // Have the second user like the thread
-    const result = await dummyUserDocuments[1].addLikeToThread({ targetThreadId: thread1.threadData.id.toString(),
+    // Have the second user reaction the thread
+    const result = await dummyUserDocuments[1].addReactionToThread({ targetThreadId: thread1.threadData.id.toString(),
       title: "thumbs-up!"});
 
-    const { updatedThread, threadLikeDocument } = result;
-    expect(threadLikeDocument.postedByUserId.toString())
+    const { updatedThread, threadReactionDocument } = result;
+    expect(threadReactionDocument.postedByUserId.toString())
     .toBe(dummyUserDocuments[1].id.toString());
-    expect(updatedThread.likes).toHaveProperty(threadLikeDocument.id.toString());
-    expect(updatedThread.likes[`${threadLikeDocument.id.toString()}`].title).toBe("thumbs-up!");
-    expect(dummyUserDocuments[1].threads.liked).toHaveProperty(updatedThread.id.toString());
-    expect(dummyUserDocuments[1].threads.liked[`${updatedThread.id.toString()}`].id.toString())
-    .toBe(threadLikeDocument.id.toString());
+    expect(updatedThread.reactions).toHaveProperty(threadReactionDocument.id.toString());
+    expect(updatedThread.reactions[`${threadReactionDocument.id.toString()}`].title).toBe("thumbs-up!");
+    expect(dummyUserDocuments[1].threads.reacted).toHaveProperty(updatedThread.id.toString());
+    expect(dummyUserDocuments[1].threads.reacted[thread1.threadData.id.toString()][threadReactionDocument.id.toString()].reactionData.reactionId.toString())
+    .toBe(threadReactionDocument.id.toString());
   });
 
-  test("thread like is deleted", async() => {
+  test("thread reaction is deleted", async() => {
     // Setup
     const testUser = createTestUsers({ numberOfUsers: 2 });
     const dummyUserDocuments = await UserModel.create(testUser);
     const thread1 = await dummyUserDocuments[0].createAndPostThread({
       html: "thread-1-test",
     });
-    // Have the second user add a threadLike
-    const updatedThread = await dummyUserDocuments[1].addLikeToThread({ targetThreadId: thread1.threadData.id.toString(),
+    // Have the second user add a threadReaction
+    const updatedThread = await dummyUserDocuments[1].addReactionToThread({ targetThreadId: thread1.threadData.id.toString(),
       title: "makes-me-think"});
 
     // Have the second user delete the thread
-    const result = await dummyUserDocuments[1].deleteLikeFromThread({ targetThreadId: updatedThread.updatedThread.id.toString(),
-      targetLikeId: updatedThread.threadLikeDocument.id.toString() });
+    const result = await dummyUserDocuments[1].deleteReactionFromThread({ targetThreadId: updatedThread.updatedThread.id.toString(),
+      targetReactionId: updatedThread.threadReactionDocument.id.toString() });
 
-    expect(result.updatedThread.likes[`${updatedThread.threadLikeDocument.id.toString()}`]).not.toBeDefined();
-    expect(dummyUserDocuments[1].threads.liked).not.toHaveProperty(`${updatedThread.updatedThread.id}`);
+    expect(result.updatedThread.reactions[`${updatedThread.threadReactionDocument.id.toString()}`]).not.toBeDefined();
+    expect(dummyUserDocuments[1].threads.reacted).not.toHaveProperty(`${updatedThread.updatedThread.id}`);
   });
 });
 
@@ -205,12 +204,10 @@ describe("create and delete threadComment tests", () => {
       targetThreadId: thread1.threadData.id,
     });
 
-    const arrayOfKeys = (Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`]));
-    expect(Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`])).toHaveLength(3);
-    expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[2]}`].content)
-      .toBe("This the third comment content");
-    expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[2]}`].postedByUserId)
-      .toBe(dummyUserDocuments[1].id.toString());
+     const arrayOfKeys = (Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`]));
+     expect(Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`])).toHaveLength(3);
+     expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[2]}`].commentData.contentSnippet).toBe("This the third comment content");
+     expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[2]}`].commentData.postedByUserId).toBe(dummyUserDocuments[1].id.toString());
     });
 
     test("deletes a thread comment properly", async() => {
@@ -233,44 +230,9 @@ describe("create and delete threadComment tests", () => {
         targetThreadId: thread1.threadData.id,
       });
       const arrayOfKeys = (Object.keys(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`]));
-      const threadCommentId = dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[0]}`]["_id"];
-      await dummyUserDocuments[1].deleteThreadComment({ targetThreadId: thread1.threadData.id, targetThreadCommentId: threadCommentId});
+      const threadCommentId = dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${arrayOfKeys[0]}`].commentData.commentId;
+      await dummyUserDocuments[1].deleteThreadComment({ targetThreadId: thread1.threadData.id, targetThreadCommentId: threadCommentId.toString()});
       expect(thread1.threadData.comments[`${threadCommentId}`]).not.toBeDefined();
       expect(dummyUserDocuments[1].threads.commented[`${thread1.threadData.id}`][`${threadCommentId}`]).not.toBeDefined();
     });
-});
-
-
-describe("Thread share tests", () => {
-  test("threads shared correctly", async() => {
-    // Source user posts a thread. User 2 shares it on its own profile. Expect documents to update
-    // correctly
-    const testUser = createTestUsers({ numberOfUsers: 2});
-    const dummyUserDocuments = await UserModel.create(testUser);
-    const thread1 = await dummyUserDocuments[0].createAndPostThread({
-      html: "thread-1-test",
-    });
-
-    const result = await dummyUserDocuments[1].shareThread({ targetThreadId: thread1.threadData.id.toString(),
-    sourceUserId: dummyUserDocuments[0].id.toString(), threadShareType: ThreadType.Post });
-
-    expect(result.updatedThreadDocument.shares[dummyUserDocuments[1].id.toString()]).toBeDefined();
-    expect(result.updatedThreadDocument.shares[dummyUserDocuments[1].id.toString()].content.html).toBe("thread-1-test");
-    expect(result.updatedSharedThreads[thread1.threadData.id.toString()]).toBeDefined();
-  });
-  test("threadshares deleted property", async() => {
-
-    const testUser = createTestUsers({ numberOfUsers: 2 });
-    const dummyUserDocuments = await UserModel.create(testUser);
-    const thread1 = await dummyUserDocuments[0].createAndPostThread({
-      html: "thread-1-test",
-    });
-
-    await dummyUserDocuments[1].shareThread({ targetThreadId: thread1.threadData.id.toString(),
-    sourceUserId: dummyUserDocuments[0].id.toString(), threadShareType: ThreadType.Post });
-
-    const result = await dummyUserDocuments[1].deleteThreadShare({ targetThreadShareId: thread1.threadData.id.toString()});
-      expect(result.updatedSharedThreads[thread1.threadData.id]).not.toBeDefined();
-      expect(result.updatedThreadDocument.shares[dummyUserDocuments[1].id.toString()]).not.toBeDefined();
-  });
 });

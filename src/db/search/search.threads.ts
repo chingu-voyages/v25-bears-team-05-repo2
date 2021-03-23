@@ -26,8 +26,8 @@ export async function queryPublicThreads(
         threadType: result.threadType,
         content: result.content,
         visibility: result.visibility,
-        likes: (result.likes && Object.entries(result.likes).length) || 0,
-        shares: (result.shares && Object.entries(result.shares).length) || 0,
+        reactions: (result.reactions && Object.entries(result.reactions).length) || 0,
+        forks: (result.forks && Object.entries(result.forks).length) || 0,
         updatedAt: result.updatedAt,
       };
     });
@@ -71,8 +71,8 @@ export async function queryPrivateThreads(
           threadType: result.threadType,
           content: result.content,
           visibility: result.visibility,
-          likes: (result.likes && Object.entries(result.likes).length) || 0,
-          shares: (result.shares && Object.entries(result.shares).length) || 0,
+          reactions: (result.reactions && Object.entries(result.reactions).length) || 0,
+          forks: (result.forks && Object.entries(result.forks).length) || 0,
           updatedAt: result.updatedAt,
         };
       });

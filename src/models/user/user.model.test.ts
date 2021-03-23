@@ -35,20 +35,20 @@ describe("CRUD operations for User model", () => {
       auth: {
         email: encrypt("test@test.com"),
       },
-      avatar: [ { url: "testUrl01"} ],
-      connections: { },
-      connectionOf: { },
+      avatarUrls: [ {url: "testUrl01"} ],
+      connections: {},
+      connectionOf: {},
       threads: {
-        started: { },
-        commented: { },
-        liked: { },
-        shared: { },
+        started: {},
+        commented: {},
+        reacted: {},
+        forked: {},
       }
     };
     const result = await UserModel.create(testUserData);
     expect(decrypt(result.auth.email)).toBe("test@test.com");
     expect(result.lastName).toBe("testLastName");
-    expect(result.avatar[0].url).toBe("testUrl01");
+    expect(result.avatarUrls[0].url).toBe("testUrl01");
   });
 
   test("findOrCreate function returns user if found", async () => {

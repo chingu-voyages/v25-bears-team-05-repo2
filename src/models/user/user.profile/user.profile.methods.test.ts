@@ -52,30 +52,30 @@ describe("Profile update tests", () => {
     expect(dummyUserDocuments[0].firstName).toBe("uFirstName");
     expect(dummyUserDocuments[0].lastName).toBe("newLastName");
     expect(dummyUserDocuments[0].jobTitle).toBe("designer");
-    expect(dummyUserDocuments[0].avatar[0].url).toBe("http://avatarurl.com");
+    expect(dummyUserDocuments[0].avatarUrls[0].url).toBe("http://avatarurl.com");
   });
 
   test("avatar url - ensures only adds unique url", async() => {
     const testUser = createTestUsers({ numberOfUsers: 1});
     const dummyUserDocuments = await UserModel.create(testUser);
     // Push some test avatar urls
-    dummyUserDocuments[0].avatar.push({ url: "http://fake1.com"},
+    dummyUserDocuments[0].avatarUrls.push({ url: "http://fake1.com"},
     { url: "http://fake2.com"},
     { url: "http://fake3.com"});
     await dummyUserDocuments[0].save();
 
-    expect(dummyUserDocuments[0].avatar).toHaveLength(4);
+    expect(dummyUserDocuments[0].avatarUrls).toHaveLength(4);
 
     await dummyUserDocuments[0].updateUserProfile({
       avatarUrl: "http://fake2.com"
     });
-    expect(dummyUserDocuments[0].avatar).toHaveLength(4);
+    expect(dummyUserDocuments[0].avatarUrls).toHaveLength(4);
 
     await dummyUserDocuments[0].updateUserProfile({
       avatarUrl: "http://new-fake-url"
     });
 
-    expect(dummyUserDocuments[0].avatar).toHaveLength(5);
-    expect(dummyUserDocuments[0].avatar[0].url).toBe("http://new-fake-url");
+    expect(dummyUserDocuments[0].avatarUrls).toHaveLength(5);
+    expect(dummyUserDocuments[0].avatarUrls[0].url).toBe("http://new-fake-url");
   });
 });

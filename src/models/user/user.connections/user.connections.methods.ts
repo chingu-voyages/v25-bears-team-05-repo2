@@ -104,10 +104,6 @@ export async function getUserDocumentsFromSourceUserConnectionOf(this: IUserDocu
  */
 function transformUserDataToConnection(userData: IUserDocument, isTeamMate?: boolean): IUserConnection {
   return {
-    firstName: userData.firstName,
-    lastName: userData.lastName,
-    jobTitle: userData.jobTitle,
-    avatar: userData.avatar,
     userId: userData.id.toString(),
     dateTimeConnected: userData.createdAt,
     isTeamMate: isTeamMate || false,

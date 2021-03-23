@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 
-const ThreadLikeSchema: Schema = new Schema({
+const ThreadReactionSchema: Schema = new Schema({
   postedByUserId: { type: String, required: true },
   title: {
     type: String,
@@ -8,4 +8,4 @@ const ThreadLikeSchema: Schema = new Schema({
   }
 }, { timestamps: { }} );
 
-export default ThreadLikeSchema;
+export default ThreadReactionSchema;

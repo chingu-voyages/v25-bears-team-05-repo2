@@ -1,8 +1,8 @@
 import { Document, Model } from "mongoose";
 import { IThreadComment } from "../thread-comment/thread-comment.types";
-import { IThreadLikeDocument } from "../thread-like/thread-like.types";
+import { IThreadReactionDocument } from "../thread-reaction/thread-reaction.types";
 import mongoose from "mongoose";
-import { IThreadShare } from "../thread-share/thread-share.types";
+import { IThreadFork } from "../thread-fork/thread-fork.types";
 
 export enum ThreadType {
   Post = "post",
@@ -20,8 +20,6 @@ export interface IThreadPostDetails {
   threadType?: ThreadType;
   visibility?: ThreadVisibility;
   html: string;
-  hashTags?: Array<string>;
-  attachments?: Array<string>;
 }
 
 export interface IThread {
@@ -29,15 +27,23 @@ export interface IThread {
   threadType: ThreadType;
   visibility: ThreadVisibility;
   content: {
-    html: string,
-    hashTags: Array<string>,
-    attachments: Array<string>
+    html: string
   };
   comments: { [keyof: string]: IThreadComment };
-  likes: { [keyof: string]: IThreadLikeDocument };
-  shares: { [keyof: string]: IThreadShare };
+  reactions: { [keyof: string]: IThreadReactionDocument };
+  forks: { [keyof: string]: IThreadFork };
+  aForkOfThreadId?: mongoose.Types.ObjectId;
   readonly createdAt: Date;
   readonly updatedAt: Date;
+}
+
+export interface IThreadReference {
+  threadId: mongoose.Types.ObjectId;
+  visibility: ThreadVisibility;
+  createdAt: Date;
+  updatedAt: Date;
+  contentSnippet: string;
+  postedByUserId: mongoose.Types.ObjectId;
 }
 
 export interface IThreadPatchData {
@@ -46,8 +52,6 @@ export interface IThreadPatchData {
   threadType?: ThreadType;
   visibility?: ThreadVisibility;
   htmlContent?: string;
-  hashTags?: Array<string>;
-  attachments?: Array<string>;
 }
 
 export interface IThreadDocument extends IThread, Document { }
