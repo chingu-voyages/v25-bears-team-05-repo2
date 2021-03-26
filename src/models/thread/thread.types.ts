@@ -8,12 +8,12 @@ export enum ThreadType {
   Post = "post",
   Photo = "photo",
   Job = "job",
-  Article = "article"
+  Article = "article",
 }
 
 export enum ThreadVisibility {
   Anyone = 0,
-  Connections = 1
+  Connections = 1,
 }
 
 export interface IThreadPostDetails {
@@ -29,9 +29,11 @@ export interface IThread {
   threadType: ThreadType;
   visibility: ThreadVisibility;
   content: {
-    html: string,
-    hashTags: Array<string>,
-    attachments: Array<string>
+    html: string;
+    hashTags: Array<string>;
+    attachments: Array<string>;
+    readonly createdAt: Date;
+    readonly updatedAt: Date;
   };
   comments: { [keyof: string]: IThreadComment };
   likes: { [keyof: string]: IThreadLikeDocument };
@@ -50,8 +52,14 @@ export interface IThreadPatchData {
   attachments?: Array<string>;
 }
 
-export interface IThreadDocument extends IThread, Document { }
+export interface IThreadDocument extends IThread, Document {}
 export interface IThreadModel extends Model<IThreadDocument> {
-  getAllPublicThreads: (this: IThreadModel, excludeUserIds?: string[]) => Promise<IThreadDocument[]>;
-  patchThread: (this: IThreadModel, data: IThreadPatchData) => Promise<IThreadDocument>;
+  getAllPublicThreads: (
+    this: IThreadModel,
+    excludeUserIds?: string[]
+  ) => Promise<IThreadDocument[]>;
+  patchThread: (
+    this: IThreadModel,
+    data: IThreadPatchData
+  ) => Promise<IThreadDocument>;
 }
