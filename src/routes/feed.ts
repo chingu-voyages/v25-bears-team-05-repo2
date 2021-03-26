@@ -2,7 +2,7 @@ import * as express from "express";
 import { Response } from "express";
 import { routeProtector } from "../middleware/route-protector";
 import { createError } from "../utils/errors";
-import { body, query } from "express-validator/check";
+import { param, query } from "express-validator/check";
 import getFeedBuckets from "../db/utils/get-feed-buckets/get-feed-buckets";
 import { IBucketItem } from "../db/utils/get-feed-buckets/feed-buckets.types";
 const router = express.Router();
@@ -27,7 +27,7 @@ router.get(
   "/:destination", 
   routeProtector, 
   [
-    body(":destination").exists().trim().escape(),
+    param("destination").exists().trim().escape(),
     query("olderThanDate").escape(),
     query("newerThanDate").escape()
   ], 
