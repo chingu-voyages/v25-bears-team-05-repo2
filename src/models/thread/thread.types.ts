@@ -33,7 +33,7 @@ export interface IThread {
     hashTags: Array<string>;
     attachments: Array<string>;
     readonly createdAt: Date;
-    readonly updatedAt: Date;
+    updatedAt: Date;
   };
   comments: { [keyof: string]: IThreadComment };
   likes: { [keyof: string]: IThreadLikeDocument };

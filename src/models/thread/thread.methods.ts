@@ -61,6 +61,7 @@ export async function patchThread(
         new Set(targetThread.content.attachments)
       );
     }
+    targetThread.content.updatedAt = new Date();
     return await targetThread.save();
   }
   throw new Error("Thread not found");
