@@ -35,6 +35,8 @@ export async function createAndPostThread(
       html: sanitizeHtml(threadDetails.html),
       attachments: threadDetails.attachments,
       hashTags: threadDetails.hashTags,
+      updatedAt: new Date(),
+      createdAt: new Date(),
     },
     comments: {},
     likes: {},
