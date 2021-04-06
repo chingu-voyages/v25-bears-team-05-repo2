@@ -6,6 +6,7 @@ const PasswordRecoverySchema: Schema = new Schema(
     requestClosedDate: { type: Date, default: null },
     requestorEmail: { type: String, default: null },
     requestClaimed: { type: Boolean, default: false },
+    requestorIpAddress: { type: String, default: null }
   },
   { timestamps: {} }
 );

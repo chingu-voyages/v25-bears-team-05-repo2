@@ -5,6 +5,7 @@ export interface IPasswordRecovery {
   requestClosedDate: Date | null;
   requestorEmail: string | null;
   requestClaimed: Boolean;
+  requestorIpAddress: string | null;
   readonly createdAt: Date;
   updatedAt: Date;
 }
