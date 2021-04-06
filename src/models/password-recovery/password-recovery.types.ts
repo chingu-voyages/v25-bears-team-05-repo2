@@ -3,9 +3,10 @@ import { Document, Model } from "mongoose";
 export interface IPasswordRecovery {
   requestId: string | null;
   requestClosedDate: Date | null;
-  requestorEmail: string | null;
-  requestClaimed: Boolean;
+  forAccountEmail: string | null;
+  requestIsClaimed: Boolean;
   requestorIpAddress: string | null;
+  requestExpiryDate: Date;
   readonly createdAt: Date;
   updatedAt: Date;
 }
