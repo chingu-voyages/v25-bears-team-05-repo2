@@ -1,7 +1,7 @@
 import { Document, Model } from "mongoose";
 
 export interface IPasswordRecovery {
-  requestId: string | null;
+  authToken: string | null;
   requestClosedDate: Date | null;
   forAccountEmail: string | null;
   requestIsClaimed: Boolean;

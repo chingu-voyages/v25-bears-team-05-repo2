@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 
 const PasswordRecoverySchema: Schema = new Schema(
   {
-    requestId: { type: String, default: null },
+    authToken: { type: String, default: null },
     requestClosedDate: { type: Date, default: null },
     forAccountEmail: { type: String, default: null },
     requestIsClaimed: { type: Boolean, default: false },
