@@ -44,9 +44,11 @@ function isRequestClaimed(requestDocument: IPasswordRecoveryDocument): boolean {
  * Basically sets the document to have an expired state
  * @param requestDocument document to mark as expired
  */
-async function expireRequest(requestDocument: IPasswordRecoveryDocument) {}
+export async function expireRequest(
+  requestDocument: IPasswordRecoveryDocument
+) {}
 
-function getOpenRequestsForEmailId(
+export function getOpenRequestsForEmailId(
   requestDocuments: IPasswordRecoveryDocument[]
 ): IPasswordRecoveryDocument[] {
   return requestDocuments.filter((document) => {
