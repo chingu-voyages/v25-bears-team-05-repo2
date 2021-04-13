@@ -17,7 +17,7 @@ describe("dummy request document test", () => {
     ).toBe(true);
   });
 
-  test("creates correct amount of documents, correct number of matching-email documents - weird input", () => {
+  test("creates correct amount of documents, correct number of matching-email documents - total number of requests is less than the requested matching email number", () => {
     const reqParams = {
       totalNumberRequests: 1,
       withEmail: "myemail@example.com",
@@ -31,7 +31,7 @@ describe("dummy request document test", () => {
     expect(docs[0].forAccountEmail).toBe(reqParams.withEmail);
   });
 
-  test("creates correct amount of documents, correct number of matching-email documents - 1 request", () => {
+  test("creates correct amount of documents, correct number of matching-email documents - 1 requested matching email number ", () => {
     const reqParams = {
       totalNumberRequests: 12,
       withEmail: "myemail@example.com",
@@ -44,7 +44,7 @@ describe("dummy request document test", () => {
     expect(docs.length).toBe(12);
   });
 
-  test("creates all matching e-mail documents", () => {
+  test("creates all matching e-mail documents when total request and matching number are the same", () => {
     const reqParams = {
       totalNumberRequests: 5,
       withEmail: "myemail@example.com",

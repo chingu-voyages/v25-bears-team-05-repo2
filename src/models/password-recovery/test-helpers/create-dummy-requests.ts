@@ -2,7 +2,11 @@ import { generateAuthToken } from "../../../utils/generate-auth-token";
 import { IPasswordRecovery } from "../password-recovery.types";
 
 /**
- * Creates requests documents
+ *
+ * @param totalNumberRequests the total amount of dummy requests to create
+ * @param withEmail the test e-mail for which to create a request (forAccountEmail)
+ * @param matchingNumber total number of requests to create that have `withEmail` as the forAccountEmail property
+ * @returns
  */
 export function createDummyRecoveryRequestDocuments({
   totalNumberRequests,
