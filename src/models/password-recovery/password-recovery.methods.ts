@@ -1,10 +1,6 @@
-import dayjs from "dayjs";
 import { generateAuthToken } from "../../utils/generate-auth-token";
 import { PasswordRecoveryModel } from "./password-recovery.model";
-import {
-  IPasswordRecovery,
-  IPasswordRecoveryDocument,
-} from "./password-recovery.types";
+import { IPasswordRecovery } from "./password-recovery.types";
 
 /**
  * Returns all the requests for a given e-mail user account
