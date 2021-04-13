@@ -31,27 +31,3 @@ export async function createRequest(data: {
   };
   return await PasswordRecoveryModel.create(newRequest);
 }
-
-function isRequestExpired(requestDocument: IPasswordRecoveryDocument): boolean {
-  return dayjs().isAfter(requestDocument.requestExpiryDate);
-}
-
-function isRequestClaimed(requestDocument: IPasswordRecoveryDocument): boolean {
-  return requestDocument.requestIsClaimed;
-}
-
-/**
- * Basically sets the document to have an expired state
- * @param requestDocument document to mark as expired
- */
-export async function expireRequest(
-  requestDocument: IPasswordRecoveryDocument
-) {}
-
-export function getOpenRequestsForEmailId(
-  requestDocuments: IPasswordRecoveryDocument[]
-): IPasswordRecoveryDocument[] {
-  return requestDocuments.filter((document) => {
-    return !isRequestExpired(document) && !isRequestClaimed(document);
-  });
-}
