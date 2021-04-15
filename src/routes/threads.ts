@@ -7,7 +7,23 @@ import { createError } from "../utils/errors";
 import { UserModel } from "../models/user/user.model";
 import { sanitizeBody } from "express-validator/filter";
 import { ThreadModel } from "../models/thread/thread.model";
+import { getThreadById } from "../db/utils/get-thread-by-id/get-thread-by-id";
 const router = express.Router();
+
+router.get("/:id", routeProtector, [ param("id").not().isEmpty().trim().escape()], async (req: any, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+  try {
+    const threadData = await getThreadById({threadId: req.params.id});
+    return res.status(200).send(threadData);
+  } catch(err) {
+    res.status(404).send({ errors: [{ ...createError("get thread by id",
+    `thread not found ${err.Message}`,
+    "id")} ]});
+  }
+});
 
 router.post("/", routeProtector, [body("htmlContent").not().isEmpty().trim(), // Unsure whether or not to escape here?
 body("threadType").isNumeric().not().isEmpty(),
@@ -31,7 +47,6 @@ async(req: any, res: Response) => {
   if (!errors.isEmpty()) {
     return res.status(400).send({ errors: errors.array() });
   }
-
   const threadDetails: IThreadPostDetails = {
     html: req.body.htmlContent,
     hashTags: req.body.hashTags,
