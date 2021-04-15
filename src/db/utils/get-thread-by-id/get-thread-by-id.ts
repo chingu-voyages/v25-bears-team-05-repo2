@@ -4,6 +4,5 @@ import { ThreadModel } from "../../../models/thread/thread.model";
  * @param userId ObjectId
  */
 export async function getThreadById({threadId}: {threadId: string}) {
-  const result = await ThreadModel.findById(threadId);
-  return result;
+  return await ThreadModel.findById(threadId);
 }
