@@ -1,13 +1,14 @@
 import { Document, Model } from "mongoose";
 
 export interface IPasswordRecovery {
-  authToken: string | null;
-  requestClosedDate: Date | null;
-  forAccountEmail: string | null;
-  requestIsClaimed: Boolean;
-  requestorIpAddress: string | null;
-  requestExpiryDate: Date;
-  readonly createdAt: Date;
+  readonly authToken: string | null;
+  requestClosedDate?: Date | null;
+  requestClosed?: boolean;
+  readonly forAccountEmail: string;
+  requestIsClaimed?: boolean;
+  readonly requestorIpAddress: string | null;
+  readonly requestExpiryDate?: Date;
+  readonly createdAt?: Date;
   updatedAt: Date;
 }
 
@@ -18,4 +19,6 @@ export interface IPasswordRecoveryDocument
 
 // Static methods
 export interface IPasswordRecoveryModel
-  extends Model<IPasswordRecoveryDocument> {}
+  extends Model<IPasswordRecoveryDocument> { 
+    findAllRequestsByEmailId: (emailId: string) => Promise<IPasswordRecoveryDocument[]>
+  }
