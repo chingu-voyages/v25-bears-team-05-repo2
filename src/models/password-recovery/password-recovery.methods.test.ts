@@ -63,7 +63,6 @@ describe("password recovery method tests", () => {
     const result = await PasswordRecoveryModel.find({
       "forAccountEmail": "some_email@example.com",
     });
-    console.log(result);
     expect(result[0].requestorIpAddress).toBe("192.168.0.1");
   });
 });
