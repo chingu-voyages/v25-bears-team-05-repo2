@@ -1,6 +1,6 @@
 require("dotenv").config();
 import { ConnectionOptions, connect } from "mongoose";
-
+import assert from "assert";
 const connectDB = async () => {
   try {
     const isProduction =
@@ -9,6 +9,8 @@ const connectDB = async () => {
     const mongoURI = isProduction
       ? process.env.PRODUCTION_MONGO_DB_URI
       : process.env.DEV_MONGO_DB_URI;
+
+    assert(mongoURI, "Mongo connection URI is not defined. Check environment variables");
     const options: ConnectionOptions = {
       useNewUrlParser: true,
       useCreateIndex: true,
