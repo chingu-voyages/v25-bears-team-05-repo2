@@ -95,7 +95,6 @@ getUserDocumentsFromSourceUserConnectionOf: (this: IUserDocument) => Promise<IUs
 }
 export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;
-  findByGoogleId: (this: IUserModel, id: string) => Promise<IUserDocument>;
   registerUser: (this: IUserModel, details: IUserRegistrationDetails) => Promise<IUserDocument>;
   findByEncryptedEmail: (this: IUserModel, encryptedEmail: string ) => Promise<IUserDocument[]>;
   findOneByEncryptedEmail: (this: IUserModel, encryptedEmail: string ) => Promise<IUserDocument>;
