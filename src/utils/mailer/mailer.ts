@@ -21,7 +21,7 @@ export async function sendRecoveryEmail(data: {
     from: process.env.MAILER_ADMIN_EMAIL,
     to: `${data.destinationEmail}`,
     subject: "Syncedup password recovery",
-    html: `<html><body> <p>Please use <a href="http://${RECOVERY_LINKBACK_DOMAIN}/recover/?id=${hashedEmailAddress}&data=${data.code}"> this link</a> to recover your password</p></body></html>`,
+    html: `<html><body> <p>Please use <a href="http://${RECOVERY_LINKBACK_DOMAIN}/recover?id=${hashedEmailAddress}&data=${data.code}"> this link</a> to recover your password</p></body></html>`,
   };
 
   try {
