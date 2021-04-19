@@ -54,6 +54,7 @@
     "@types/gravatar": "^1.8.0",
     "@types/jest": "^26.0.15",
     "@types/lodash": "^4.14.165",
+    "@types/mailgun-js": "^0.22.11",
     "@types/mongoose": "5.5.0",
     "@types/passport": "^1.0.4",
     "@types/uuid": "^8.3.0",
