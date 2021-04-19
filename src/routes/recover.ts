@@ -6,6 +6,7 @@ import { validateCaptcha } from "../middleware/password-recovery/validate-captch
 import { validateRequestByEmail } from "../middleware/password-recovery/validate-request";
 import { createRequest } from "../models/password-recovery/password-recovery.methods";
 import { createError } from "../utils/errors";
+import { sendRecoveryEmail } from "../utils/mailer/mailer";
 const sanitizationObject = [
   body("email").isEmail().normalizeEmail({ all_lowercase: true }),
   body("captcha").exists().not().isEmpty(),
@@ -28,7 +29,8 @@ router.post(
     };
     try {
       const response = await createRequest(requestData);
-      res.status(200).send({ response: "ok ", requestData: response }); // More processing to be done
+      await sendRecoveryEmail({ destinationEmail: requestData.emailId, code: response.authToken })
+      res.status(200).send({ response: "ok ", requestData: "Request created" }); // More processing to be done
     } catch (error) {
       res.status(400).send({
         errors: [
