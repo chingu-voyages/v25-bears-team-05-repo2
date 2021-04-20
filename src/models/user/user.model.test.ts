@@ -66,18 +66,6 @@ describe("CRUD operations for User model", () => {
     const result = await UserModel.findOneOrCreateByGoogleId(user2);
     expect(result.auth.googleId).toBe("987654321");
   });
-
-  test("find user by googleId method retrieves a user", async() => {
-    // Create test users and put them in db
-    const [user1, user2] = createTestUsers({ numberOfUsers: 2, googleIds: ["123456789", "987654321"]});
-    await UserModel.create([user1, user2]);
-
-    // Test the find by google id function
-    const result = await UserModel.findByGoogleId("123456789");
-    expect(result).toBeDefined();
-    expect(result.auth.googleId).toBe("123456789");
-    expect(result.auth.googleId).not.toBe("1234567891");
-  });
 });
 
 describe("register user tests", () => {

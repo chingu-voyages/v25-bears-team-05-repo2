@@ -24,19 +24,6 @@ export async function findOneOrCreateByGoogleId(this: IUserModel, data: IUser): 
 }
 
 /**
- * Finds user by google id
- * @param this
- * @param id google id
- */
-export async function findByGoogleId(this: IUserModel, id: string): Promise<IUserDocument> {
-  try {
-    return await this.findOne({ "auth.googleId": id});
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-/**
  *  Registers user. Checks to ensure e-mail address is unique
  */
 export async function registerUser(this: IUserModel, details: IUserRegistrationDetails) {

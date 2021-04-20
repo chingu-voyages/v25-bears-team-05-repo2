@@ -57,6 +57,16 @@ Other tools:
 5. Create a `.env` file using the `sample.env` file
    provided as a model. Fill in the details.
 
+#### Google reCaptcha v2
+1. Visit [Google reCaptcha console](https://www.google.com/recaptcha/) to register the app and obtain secret keys.
+   - Ensure you are registering for version `v2` of reCaptcha
+2. The console should generate two keys:
+   - The `Site key` (`REACT_APP_DEV_CAPTCHA_SITE_KEY`) is for use with the *front end* to generate the reCaptcha
+   - The `Secret key` (`DEV_CAPTCHA_SECRET_KEY`) is used for in the Syncedup api to communicate with Google's 
+      reCaptcha verification server
+3. In the console, ensure to add `localhost` to the list of domains so you can     
+   locally test the reCaptcha
+
 ### Running the app and tests
 
 - Run `npm start` to start the server

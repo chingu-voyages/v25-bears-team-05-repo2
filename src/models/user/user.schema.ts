@@ -1,5 +1,5 @@
 import { Schema, SchemaOptions } from "mongoose";
-import { findOneOrCreateByGoogleId, findByGoogleId,
+import { findOneOrCreateByGoogleId,
   registerUser, findByEncryptedEmail,
   findOneByEncryptedEmail }
   from "./user.auth/user.auth.methods";
@@ -89,7 +89,6 @@ const UserSchema: Schema = new Schema({
 UserSchema.index({ "firstName": "text", "lastName": "text", "jobTitle":  "text" });
 
 UserSchema.statics.findOneOrCreateByGoogleId = findOneOrCreateByGoogleId;
-UserSchema.statics.findByGoogleId = findByGoogleId;
 UserSchema.statics.registerUser = registerUser;
 UserSchema.statics.findByEncryptedEmail = findByEncryptedEmail;
 UserSchema.statics.findOneByEncryptedEmail = findOneByEncryptedEmail;

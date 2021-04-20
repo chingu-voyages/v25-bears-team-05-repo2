@@ -10,7 +10,11 @@ const captchaSecretKey = isProduction
   : process.env.DEV_CAPTCHA_SECRET_KEY;
 assert(captchaSecretKey, "captcha secret key is not defined.");
 
-export async function validateCaptcha (req: Request, res: Response, next: NextFunction) {
+export async function validateCaptcha(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${captchaSecretKey}&response=${req.body.captcha}&remoteip=${req.connection.remoteAddress}`;
   try {
     const response = await axios.post(verifyUrl);

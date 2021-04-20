@@ -19,6 +19,8 @@ export interface IPasswordRecoveryDocument
 
 // Static methods
 export interface IPasswordRecoveryModel
-  extends Model<IPasswordRecoveryDocument> { 
-    findAllRequestsByEmailId: (emailId: string) => Promise<IPasswordRecoveryDocument[]>
-  }
+  extends Model<IPasswordRecoveryDocument> {
+  findAllRequestsByEmailId: (
+    emailId: string
+  ) => Promise<IPasswordRecoveryDocument[]>;
+}
