@@ -6,13 +6,14 @@ import assert from "assert";
  * @param production - the production .env variable
  * @param dev - the dev .env variable
  */
-export function getEnvironmentVariable (input: { production: string, dev: string}) {
-  assert(input.production, "the production environment variable resolves to undefined" );
-  assert(input.dev, "the dev environment variable resolves to undefined");
-  
+export function getEnvironmentVariable(input: {
+  production: string;
+  dev: string;
+}) {
   const isProduction =
-  process.env.NODE_ENV && process.env.NODE_ENV.match("production");
-  return isProduction
-    ? input.production
-    : input.dev
+    process.env.NODE_ENV && process.env.NODE_ENV.match("production");
+  isProduction
+    ? assert(input.production, "a production environment variable is undefined")
+    : assert(input.dev, "a dev environment variable is undefined");
+  return isProduction ? input.production : input.dev;
 }
