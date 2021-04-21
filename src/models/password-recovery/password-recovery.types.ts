@@ -23,4 +23,8 @@ export interface IPasswordRecoveryModel
   findAllRequestsByEmailId: (
     emailId: string
   ) => Promise<IPasswordRecoveryDocument[]>;
+  findRequestByEmailAndAuthToken: (data: {
+    emailId: string;
+    authToken: string;
+  }) => Promise<IPasswordRecoveryDocument>;
 }

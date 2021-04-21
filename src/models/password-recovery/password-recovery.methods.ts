@@ -10,6 +10,10 @@ export async function findAllRequestsByEmailId(emailId: string) {
   return PasswordRecoveryModel.find({ "forAccountEmail": emailId });
 }
 
+
+export async function findRequestByEmailAndAuthToken(data: {emailId: string, authToken: string}) {
+  return await PasswordRecoveryModel.findOne({ "forAccountEmail": data.emailId, "authToken": data.authToken })
+}
 /**
  *
  * @param this

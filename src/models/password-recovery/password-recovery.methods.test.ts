@@ -66,3 +66,37 @@ describe("password recovery method tests", () => {
     expect(result[0].requestorIpAddress).toBe("192.168.0.1");
   });
 });
+
+describe("find request by e-mail and authToken test", () => {
+  test("function behaves as expected - locates a result", async () => {
+    const dummyRequests = createDummyRecoveryRequestDocuments({
+      totalNumberRequests: 2,
+      withEmail: "test1@example.com",
+      matchingNumber: 1,
+    });
+    const testAuthToken = dummyRequests[0].authToken;
+    await PasswordRecoveryModel.create(dummyRequests);
+
+    const result = await PasswordRecoveryModel.findRequestByEmailAndAuthToken({
+      emailId: "test1@example.com",
+      authToken: testAuthToken,
+    });
+    expect(result.authToken).toBe(testAuthToken);
+    expect(result).toHaveProperty("forAccountEmail");
+  });
+  test("function behaves as expected - locates no result", async () => {
+    const dummyRequests = createDummyRecoveryRequestDocuments({
+      totalNumberRequests: 2,
+      withEmail: "test1@example.com",
+      matchingNumber: 1,
+    });
+    const testAuthToken = dummyRequests[0].authToken;
+    await PasswordRecoveryModel.create(dummyRequests);
+
+    const result = await PasswordRecoveryModel.findRequestByEmailAndAuthToken({
+      emailId: "bn1x@example.com",
+      authToken: testAuthToken,
+    });
+    expect(result).toBeNull();
+  });
+});
