@@ -32,7 +32,10 @@ router.post(
     };
     try {
       const response = await createRequest(requestData);
-      await sendRecoveryEmail({ destinationEmail: requestData.emailId, code: response.authToken })
+      await sendRecoveryEmail({
+        destinationEmail: requestData.emailId,
+        code: response.authToken,
+      });
       res.status(200).send({ response: "ok ", requestData: "Request created" }); // More processing to be done
     } catch (error) {
       res.status(400).send({
@@ -50,13 +53,18 @@ router.post(
   }
 );
 
-router.get("/verify", [param("id").exists().trim(), param("data").exists().trim()], validateIdDataRequest, async(req: any, res: any) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.statusMessage = JSON.stringify(errors.array());
-    return res.status(400).end();
+router.get(
+  "/verify",
+  [param("id").exists().trim(), param("data").exists().trim()],
+  validateIdDataRequest,
+  async (req: any, res: any) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.statusMessage = JSON.stringify(errors.array());
+      return res.status(400).end();
+    }
+    res.status(200).send();
   }
-  res.status(200).send();
-})
+);
 
 export default router;
