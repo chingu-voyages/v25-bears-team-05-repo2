@@ -16,11 +16,11 @@ export async function validateIdDataRequest(
   res: Response,
   next: NextFunction
 ) {
-  const { id, data } = req.params;
-  const decryptedEmailAddress = decrypt(id);
+  const { id, data } = req.query;
   try {
+    const decryptedEmailAddress = decrypt(id as string);
     const recoveryRequest = await PasswordRecoveryModel.findRequestByEmailAndAuthToken(
-      { emailId: decryptedEmailAddress, authToken: data }
+      { emailId: decryptedEmailAddress, authToken: data as string }
     );
     if (!recoveryRequest) {
       res.statusMessage = `Request not found`;
@@ -28,7 +28,7 @@ export async function validateIdDataRequest(
     }
     next();
   } catch (error) {
-    res.statusMessage = `${error}`;
+    res.statusMessage = `Unable to validate request: ${error}`;
     return res.status(400).end();
   }
 }

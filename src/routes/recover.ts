@@ -1,12 +1,12 @@
 import express from "express";
-import { body, param, validationResult } from "express-validator/check";
+import { body, query, validationResult } from "express-validator/check";
 const router = express.Router();
 
 import { validateCaptcha } from "../middleware/password-recovery/validate-captcha";
 import { validateIdDataRequest } from "../middleware/password-recovery/validate-id-data";
 import { validateRequestByEmail } from "../middleware/password-recovery/validate-request";
 import { createRequest } from "../models/password-recovery/password-recovery.methods";
-// import { decrypt } from "../utils/crypto";
+
 import { createError } from "../utils/errors";
 import { sendRecoveryEmail } from "../utils/mailer/mailer";
 
@@ -55,7 +55,7 @@ router.post(
 
 router.get(
   "/verify",
-  [param("id").exists().trim(), param("data").exists().trim()],
+  [query("id").exists().trim(), query("data").exists().trim()],
   validateIdDataRequest,
   async (req: any, res: any) => {
     const errors = validationResult(req);
