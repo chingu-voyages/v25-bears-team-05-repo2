@@ -17,6 +17,7 @@ import {
   IThreadShareDocument,
 } from "../../../models/thread-share/thread-share.types";
 import { deleteUserCommentsForThreadByThreadId } from "./user.thread.deletion.methods";
+import { getThreadById } from "../../../db/utils/get-thread-by-id/get-thread-by-id";
 
 /**
  *
@@ -91,11 +92,13 @@ export async function getConnectionThreads(
     .exec();
   const threads: IThread[] = [];
 
-  users.forEach((user) => {
+  await Promise.all(users.map(async (user) => {
     for (const [_, value] of Object.entries(user.threads.started)) {
-      threads.push(value);
+      const threadData = await getThreadById({ threadId: value._id })
+      threads.push(threadData);
     }
-  });
+    return 
+  }));
 
   return threads.sort((a, b) => b.createdAt.valueOf() - a.createdAt.valueOf());
 }
