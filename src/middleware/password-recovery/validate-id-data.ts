@@ -1,5 +1,9 @@
 import { NextFunction, Response, Request } from "express";
 import { PasswordRecoveryModel } from "../../models/password-recovery/password-recovery.model";
+import {
+  requestIsClaimed,
+  requestIsExpired,
+} from "../../models/password-recovery/utils/request-expiry-validation";
 import { decrypt } from "../../utils/crypto";
 
 /**
@@ -17,6 +21,15 @@ export async function validateIdDataRequest(
   next: NextFunction
 ) {
   const { id, data } = req.query;
+
+  if (req.query.devBypass && !!req.query.devBypass === true) {
+    console.warn(
+      "\x1b[31m",
+      "Warning: password request validation is being dev-bypassed"
+    );
+    next();
+  }
+
   try {
     const decryptedEmailAddress = decrypt(id as string);
     const recoveryRequest = await PasswordRecoveryModel.findRequestByEmailAndAuthToken(
@@ -24,6 +37,14 @@ export async function validateIdDataRequest(
     );
     if (!recoveryRequest) {
       res.statusMessage = `Request not found`;
+      return res.status(400).end();
+    }
+    if (requestIsExpired(recoveryRequest)) {
+      res.statusMessage = `Request is expired`;
+      return res.status(400).end();
+    }
+    if (requestIsClaimed(recoveryRequest)) {
+      res.statusMessage = `Request is no longer valid`;
       return res.status(400).end();
     }
     next();
