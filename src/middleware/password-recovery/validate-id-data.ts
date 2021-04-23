@@ -3,7 +3,7 @@ import { PasswordRecoveryModel } from "../../models/password-recovery/password-r
 import {
   requestIsClaimed,
   requestIsExpired,
-} from "../../models/password-recovery/utils/request-expiry-validation";
+} from "../../models/password-recovery/utils";
 import { decrypt } from "../../utils/crypto";
 
 /**

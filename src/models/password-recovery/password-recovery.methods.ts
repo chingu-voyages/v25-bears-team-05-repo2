@@ -10,9 +10,17 @@ export async function findAllRequestsByEmailId(emailId: string) {
   return PasswordRecoveryModel.find({ "forAccountEmail": emailId });
 }
 
-
-export async function findRequestByEmailAndAuthToken(data: {emailId: string, authToken: string}) {
-  return await PasswordRecoveryModel.findOne({ "forAccountEmail": data.emailId, "authToken": data.authToken })
+export async function findRequestByEmailAndAuthToken({
+  emailId,
+  authToken,
+}: {
+  emailId: string;
+  authToken: string;
+}) {
+  return await PasswordRecoveryModel.findOne({
+    "forAccountEmail": emailId,
+    "authToken": authToken,
+  });
 }
 /**
  *
@@ -31,3 +39,11 @@ export async function createRequest(data: {
   };
   return await PasswordRecoveryModel.create(newRequest);
 }
+
+export async function fulfilPasswordRecoveryRequest({
+  request,
+  newPassword,
+}: {
+  request: IPasswordRecovery;
+  newPassword: string;
+}) {}

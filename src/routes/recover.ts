@@ -6,6 +6,8 @@ import { validateCaptcha } from "../middleware/password-recovery/validate-captch
 import { validateIdDataRequest } from "../middleware/password-recovery/validate-id-data";
 import { validateRequestByEmail } from "../middleware/password-recovery/validate-request";
 import { createRequest } from "../models/password-recovery/password-recovery.methods";
+import { PasswordRecoveryModel } from "../models/password-recovery/password-recovery.model";
+import { requestIsClaimed, requestIsExpired } from "../models/password-recovery/utils";
 
 import { createError } from "../utils/errors";
 import { sendRecoveryEmail } from "../utils/mailer/mailer";
@@ -63,7 +65,48 @@ router.get(
       res.statusMessage = JSON.stringify(errors.array());
       return res.status(400).end();
     }
-    res.status(200).send();
+    res.status(200).send({ id: req.query.id, data: req.query.data }); // Maybe some other token as well?
+  }
+);
+
+router.patch(
+  "/claim",
+  [body("id").exists().trim(), body("data").exists().trim()],
+  async (req: any, res: any) => {
+    const { id, data } = req.body;
+    
+    const passwordChangeRequestObject = await PasswordRecoveryModel.findRequestByEmailAndAuthToken({ emailId: id, authToken: data });
+    if (passwordChangeRequestObject) {
+      if (!requestIsClaimed(passwordChangeRequestObject) && !requestIsExpired(passwordChangeRequestObject)) {
+        // Manipulate the request
+      } else {
+        res.status(400).send({
+          errors: [
+            {
+              ...createError(
+                "password recovery request expired or claimed",
+                `request request object from database is marked as claimed or expired`,
+                "password request object"
+              ),
+            },
+          ],
+        });
+      }
+    } else {
+      res.status(404).send({
+        errors: [
+          {
+            ...createError(
+              "password recovery request is not found",
+              `not found`,
+              "n/a"
+            ),
+          },
+        ],
+      });
+    }
+    
+    res.status(200).send("OK");
   }
 );
 
