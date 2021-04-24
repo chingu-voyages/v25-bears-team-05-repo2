@@ -7,7 +7,10 @@ import { validateIdDataRequest } from "../middleware/password-recovery/validate-
 import { validateRequestByEmail } from "../middleware/password-recovery/validate-request";
 import { createRequest } from "../models/password-recovery/password-recovery.methods";
 import { PasswordRecoveryModel } from "../models/password-recovery/password-recovery.model";
-import { requestIsClaimed, requestIsExpired } from "../models/password-recovery/utils";
+import {
+  requestIsClaimed,
+  requestIsExpired,
+} from "../models/password-recovery/utils";
 
 import { createError } from "../utils/errors";
 import { sendRecoveryEmail } from "../utils/mailer/mailer";
@@ -79,12 +82,21 @@ router.patch(
       res.statusMessage = "Passwords do not match.";
       return res.status(400).end();
     }
-    const passwordChangeRequestObject = await PasswordRecoveryModel.findRequestByEmailAndAuthToken({ emailId: id, authToken: data });
-    
+    const passwordChangeRequestObject = await PasswordRecoveryModel.findRequestByEmailAndAuthToken(
+      { emailId: id, authToken: data }
+    );
+
     if (passwordChangeRequestObject) {
-      if (!requestIsClaimed(passwordChangeRequestObject) && !requestIsExpired(passwordChangeRequestObject)) {
-        // Manipulate the request
-        await passwordChangeRequestObject.fulfill(req.body.first_password)
+      if (
+        !requestIsClaimed(passwordChangeRequestObject) &&
+        !requestIsExpired(passwordChangeRequestObject)
+      ) {
+        const result = await passwordChangeRequestObject.fulfill(
+          first_password
+        );
+        if (result) return res.status(200).send("ok");
+        res.statusMessage = "Request failed";
+        return res.status(400).end();
       } else {
         res.status(400).send({
           errors: [
@@ -111,7 +123,7 @@ router.patch(
         ],
       });
     }
-    
+
     res.status(200).send("OK");
   }
 );

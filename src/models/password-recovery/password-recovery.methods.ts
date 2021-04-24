@@ -52,6 +52,12 @@ export async function createRequest(data: {
   return await PasswordRecoveryModel.create(newRequest);
 }
 
+/**
+ * This updates the user auth record with new password and updates the password recovery
+ * request record, closing things off.
+ * @param this instance of IPasswordRecoveryDocument
+ * @param newPassword plain text password to update
+ */
 export async function fulfill(
   this: IPasswordRecoveryDocument,
   newPassword: string
@@ -59,6 +65,12 @@ export async function fulfill(
   if (!isPasswordValid(newPassword))
     throw new Error("New password doesn't meet security requirements");
 
-  // Find the user
-  UserModel.findByEncryptedEmail(this.forAccountEmail);
+  const user = await UserModel.findByEncryptedEmail(this.forAccountEmail);
+  await user[0].changePassword(newPassword);
+  this.updatedAt = new Date();
+  this.requestClosed = true;
+  this.requestClosedDate = new Date();
+  this.requestIsClaimed = true;
+  return await this.save();
 }
+

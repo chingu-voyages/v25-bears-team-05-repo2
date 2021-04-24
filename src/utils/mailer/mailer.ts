@@ -23,9 +23,8 @@ export async function sendRecoveryEmail(data: {
     subject: "Syncedup password recovery",
     html: `<html><body> <p>Please use <a href="http://${RECOVERY_LINKBACK_DOMAIN}/recover?id=${hashedEmailAddress}&data=${data.code}"> this link</a> to recover your password</p></body></html>`,
   };
-
   try {
-    return await mailer.messages().send(emailData);
+   return await mailer.messages().send(emailData);
   } catch (error) {
     console.log(error);
   }
