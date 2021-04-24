@@ -4,7 +4,6 @@ import { createDummyRecoveryRequestDocuments } from "./test-helpers/create-dummy
 import { PasswordRecoveryModel } from "./password-recovery.model";
 import { createRequest } from "./password-recovery.methods";
 import { decrypt } from "../../utils/crypto";
-import dayjs from "dayjs";
 
 let mongoServer: any;
 
