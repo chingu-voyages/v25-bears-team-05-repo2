@@ -1,13 +1,22 @@
 import { Document, Model } from "mongoose";
-import { IAttachmentType, IThreadCommentDocument } from "../thread-comment/thread-comment.types";
+import {
+  IAttachmentType,
+  IThreadCommentDocument,
+} from "../thread-comment/thread-comment.types";
 import { IThreadLikeDocument } from "../thread-like/thread-like.types";
 import { IThreadShare } from "../thread-share/thread-share.types";
 
-import { IThread, IThreadDocument, IThreadPostDetails, ThreadType, ThreadVisibility } from "../thread/thread.types";
+import {
+  IThread,
+  IThreadDocument,
+  IThreadPostDetails,
+  ThreadType,
+  ThreadVisibility,
+} from "../thread/thread.types";
 import { IUserConnection } from "../user-connection/user-connection.types";
 export interface IUserThread {
   started: { [keyof: string]: IThreadDocument };
-  commented: { [keyof: string]: { [keyof: string]: IThreadCommentDocument }};
+  commented: { [keyof: string]: { [keyof: string]: IThreadCommentDocument } };
   liked: { [keyof: string]: IThreadLikeDocument };
   shared: { [keyof: string]: IThreadShare };
 }
@@ -16,10 +25,10 @@ export interface IUser {
   lastName: string;
   jobTitle?: string;
   auth: {
-    googleId?: string,
-    email: string,
-    password?: string,
-    oauth?: string,
+    googleId?: string;
+    email: string;
+    password?: string;
+    oauth?: string;
   };
   avatar: Array<{ url: string }>;
   connections: { [keyof: string]: IUserConnection };
@@ -43,59 +52,116 @@ export interface IProfileData {
 }
 
 export interface IUserDocument extends IUser, Document {
-  addConnectionToUser: (this: IUserDocument,  objId: string, isTeamMate?: boolean) => Promise<IUserDocument>;
-  deleteConnectionFromUser: (this: IUserDocument,  objId: string) => Promise<IUserDocument>;
-  updateUserProfile: (this: IUserDocument, profileData: IProfileData) => Promise<IUserDocument>;
-  createAndPostThread: (this: IUserDocument, threadDetails: IThreadPostDetails) => Promise<{ userData: IUserDocument, threadData: IThreadDocument }>;
-  deleteThread: (this: IUserDocument, threadDetails: {
-    targetThreadId: string;
-}) => Promise<{
-  [keyof: string]: IThreadDocument;
-}>;
-  isConnectionOf: (this: IUserDocument, targetId: string) =>  boolean;
-  getConnectionThreads: (this: IUserDocument) => Promise<Array<IThread>>;
-  getConnectionOfFromConnections: (this: IUserDocument) => Promise<IUserConnection[]>;
-  addLikeToThread: (this: IUserDocument, data: { targetThreadId: string, title: string }) => Promise<{ updatedThread: IThreadDocument,
-    threadLikeDocument: IThreadLikeDocument
+  addConnectionToUser: (
+    this: IUserDocument,
+    objId: string,
+    isTeamMate?: boolean
+  ) => Promise<IUserDocument>;
+  deleteConnectionFromUser: (
+    this: IUserDocument,
+    objId: string
+  ) => Promise<IUserDocument>;
+  updateUserProfile: (
+    this: IUserDocument,
+    profileData: IProfileData
+  ) => Promise<IUserDocument>;
+  createAndPostThread: (
+    this: IUserDocument,
+    threadDetails: IThreadPostDetails
+  ) => Promise<{ userData: IUserDocument; threadData: IThreadDocument }>;
+  deleteThread: (
+    this: IUserDocument,
+    threadDetails: {
+      targetThreadId: string;
+    }
+  ) => Promise<{
+    [keyof: string]: IThreadDocument;
   }>;
-  deleteLikeFromThread: (this: IUserDocument, data: {  targetThreadId: string, targetLikeId: string }) => Promise<{ updatedThread: IThreadDocument}>;
-  addThreadComment: (this: IUserDocument, data: {
-    targetThreadId: string;
-    threadCommentData: {
+  isConnectionOf: (this: IUserDocument, targetId: string) => boolean;
+  getConnectionThreads: (this: IUserDocument) => Promise<Array<IThread>>;
+  getConnectionOfFromConnections: (
+    this: IUserDocument
+  ) => Promise<IUserConnection[]>;
+  addLikeToThread: (
+    this: IUserDocument,
+    data: { targetThreadId: string; title: string }
+  ) => Promise<{
+    updatedThread: IThreadDocument;
+    threadLikeDocument: IThreadLikeDocument;
+  }>;
+  deleteLikeFromThread: (
+    this: IUserDocument,
+    data: { targetThreadId: string; targetLikeId: string }
+  ) => Promise<{ updatedThread: IThreadDocument }>;
+  addThreadComment: (
+    this: IUserDocument,
+    data: {
+      targetThreadId: string;
+      threadCommentData: {
         content: string;
         attachments?: Array<IAttachmentType>;
-    };
-}) => Promise<{
+      };
+    }
+  ) => Promise<{
     updatedThread: IThreadDocument;
     newComment: IThreadCommentDocument;
-}>;
-deleteThreadComment: (this: IUserDocument, data: {
-  targetThreadId: string;
-  targetThreadCommentId: string;
-}) => Promise<{
-  updatedThread: IThreadDocument;
-}>;
-shareThread: (this: IUserDocument, data: {
-  targetThreadId: string;
-  sourceUserId: string;
-  threadShareType: ThreadType;
-  visibility?: ThreadVisibility
-}) => Promise<{
-  updatedSharedThreads: {
+  }>;
+  deleteThreadComment: (
+    this: IUserDocument,
+    data: {
+      targetThreadId: string;
+      targetThreadCommentId: string;
+    }
+  ) => Promise<{
+    updatedThread: IThreadDocument;
+  }>;
+  shareThread: (
+    this: IUserDocument,
+    data: {
+      targetThreadId: string;
+      sourceUserId: string;
+      threadShareType: ThreadType;
+      visibility?: ThreadVisibility;
+    }
+  ) => Promise<{
+    updatedSharedThreads: {
       [keyof: string]: IThreadShare;
-  };
-  updatedThreadDocument: IThreadDocument}>;
+    };
+    updatedThreadDocument: IThreadDocument;
+  }>;
 
-deleteThreadShare: (this: IUserDocument, data: { targetThreadShareId: string }) => Promise<{
-  updatedSharedThreads: {
+  deleteThreadShare: (
+    this: IUserDocument,
+    data: { targetThreadShareId: string }
+  ) => Promise<{
+    updatedSharedThreads: {
       [keyof: string]: IThreadShare;
-  };
-  updatedThreadDocument: IThreadDocument}>;
-getUserDocumentsFromSourceUserConnectionOf: (this: IUserDocument) => Promise<IUserDocument[]>;
+    };
+    updatedThreadDocument: IThreadDocument;
+  }>;
+  getUserDocumentsFromSourceUserConnectionOf: (
+    this: IUserDocument
+  ) => Promise<IUserDocument[]>;
+  changePassword: (
+    this: IUserDocument,
+    newPlainTextPassword: string
+  ) => Promise<IUserDocument>;
 }
 export interface IUserModel extends Model<IUserDocument> {
-  findOneOrCreateByGoogleId: (this: IUserModel, data: IUser) => Promise<IUserDocument>;
-  registerUser: (this: IUserModel, details: IUserRegistrationDetails) => Promise<IUserDocument>;
-  findByEncryptedEmail: (this: IUserModel, encryptedEmail: string ) => Promise<IUserDocument[]>;
-  findOneByEncryptedEmail: (this: IUserModel, encryptedEmail: string ) => Promise<IUserDocument>;
+  findOneOrCreateByGoogleId: (
+    this: IUserModel,
+    data: IUser
+  ) => Promise<IUserDocument>;
+  registerUser: (
+    this: IUserModel,
+    details: IUserRegistrationDetails
+  ) => Promise<IUserDocument>;
+  findByEncryptedEmail: (
+    this: IUserModel,
+    encryptedEmail: string
+  ) => Promise<IUserDocument[]>;
+  findOneByEncryptedEmail: (
+    this: IUserModel,
+    encryptedEmail: string
+  ) => Promise<IUserDocument>;
 }

@@ -13,9 +13,12 @@ export interface IPasswordRecovery {
 }
 
 // Instance methods
-export interface IPasswordRecoveryDocument
-  extends IPasswordRecovery,
-    Document {}
+export interface IPasswordRecoveryDocument extends IPasswordRecovery, Document {
+  fulfill: (
+    this: IPasswordRecoveryDocument,
+    newPassword: string
+  ) => Promise<IPasswordRecoveryDocument>;
+}
 
 // Static methods
 export interface IPasswordRecoveryModel

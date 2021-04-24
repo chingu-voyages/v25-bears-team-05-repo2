@@ -1,3 +1,4 @@
+import { encrypt } from "../../../utils/crypto";
 import { generateAuthToken } from "../../../utils/generate-auth-token";
 import { IPasswordRecovery } from "../password-recovery.types";
 
@@ -28,7 +29,7 @@ export function createDummyRecoveryRequestDocuments({
   for (let i = 0; i < matchingNumber; i++) {
     requests.push({
       authToken: generateAuthToken(),
-      forAccountEmail: withEmail,
+      forAccountEmail: encrypt(withEmail),
       updatedAt: new Date(),
       requestorIpAddress: `fakeIp${i}`,
     });
@@ -40,7 +41,7 @@ export function createDummyRecoveryRequestDocuments({
   for (let i = 0; i < remainder; i++) {
     requests.push({
       authToken: generateAuthToken(),
-      forAccountEmail: `random${i}@example.com`,
+      forAccountEmail: encrypt(`random${i}@example.com`),
       updatedAt: new Date(),
       requestorIpAddress: `fakeIp${i}`,
     });

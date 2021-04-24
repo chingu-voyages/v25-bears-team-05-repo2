@@ -73,12 +73,18 @@ router.patch(
   "/claim",
   [body("id").exists().trim(), body("data").exists().trim()],
   async (req: any, res: any) => {
-    const { id, data } = req.body;
-    
+    const { id, data, first_password, second_password } = req.body;
+
+    if (first_password !== second_password) {
+      res.statusMessage = "Passwords do not match.";
+      return res.status(400).end();
+    }
     const passwordChangeRequestObject = await PasswordRecoveryModel.findRequestByEmailAndAuthToken({ emailId: id, authToken: data });
+    
     if (passwordChangeRequestObject) {
       if (!requestIsClaimed(passwordChangeRequestObject) && !requestIsExpired(passwordChangeRequestObject)) {
         // Manipulate the request
+        await passwordChangeRequestObject.fulfill(req.body.first_password)
       } else {
         res.status(400).send({
           errors: [

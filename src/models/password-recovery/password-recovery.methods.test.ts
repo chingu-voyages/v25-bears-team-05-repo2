@@ -3,6 +3,8 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import { createDummyRecoveryRequestDocuments } from "./test-helpers/create-dummy-requests";
 import { PasswordRecoveryModel } from "./password-recovery.model";
 import { createRequest } from "./password-recovery.methods";
+import { decrypt } from "../../utils/crypto";
+
 let mongoServer: any;
 
 const options: mongoose.ConnectionOptions = {
@@ -39,7 +41,7 @@ describe("password recovery method tests", () => {
     expect(fetchedRequests.length).toBe(5);
     expect(
       fetchedRequests.every(
-        (request) => request.forAccountEmail === "myemail@example.com"
+        (request) => decrypt(request.forAccountEmail) === "myemail@example.com"
       )
     ).toBe(true);
   });
@@ -60,9 +62,9 @@ describe("password recovery method tests", () => {
       emailId: "some_email@example.com",
       requestorIpAddress: "192.168.0.1",
     });
-    const result = await PasswordRecoveryModel.find({
-      "forAccountEmail": "some_email@example.com",
-    });
+    const result = await PasswordRecoveryModel.findAllRequestsByEmailId(
+      "some_email@example.com"
+    );
     expect(result[0].requestorIpAddress).toBe("192.168.0.1");
   });
 });
@@ -77,12 +79,12 @@ describe("find request by e-mail and authToken test", () => {
     const testAuthToken = dummyRequests[0].authToken;
     await PasswordRecoveryModel.create(dummyRequests);
 
-    const result = await PasswordRecoveryModel.findRequestByEmailAndAuthToken({
+    const results = await PasswordRecoveryModel.findRequestByEmailAndAuthToken({
       emailId: "test1@example.com",
       authToken: testAuthToken,
     });
-    expect(result.authToken).toBe(testAuthToken);
-    expect(result).toHaveProperty("forAccountEmail");
+    expect(results.authToken).toBe(testAuthToken);
+    expect(results).toHaveProperty("forAccountEmail");
   });
   test("function behaves as expected - locates no result", async () => {
     const dummyRequests = createDummyRecoveryRequestDocuments({

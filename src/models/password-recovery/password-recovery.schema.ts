@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 import dayjs from "dayjs";
-import { findAllRequestsByEmailId, findRequestByEmailAndAuthToken } from "./password-recovery.methods";
+import { findAllRequestsByEmailId, findRequestByEmailAndAuthToken, fulfill } from "./password-recovery.methods";
 
 const PasswordRecoverySchema: Schema = new Schema(
   {
@@ -23,4 +23,5 @@ const PasswordRecoverySchema: Schema = new Schema(
 
 PasswordRecoverySchema.statics.findAllRequestsByEmailId = findAllRequestsByEmailId;
 PasswordRecoverySchema.statics.findRequestByEmailAndAuthToken = findRequestByEmailAndAuthToken;
+PasswordRecoverySchema.methods.fulfill = fulfill;
 export default PasswordRecoverySchema;

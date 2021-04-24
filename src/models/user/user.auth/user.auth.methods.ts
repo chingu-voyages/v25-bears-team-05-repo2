@@ -82,3 +82,11 @@ export async function findOneByEncryptedEmail (this: IUserModel, encryptedEmail:
     }
   }
 }
+
+export async function changePassword(this: IUserDocument, newPlainTextPassword: string) {
+  const hashedNewPassword = bcrypt.hashSync(newPlainTextPassword)
+  this.auth.password = hashedNewPassword;
+  this.markModified("auth");
+  await this.save();
+  return this;
+}
