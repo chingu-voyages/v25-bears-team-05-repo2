@@ -1,5 +1,6 @@
 import express from "express";
 import { body, query, validationResult } from "express-validator/check";
+import { passwordsMatch } from "../middleware/password-recovery/passwords-match";
 const router = express.Router();
 
 import { validateCaptcha } from "../middleware/password-recovery/validate-captcha";
@@ -11,7 +12,7 @@ import {
   requestIsClaimed,
   requestIsExpired,
 } from "../models/password-recovery/utils";
-
+import { decrypt } from "../utils/crypto";
 import { createError } from "../utils/errors";
 import { sendRecoveryEmail } from "../utils/mailer/mailer";
 
@@ -68,24 +69,25 @@ router.get(
       res.statusMessage = JSON.stringify(errors.array());
       return res.status(400).end();
     }
-    res.status(200).send({ id: req.query.id, data: req.query.data }); // Maybe some other token as well?
+    res.status(200).send({ id: req.query.id, data: req.query.data });
   }
 );
 
 router.patch(
   "/claim",
-  [body("id").exists().trim(), body("data").exists().trim()],
+  [
+    body("id").exists().trim(),
+    body("data").exists().trim(),
+    body("first_password").exists().trim(),
+    body("second_password").exists().trim(),
+  ],
+  passwordsMatch,
   async (req: any, res: any) => {
-    const { id, data, first_password, second_password } = req.body;
+    const { id, data, first_password } = req.body;
 
-    if (first_password !== second_password) {
-      res.statusMessage = "Passwords do not match.";
-      return res.status(400).end();
-    }
     const passwordChangeRequestObject = await PasswordRecoveryModel.findRequestByEmailAndAuthToken(
-      { emailId: id, authToken: data }
+      { emailId: decrypt(id), authToken: data }
     );
-
     if (passwordChangeRequestObject) {
       if (
         !requestIsClaimed(passwordChangeRequestObject) &&
@@ -94,11 +96,11 @@ router.patch(
         const result = await passwordChangeRequestObject.fulfill(
           first_password
         );
-        if (result) return res.status(200).send("ok");
+        if (result) return res.status(200).send(result);
         res.statusMessage = "Request failed";
         return res.status(400).end();
       } else {
-        res.status(400).send({
+        return res.status(400).send({
           errors: [
             {
               ...createError(
@@ -111,7 +113,7 @@ router.patch(
         });
       }
     } else {
-      res.status(404).send({
+      return res.status(404).send({
         errors: [
           {
             ...createError(
@@ -123,8 +125,6 @@ router.patch(
         ],
       });
     }
-
-    res.status(200).send("OK");
   }
 );
 

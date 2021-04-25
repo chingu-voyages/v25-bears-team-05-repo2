@@ -72,7 +72,11 @@ describe("change password tests", () => {
     await userDocuments[0].changePassword("someNewPassword$123");
     const encryptedEmail = encrypt("testUser0@test.com");
     const updatedUser = await UserModel.findByEncryptedEmail(encryptedEmail);
-    expect(bcrypt.compareSync("someNewPassword$123",(updatedUser[0].auth.password))).toBe(true);
-    expect(bcrypt.compareSync("someNewPassword$124",(updatedUser[0].auth.password))).toBe(false);
+    expect(
+      bcrypt.compareSync("someNewPassword$123", updatedUser[0].auth.password)
+    ).toBe(true);
+    expect(
+      bcrypt.compareSync("someNewPassword$124", updatedUser[0].auth.password)
+    ).toBe(false);
   });
 });
