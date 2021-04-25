@@ -22,14 +22,6 @@ export async function validateIdDataRequest(
 ) {
   const { id, data } = req.query;
 
-  if (req.query.devBypass && !!req.query.devBypass === true) {
-    console.warn(
-      "\x1b[31m",
-      "Warning: password request validation is being dev-bypassed"
-    );
-    next();
-  }
-
   try {
     const decryptedEmailAddress = decrypt(id as string);
     const recoveryRequest = await PasswordRecoveryModel.findRequestByEmailAndAuthToken(
