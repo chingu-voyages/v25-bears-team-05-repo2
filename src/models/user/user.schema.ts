@@ -1,15 +1,20 @@
 import { Schema, SchemaOptions } from "mongoose";
-import { findOneOrCreateByGoogleId,
-  registerUser, findByEncryptedEmail,
-  findOneByEncryptedEmail }
-  from "./user.auth/user.auth.methods";
-import { addConnectionToUser,
+import {
+  findOneOrCreateByGoogleId,
+  registerUser,
+  findByEncryptedEmail,
+  findOneByEncryptedEmail,
+  changePassword,
+} from "./user.auth/user.auth.methods";
+import {
+  addConnectionToUser,
   deleteConnectionFromUser,
   getConnectionOfFromConnections,
-  getUserDocumentsFromSourceUserConnectionOf }
-  from "./user.connections/user.connections.methods";
+  getUserDocumentsFromSourceUserConnectionOf,
+} from "./user.connections/user.connections.methods";
 import { updateUserProfile } from "./user.profile/user.profile.methods";
-import { addLikeToThread,
+import {
+  addLikeToThread,
   addThreadComment,
   createAndPostThread,
   deleteLikeFromThread,
@@ -17,76 +22,87 @@ import { addLikeToThread,
   deleteThreadComment,
   deleteThreadShare,
   getConnectionThreads,
-  shareThread }
-from "./user.thread/user.thread.methods";
+  shareThread,
+} from "./user.thread/user.thread.methods";
 
 interface SchemaOptionsWithPojoToMixed extends SchemaOptions {
   typePojoToMixed: boolean;
 }
 
-const UserSchema: Schema = new Schema({
-  firstName: String,
-  lastName: String,
-  jobTitle: {
-    type: String,
-    default: "",
-    required: false,
-  },
-  auth: {
-    googleId: {
+const UserSchema: Schema = new Schema(
+  {
+    firstName: String,
+    lastName: String,
+    jobTitle: {
       type: String,
-      required: false
+      default: "",
+      required: false,
     },
-    email: {
-      type: String,
-      required: true
+    auth: {
+      googleId: {
+        type: String,
+        required: false,
+      },
+      email: {
+        type: String,
+        required: true,
+      },
+      password: {
+        type: String,
+        required: false,
+      },
+      oauth: {
+        type: String,
+        required: false,
+      },
     },
-    password: {
-      type: String,
-      required: false
+    avatar: {
+      type: [{ url: String }],
     },
-    oauth: {
-      type: String,
-      required: false
-    }
-  },
-  avatar: {
-    type: [{ url: String}],
-  },
-  connections: {
-    type: Schema.Types.Mixed,
-    required: true,
-    default: { }
-  },
-  connectionOf: {
-    type: Schema.Types.Mixed,
-    required: true,
-    default: { }
-  },
-  threads: {
-    started: {
+    connections: {
       type: Schema.Types.Mixed,
       required: true,
-      default: { },
+      default: {},
     },
-    commented: {
+    connectionOf: {
       type: Schema.Types.Mixed,
       required: true,
-      default: { },
+      default: {},
     },
-    liked: {
-      type: Schema.Types.Mixed,
-      required: true,
-      default: { },
+    threads: {
+      started: {
+        type: Schema.Types.Mixed,
+        required: true,
+        default: {},
+      },
+      commented: {
+        type: Schema.Types.Mixed,
+        required: true,
+        default: {},
+      },
+      liked: {
+        type: Schema.Types.Mixed,
+        required: true,
+        default: {},
+      },
+      shared: {
+        type: Schema.Types.Mixed,
+        required: true,
+        default: {},
+      },
     },
-    shared: {
-      type: Schema.Types.Mixed,
-      required: true,
-      default: { },
-    }
   },
-}, { timestamps: { }, strict: false, typePojoToMixed: false} as SchemaOptionsWithPojoToMixed);
-UserSchema.index({ "firstName": "text", "lastName": "text", "jobTitle":  "text" });
+  {
+    timestamps: {},
+    strict: false,
+    typePojoToMixed: false,
+  } as SchemaOptionsWithPojoToMixed
+);
+UserSchema.index({
+  "firstName": "text",
+  "lastName": "text",
+  "jobTitle": "text",
+});
 
 UserSchema.statics.findOneOrCreateByGoogleId = findOneOrCreateByGoogleId;
 UserSchema.statics.registerUser = registerUser;
@@ -107,5 +123,6 @@ UserSchema.methods.shareThread = shareThread;
 UserSchema.methods.deleteThreadShare = deleteThreadShare;
 UserSchema.methods.deleteThread = deleteThread;
 UserSchema.methods.getUserDocumentsFromSourceUserConnectionOf = getUserDocumentsFromSourceUserConnectionOf;
+UserSchema.methods.changePassword = changePassword;
 
 export default UserSchema;

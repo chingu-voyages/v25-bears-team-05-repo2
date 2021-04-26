@@ -18,6 +18,10 @@ export async function validateRequestByEmail(
   const encryptedEmail = encrypt(req.body.email);
   try {
     const result = await UserModel.findOneByEncryptedEmail(encryptedEmail);
+    if (!result) {
+      res.statusMessage = "User not found";
+      return res.status(400).end();
+    }
     if (isGoogleAuthAccount(result)) {
       res.statusMessage = `Password recovery request cannot be completed for ${req.body.email}`;
       return res.status(400).end();

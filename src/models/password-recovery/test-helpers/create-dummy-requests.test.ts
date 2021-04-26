@@ -1,3 +1,4 @@
+import { decrypt } from "../../../utils/crypto";
 import { createDummyRecoveryRequestDocuments } from "./create-dummy-requests";
 
 describe("dummy request document test", () => {
@@ -9,11 +10,12 @@ describe("dummy request document test", () => {
     };
     const docs = createDummyRecoveryRequestDocuments(reqParams);
     expect(
-      docs.filter((doc) => doc.forAccountEmail === reqParams.withEmail).length
+      docs.filter((doc) => decrypt(doc.forAccountEmail) === reqParams.withEmail)
+        .length
     ).toBe(2);
     expect(docs.length).toBe(5);
     expect(
-      docs.some((doc) => doc.forAccountEmail === "random0@example.com")
+      docs.some((doc) => decrypt(doc.forAccountEmail) === "random0@example.com")
     ).toBe(true);
   });
 
@@ -25,10 +27,11 @@ describe("dummy request document test", () => {
     };
     const docs = createDummyRecoveryRequestDocuments(reqParams);
     expect(
-      docs.filter((doc) => doc.forAccountEmail === reqParams.withEmail).length
+      docs.filter((doc) => decrypt(doc.forAccountEmail) === reqParams.withEmail)
+        .length
     ).toBe(1);
     expect(docs.length).toBe(1);
-    expect(docs[0].forAccountEmail).toBe(reqParams.withEmail);
+    expect(decrypt(docs[0].forAccountEmail)).toBe(reqParams.withEmail);
   });
 
   test("creates correct amount of documents, correct number of matching-email documents - 1 requested matching email number ", () => {
@@ -39,7 +42,8 @@ describe("dummy request document test", () => {
     };
     const docs = createDummyRecoveryRequestDocuments(reqParams);
     expect(
-      docs.filter((doc) => doc.forAccountEmail === reqParams.withEmail).length
+      docs.filter((doc) => decrypt(doc.forAccountEmail) === reqParams.withEmail)
+        .length
     ).toBe(1);
     expect(docs.length).toBe(12);
   });
@@ -52,7 +56,8 @@ describe("dummy request document test", () => {
     };
     const docs = createDummyRecoveryRequestDocuments(reqParams);
     expect(
-      docs.filter((doc) => doc.forAccountEmail === reqParams.withEmail).length
+      docs.filter((doc) => decrypt(doc.forAccountEmail) === reqParams.withEmail)
+        .length
     ).toBe(5);
   });
 });
