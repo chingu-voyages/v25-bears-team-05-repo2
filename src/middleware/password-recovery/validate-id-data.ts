@@ -9,8 +9,9 @@ import { decrypt } from "../../utils/crypto";
 /**
  * This function is called when user initially clicks on e-mail link.
  * We hit the recovery request db and make sure there is a valid request.
- * If there isn't, send an error, causing client to show error message
- * If there is. Send OK and client will see a UI to update their password
+ * If there isn't, send an error response (UI to update password will not render)
+ * If there is a valid request Send OK and client will see a 
+ * UI to update their password.
  * @param req
  * @param res
  * @param next
