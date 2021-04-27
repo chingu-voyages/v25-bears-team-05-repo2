@@ -1,5 +1,4 @@
 import { Schema } from "mongoose";
-import dayjs from "dayjs";
 import { findAllRequestsByEmailId, findRequestByEmailAndAuthToken, fulfill } from "./password-recovery.methods";
 
 const PasswordRecoverySchema: Schema = new Schema(
@@ -12,13 +11,10 @@ const PasswordRecoverySchema: Schema = new Schema(
     requestorIpAddress: { type: String, default: null },
     requestExpiryDate: {
       type: Date,
-      default: dayjs().add(
-        parseInt(process.env.PASSWORD_RECOVERY_EXPIRY_MINUTES) || 20,
-        "minute"
-      ),
+      default: null
     },
   },
-  { timestamps: {} }
+  { timestamps: true }
 );
 
 PasswordRecoverySchema.statics.findAllRequestsByEmailId = findAllRequestsByEmailId;

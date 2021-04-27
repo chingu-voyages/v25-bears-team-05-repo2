@@ -7,7 +7,7 @@ export interface IPasswordRecovery {
   readonly forAccountEmail: string;
   requestIsClaimed?: boolean;
   readonly requestorIpAddress: string | null;
-  readonly requestExpiryDate?: Date;
+  requestExpiryDate?: Date | null;
   readonly createdAt?: Date;
   updatedAt: Date;
 }
