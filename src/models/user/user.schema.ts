@@ -93,7 +93,7 @@ const UserSchema: Schema = new Schema(
     },
   },
   {
-    timestamps: {},
+    timestamps: true,
     strict: false,
     typePojoToMixed: false,
   } as SchemaOptionsWithPojoToMixed

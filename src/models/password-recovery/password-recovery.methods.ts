@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { isPasswordValid } from "../../middleware/password-validator";
 import { decrypt, encrypt } from "../../utils/crypto";
 import { generateAuthToken } from "../../utils/generate-auth-token";
@@ -48,6 +49,9 @@ export async function createRequest(data: {
     forAccountEmail: encrypt(data.emailId),
     requestorIpAddress: data.requestorIpAddress,
     updatedAt: new Date(),
+    requestExpiryDate: dayjs()
+      .add(parseInt(process.env.PASSWORD_RECOVERY_EXPIRY_MINUTES), "minute")
+      .toDate(),
   };
   return await PasswordRecoveryModel.create(newRequest);
 }
@@ -73,4 +77,3 @@ export async function fulfill(
   this.requestIsClaimed = true;
   return await this.save();
 }
-
