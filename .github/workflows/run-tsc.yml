@@ -21,4 +21,5 @@ jobs:
       run: npm test
       env:
         PASSPHRASE:  ${{ secrets.PASSPHRASE }}
+        PASSWORD_RECOVERY_EXPIRY_MINUTES: ${{ secrets.PASSWORD_RECOVERY_EXPIRY_MINUTES }}
         CI: true
