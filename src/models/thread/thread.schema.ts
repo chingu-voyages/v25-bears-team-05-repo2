@@ -29,7 +29,7 @@ const ThreadSchema: Schema = new Schema(
       required: true,
     },
   },
-  { timestamps: {} }
+  { timestamps: true }
 );
 
 ThreadSchema.index({
