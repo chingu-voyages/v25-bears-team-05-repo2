@@ -26,6 +26,6 @@ const ThreadShareSchema: Schema = new Schema({
     default: {},
     required: true,
   },
-}, { timestamps: {}});
+}, { timestamps: true});
 
 export default ThreadShareSchema;

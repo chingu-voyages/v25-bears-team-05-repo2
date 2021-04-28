@@ -13,7 +13,7 @@ const ThreadCommentSchema: Schema = new Schema(
       default: [],
     },
   },
-  { timestamps: {} }
+  { timestamps: true }
 );
 
 ThreadCommentSchema.index({ "content": "text" });
