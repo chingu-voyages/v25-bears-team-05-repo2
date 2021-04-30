@@ -39,15 +39,18 @@ export async function addConnectionToUser(this: IUserDocument, objId: string, is
  * @param objId
  */
 export async function deleteConnectionFromUser(this: IUserDocument, objId: string): Promise<IUserDocument> {
+  if (!this["connections"][objId]) {
+    throw new Error(`User with Id ${objId} is not a connection`)
+  }
+
+  delete this["connections"][objId];
+
   try {
     const targetUser = await UserModel.findById(objId);
     if (targetUser) {
-      delete this["connections"][targetUser._id];
       delete targetUser["connectionOf"][this._id];
-
       this.markModified("connections");
       targetUser.markModified("connectionOf");
-
       await this.save();
       await targetUser.save();
       return targetUser;
@@ -113,3 +116,4 @@ function transformUserDataToConnection(userData: IUserDocument, isTeamMate?: boo
     isTeamMate: isTeamMate || false,
   };
 }
+

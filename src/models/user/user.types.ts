@@ -77,7 +77,6 @@ export interface IUserDocument extends IUser, Document {
   ) => Promise<{
     [keyof: string]: IThreadDocument;
   }>;
-  isConnectionOf: (this: IUserDocument, targetId: string) => boolean;
   getConnectionThreads: (this: IUserDocument) => Promise<Array<IThread>>;
   getConnectionOfFromConnections: (
     this: IUserDocument
