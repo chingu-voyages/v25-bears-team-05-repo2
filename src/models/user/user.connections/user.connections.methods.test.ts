@@ -60,6 +60,12 @@ describe("user add connection tests", () => {
     expect(target3.connectionOf).toHaveProperty(dummyUserDocuments[0].id);
     expect(target4.connectionOf).toHaveProperty(dummyUserDocuments[0].id);
   });
+
+  test("attempt to add user with invalid id, function should throw", async ()=> {
+    const testUsers = createTestUsers({ numberOfUsers: 2});
+    const dummyUserDocuments = await UserModel.create(testUsers);
+    await expect(()=> dummyUserDocuments[0].addConnectionToUser("1234567891234567")).rejects.toThrow();
+  })
 });
 
 describe("delete user connection tests", () => {

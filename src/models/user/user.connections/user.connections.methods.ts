@@ -5,41 +5,36 @@ import isEmpty from "lodash/isEmpty";
 /**
  *  Adds a connection object to user's profile and updates the connectionOf property
  * on the target.
- * @param this *
- * @param objId object id
+ * @param this the source users to which we add the connection
+ * @param objId object id id of user to add to the source user's connections object
  */
 export async function addConnectionToUser(
   this: IUserDocument,
   objId: string,
   isTeamMate?: boolean
 ): Promise<IUserDocument> {
-  // This assumes we already have the home user document in context with "this"
-  try {
-    const targetUser = await UserModel.findById(objId);
-    if (targetUser) {
-      const targetUserConnection = transformUserDataToConnection(
-        targetUser,
-        isTeamMate
-      ); // Adds to originator's connections object
-      const originatorConnection = transformUserDataToConnection(
-        this,
-        isTeamMate
-      ); // Adds to target;s connectionsOf object
+  const targetUser = await UserModel.findById(objId);
+  if (targetUser) {
+    const targetUserConnection = transformUserDataToConnection(
+      targetUser,
+      isTeamMate
+    ); // Adds to originator's connections object
+    const originatorConnection = transformUserDataToConnection(
+      this,
+      isTeamMate
+    ); // Adds to target;s connectionsOf object
 
-      this["connections"][targetUser._id] = targetUserConnection;
-      targetUser["connectionOf"][this._id] = originatorConnection;
+    this["connections"][targetUser._id] = targetUserConnection;
+    targetUser["connectionOf"][this._id] = originatorConnection;
 
-      this.markModified("connections");
-      targetUser.markModified("connectionOf");
-      // Saves the changes
-      await this.save();
-      await targetUser.save();
-      return targetUser;
-    } else {
-      throw new Error("User id not found");
-    }
-  } catch (err) {
-    console.log(err);
+    this.markModified("connections");
+    targetUser.markModified("connectionOf");
+    // Saves the changes
+    await this.save();
+    await targetUser.save();
+    return targetUser;
+  } else {
+    throw new Error("User id not found");
   }
 }
 
@@ -53,25 +48,19 @@ export async function deleteConnectionFromUser(
   objId: string
 ): Promise<IUserDocument> {
   if (!this["connections"][objId]) {
-    throw new Error(`User with Id ${objId} is not a connection`);
+    throw new Error(`User is not a connection`);
   }
-
-  delete this["connections"][objId];
-
-  try {
-    const targetUser = await UserModel.findById(objId);
-    if (targetUser) {
-      delete targetUser["connectionOf"][this._id];
-      this.markModified("connections");
-      targetUser.markModified("connectionOf");
-      await this.save();
-      await targetUser.save();
-      return targetUser;
-    } else {
-      throw new Error("User id not found");
-    }
-  } catch (err) {
-    console.log(err);
+  delete this["connections"][objId]; 
+  const targetUser = await UserModel.findById(objId);
+  if (targetUser) {
+    delete targetUser["connectionOf"][this._id];
+    this.markModified("connections");
+    targetUser.markModified("connectionOf");
+    await this.save();
+    await targetUser.save();
+    return targetUser;
+  } else {
+    throw new Error("User id not found");
   }
 }
 
