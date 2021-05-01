@@ -60,6 +60,12 @@ describe("user add connection tests", () => {
     expect(target3.connectionOf).toHaveProperty(dummyUserDocuments[0].id);
     expect(target4.connectionOf).toHaveProperty(dummyUserDocuments[0].id);
   });
+
+  test("attempt to add user with invalid id, function should throw", async ()=> {
+    const testUsers = createTestUsers({ numberOfUsers: 2});
+    const dummyUserDocuments = await UserModel.create(testUsers);
+    await expect(()=> dummyUserDocuments[0].addConnectionToUser("1234567891234567")).rejects.toThrow();
+  })
 });
 
 describe("delete user connection tests", () => {
@@ -83,6 +89,19 @@ describe("delete user connection tests", () => {
     expect(target1.connectionOf).not.toHaveProperty(dummyUserDocuments[0].id);
     expect(target2.connectionOf).not.toHaveProperty(dummyUserDocuments[0].id);
   });
+
+  test("deleting a connection that doesn't exist in connections object throws", async() =>{
+    const testUsers = createTestUsers({ numberOfUsers: 15});
+    const dummyUserDocuments = await UserModel.create(testUsers);
+
+    // create a bunch of connections for the first
+    await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[10].id);
+    await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[9].id);
+    await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[8].id);
+    await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[7].id);
+
+    await expect(() => dummyUserDocuments[0].deleteConnectionFromUser(dummyUserDocuments[6].id)).rejects.toThrow();
+  })
 });
 
 test("gets user documents from users connectionOf object", async () => {

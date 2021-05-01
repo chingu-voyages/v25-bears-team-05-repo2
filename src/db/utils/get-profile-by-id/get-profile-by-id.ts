@@ -6,7 +6,7 @@ import { IProfile } from "../../../db/types";
  */
 export async function getProfileById(userId: string): Promise<IProfile> {
   const result = await UserModel.findById(userId);
-  if (!result) throw new Error(`Unable to find profile for id: ${userId}`);
+  if (!result) throw new Error("Unable to find profile for id");
 
   return {
     firstName: result.firstName,
