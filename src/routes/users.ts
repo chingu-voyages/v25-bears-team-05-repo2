@@ -45,7 +45,7 @@ router.get(
       return res.status(500).send({
         errors: [
           {
-            "location": "server",
+            "location": "/users",
             "msg": `${err.message}`,
             "param": "unknown",
           },
@@ -86,7 +86,7 @@ router.get(
         return res.status(500).send({
           errors: [
             {
-              "location": "server",
+              "location": "/users",
               "msg": `${err.message}`,
               "param": "unknown",
             },
@@ -140,7 +140,7 @@ router.put(
       return res.status(500).send({
         errors: [
           {
-            "location": "server",
+            "location": "/users",
             "msg": `${err.message}`,
             "param": "unknown",
           },
@@ -266,7 +266,7 @@ router.patch(
       return res.status(500).send({
         errors: [
           {
-            "location": "server error: profile update",
+            "location": "/users",
             "msg": `Unable to complete. ${err.message}`,
             "param": "null",
           },
