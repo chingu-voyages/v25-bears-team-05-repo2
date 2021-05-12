@@ -16,8 +16,21 @@ import checkClientApiPass from "./middleware/check-client-api-pass";
 import connectDB from "../config/database";
 import { createError } from "./utils/errors";
 const cookieSession = require("cookie-session");
-
 const app = express();
+
+import { createServer } from "http";
+import { Server } from "socket.io";
+
+const httpServer = createServer(app);
+export const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
+  }
+});
+
+import * as sockets from "./socket-io"
+sockets;
 const isProduction =
   process.env.NODE_ENV && process.env.NODE_ENV.match("production");
 
@@ -69,8 +82,14 @@ app.get("/fail", (req, res) => {
   });
 });
 const port = app.get("port");
-const server = app.listen(port, () =>
-  console.log(`Server started on port ${port}`)
-);
+// const server = app.listen(port, () =>
+//   console.log(`Server started on port ${port}`)
+// );
 
-export default server;
+httpServer.listen(port, ()=> {
+  console.log(`http server listening on port ${port}`);
+})
+
+// export default server;
+
+export default httpServer;
