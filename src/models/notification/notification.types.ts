@@ -9,5 +9,5 @@ export interface INotification {
   updatedAt: Date;
 }
 
-export interface INotificationDocument extends INotification, Document { };
-export interface INotificationModel extends Model<INotificationDocument> { };
+export interface INotificationDocument extends INotification, Document {}
+export interface INotificationModel extends Model<INotificationDocument> {}
