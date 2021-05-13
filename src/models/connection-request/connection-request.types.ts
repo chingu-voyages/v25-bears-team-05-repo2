@@ -2,6 +2,8 @@ import { Document, Model } from "mongoose";
 export interface IConnectionRequest {
   requestorId: string;
   approverId: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IConnectionRequestDocument
