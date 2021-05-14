@@ -20,6 +20,6 @@ afterAll(async () => {
   await mongoServer.stop();
 });
 
-test("Place holder for notification tests", ()=> {
-  expect(true).toBe(true)
+test("Place holder for notification tests", () => {
+  expect(true).toBe(true);
 });
