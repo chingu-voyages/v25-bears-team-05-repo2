@@ -69,6 +69,16 @@ const UserSchema: Schema = new Schema(
       required: true,
       default: {},
     },
+    connectionRequests: {
+      type: Schema.Types.Mixed,
+      required: true,
+      default: {},
+    },
+    notifications: {
+      type: Schema.Types.Mixed,
+      required: true,
+      default: {},
+    },
     threads: {
       started: {
         type: Schema.Types.Mixed,
