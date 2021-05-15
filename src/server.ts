@@ -29,8 +29,6 @@ export const io = new Server(httpServer, {
   }
 });
 
-import * as sockets from "./socket-io"
-sockets;
 const isProduction =
   process.env.NODE_ENV && process.env.NODE_ENV.match("production");
 
@@ -39,6 +37,7 @@ connectDB();
 
 // Express configuration
 app.set("port", process.env.PORT || 7000);
+app.set("socketIo", io);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -82,14 +81,15 @@ app.get("/fail", (req, res) => {
   });
 });
 const port = app.get("port");
-// const server = app.listen(port, () =>
-//   console.log(`Server started on port ${port}`)
-// );
 
 httpServer.listen(port, ()=> {
   console.log(`http server listening on port ${port}`);
 })
 
-// export default server;
+io.on("connection", (socket) => {
+  socket.on("myId", (data)=> {
+    socket.join(data);
+  })
+})
 
 export default httpServer;

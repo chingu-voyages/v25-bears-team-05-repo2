@@ -21,6 +21,9 @@ router.get("/", routeProtector, async (req: any, res: Response) => {
     res
       .status(200)
       .send({ connectionThreads, connectionSuggestions, publicThreads });
+      const io = req.app.get("socketIo");
+      console.log("To", req.user.id);
+      io.to(req.user.id).emit("notification", "you checked out a threads!");
   } catch (err) {
     console.log(err);
     res

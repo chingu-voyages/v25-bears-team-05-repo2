@@ -30,17 +30,15 @@ router.get(
       }
     } catch (err) {
       if (err.message === "Unable to find profile for id") {
-        return res
-          .status(404)
-          .send({
-            errors: [
-              {
-                "location": "/users",
-                "msg": `invalid id ${req.params.id} ${err.message}`,
-                "param": "id",
-              },
-            ],
-          });
+        return res.status(404).send({
+          errors: [
+            {
+              "location": "/users",
+              "msg": `invalid id ${req.params.id} ${err.message}`,
+              "param": "id",
+            },
+          ],
+        });
       }
       return res.status(500).send({
         errors: [
@@ -253,15 +251,13 @@ router.patch(
 
     try {
       await req.user.updateUserProfile(profileUpdateRequest);
-      return res
-        .status(200)
-        .send({
-          firstName: req.user.firstName,
-          lastName: req.user.lastName,
-          jobTitle: req.user.jobTitle,
-          avatar: req.body.avatar,
-          email: decrypt(req.user.auth.email),
-        });
+      return res.status(200).send({
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        jobTitle: req.user.jobTitle,
+        avatar: req.body.avatar,
+        email: decrypt(req.user.auth.email),
+      });
     } catch (err) {
       return res.status(500).send({
         errors: [
@@ -288,6 +284,7 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).send({ errors: errors.array() });
     }
+
     if (req.params.id === "me") {
       return res
         .status(200)
@@ -300,20 +297,16 @@ router.get(
         // If user is a connection, return all threads
         // If not a connection, only return threads with a "anyone" visibility
         if (targetUser.connections[req.user.id] !== undefined) {
-          return res
-            .status(200)
-            .send({
-              id: targetUser.id.toString(),
-              threads: targetUser.threads,
-            });
+          return res.status(200).send({
+            id: targetUser.id.toString(),
+            threads: targetUser.threads,
+          });
         } else {
           const onlyVisibleThreads = getVisibleThreads(targetUser.threads);
-          return res
-            .status(200)
-            .send({
-              id: targetUser.id.toString(),
-              threads: onlyVisibleThreads,
-            });
+          return res.status(200).send({
+            id: targetUser.id.toString(),
+            threads: onlyVisibleThreads,
+          });
         }
       } else {
         return res.status(404).send({
@@ -337,6 +330,24 @@ router.get(
         ],
       });
     }
+  }
+);
+
+router.get(
+  "/:id/notifications",
+  routeProtector,
+  [param("id").not().isEmpty().trim().escape()],
+  async (req: any, res: any) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ errors: errors.array() });
+    }
+    // Place holder for now
+    return res
+      .status(200)
+      .send(
+        "Notification route was hit. In the future this will send notifications"
+      );
   }
 );
 
