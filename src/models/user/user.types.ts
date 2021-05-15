@@ -33,6 +33,8 @@ export interface IUser {
   avatar: Array<{ url: string }>;
   connections: { [keyof: string]: IUserConnection };
   connectionOf: { [keyof: string]: IUserConnection };
+  connectionRequests: { [keyof: string]: any };
+  notifications: Array<string>;
   threads: IUserThread;
   readonly createdAt: Date;
   readonly updatedAt: Date;

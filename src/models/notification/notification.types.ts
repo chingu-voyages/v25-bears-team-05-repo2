@@ -16,4 +16,11 @@ export enum NotificationType {
 }
 
 export interface INotificationDocument extends INotification, Document {}
-export interface INotificationModel extends Model<INotificationDocument> {}
+export interface INotificationModel extends Model<INotificationDocument> {
+  generateNotificationDocument: (data: {
+    originatorId: string;
+    targetUserId: string;
+    notificationType: NotificationType;
+    threadId?: string;
+  })=> Promise<INotificationDocument>
+}

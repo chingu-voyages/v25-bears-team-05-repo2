@@ -8,4 +8,4 @@ import NotificationSchema from "./notification.schema";
 export const NotificationModel = model<
   INotificationDocument,
   INotificationModel
->("notifications", NotificationSchema);
+>("notifications", NotificationSchema, "notifications");

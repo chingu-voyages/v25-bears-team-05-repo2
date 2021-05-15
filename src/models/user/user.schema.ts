@@ -75,9 +75,9 @@ const UserSchema: Schema = new Schema(
       default: {},
     },
     notifications: {
-      type: Schema.Types.Mixed,
+      type: [String],
       required: true,
-      default: {},
+      default: [],
     },
     threads: {
       started: {
