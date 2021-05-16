@@ -35,7 +35,7 @@ export async function generateNotificationDocument(
       link = `${originator.id.toString()}/profile`;
       break;
     case NotificationType.DirectMessage:
-      message = `${originator.firstName} ${originator.lastName} send you a direct message`;
+      message = `${originator.firstName} ${originator.lastName} sent you a direct message`;
       link = `placeholder`;
       break;
     case NotificationType.ThreadReply:
@@ -52,6 +52,7 @@ export async function generateNotificationDocument(
     message,
     link,
   });
+
   validTargetUser.notifications.push(notification.id.toString());
   validTargetUser.markModified("notifications");
   await validTargetUser.save();
@@ -69,4 +70,18 @@ export function dispatchNotificationToSocket(data: {
   notification: INotification;
 }) {
   data.io.to(data.targetUserId).emit("notification", data.notification.type);
+}
+
+export async function findByIdAndMarkAsRead(
+  this: INotificationModel,
+  notificationId: string
+): Promise<INotificationDocument> {
+  const notification = await NotificationModel.findById(notificationId);
+  if (notification) {
+    notification.read = true;
+    await notification.save();
+    return notification;
+  } else {
+    throw new Error(`notification with id ${notificationId} not found`);
+  }
 }

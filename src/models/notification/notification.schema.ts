@@ -1,5 +1,8 @@
 import { Schema } from "mongoose";
-import { generateNotificationDocument } from "./notification.methods";
+import {
+  findByIdAndMarkAsRead,
+  generateNotificationDocument,
+} from "./notification.methods";
 
 const NotificationSchema = new Schema(
   {
@@ -11,5 +14,7 @@ const NotificationSchema = new Schema(
   { timestamps: true }
 );
 
-NotificationSchema.statics.generateNotificationDocument = generateNotificationDocument;
+NotificationSchema.statics.generateNotificationDocument =
+  generateNotificationDocument;
+NotificationSchema.statics.findByIdAndMarkAsRead = findByIdAndMarkAsRead;
 export default NotificationSchema;

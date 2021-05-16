@@ -1,4 +1,5 @@
 import { Document, Model } from "mongoose";
+import { INotificationDocument } from "../notification/notification.types";
 import {
   IAttachmentType,
   IThreadCommentDocument,
@@ -146,6 +147,13 @@ export interface IUserDocument extends IUser, Document {
   changePassword: (
     this: IUserDocument,
     newPlainTextPassword: string
+  ) => Promise<IUserDocument>;
+  getUnreadNotificationsForUserByNotificationIds: (
+    this: IUserDocument
+  ) => Promise<INotificationDocument[]>;
+  markNotificationAsRead: (
+    this: IUserDocument,
+    notificationId: string
   ) => Promise<IUserDocument>;
 }
 export interface IUserModel extends Model<IUserDocument> {
