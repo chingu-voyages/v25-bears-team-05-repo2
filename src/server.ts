@@ -9,6 +9,7 @@ import commentsRoute from "./routes/comments";
 import feedRoute from "./routes/feed";
 import searchRouter from "./routes/search";
 import passwordRecoveryRouter from "./routes/recover"
+import requestRouter from "./routes/request"
 import express from "express";
 import passport from "passport";
 import checkClientApiPass from "./middleware/check-client-api-pass";
@@ -66,6 +67,7 @@ app.use("/comments", commentsRoute);
 app.use("/feed", feedRoute);
 app.use("/search", searchRouter);
 app.use("/recover", passwordRecoveryRouter);
+app.use("/request", requestRouter);
 
 app.get("/", (_req, res) => {
   res.send("API Running");
