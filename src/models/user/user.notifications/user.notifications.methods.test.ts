@@ -55,7 +55,7 @@ describe("User notifications retrieval tests", () => {
     expect(testTargetUser.notifications[0]).toBe(firstTestNotification.id);
   });
 
-  test("mark as red works as expected", async () => {
+  test("mark as read functionality works as expected", async () => {
     const testUsers = createTestUsers({ numberOfUsers: 2 });
     const dummyUserDocuments = await UserModel.create(testUsers);
 
