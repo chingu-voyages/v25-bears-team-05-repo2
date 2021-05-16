@@ -16,6 +16,8 @@ export function createUserFromGoogleData(profile: IGoogleOauthProfile): IUser {
     }),
     connections: {},
     connectionOf: {},
+    connectionRequests: {},
+    notifications: [],
     threads: {
       started: {},
       commented: {},

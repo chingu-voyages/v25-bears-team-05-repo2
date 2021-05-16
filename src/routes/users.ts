@@ -118,6 +118,22 @@ router.put(
     if (!errors.isEmpty()) {
       return res.status(400).send({ errors: errors.array() });
     }
+
+    // TESTING
+    // const io = req.app.get("socketIo");
+    // // TESTING
+    // const targetUser = req.params.id;
+    // const notification = await NotificationModel.generateNotificationDocument({
+    //   originatorId: req.user.id,
+    //   targetUserId: targetUser,
+    //   notificationType: NotificationType.ConnectionRequest,
+    // });
+    // dispatchNotificationToSocket({
+    //   io: io,
+    //   targetUserId: targetUser,
+    //   notification,
+    // });
+    // return res.status(200).send("placeholder, notification sent");
     try {
       await req.user.addConnectionToUser(req.params.id, req.body.isTeamMate);
       return res
@@ -343,11 +359,9 @@ router.get(
       return res.status(400).send({ errors: errors.array() });
     }
     // Place holder for now
-    return res
-      .status(200)
-      .send(
-        "Notification route was hit. In the future this will send notifications"
-      );
+    const notifications =
+      await req.user.getUnreadNotificationsForUserByNotificationIds();
+    return res.status(200).send(notifications);
   }
 );
 

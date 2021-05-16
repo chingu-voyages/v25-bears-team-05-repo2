@@ -31,8 +31,8 @@ export async function generateNotificationDocument(
   let link = "null";
   switch (data.notificationType) {
     case NotificationType.ConnectionRequest:
-      message = `${originator.firstName} ${originator.lastName} would like to add you as a connection`;
-      link = `${originator.id.toString()}/profile`;
+      message = `${originator.firstName || ""} ${originator.lastName || ""} would like to add you as a connection`;
+      link = `api/${originator.id.toString()}/profile`;
       break;
     case NotificationType.DirectMessage:
       message = `${originator.firstName} ${originator.lastName} sent you a direct message`;
@@ -69,7 +69,7 @@ export function dispatchNotificationToSocket(data: {
   targetUserId: string;
   notification: INotification;
 }) {
-  data.io.to(data.targetUserId).emit("notification", data.notification.type);
+  data.io.to(data.targetUserId).emit("notification", data.notification);
 }
 
 export async function findByIdAndMarkAsRead(

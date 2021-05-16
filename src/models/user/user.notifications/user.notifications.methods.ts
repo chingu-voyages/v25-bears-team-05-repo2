@@ -15,7 +15,7 @@ export async function getUnreadNotificationsForUserByNotificationIds(
     });
     return unreadNotificationDocuments;
   }
-  return null;
+  return [];
 }
 
 /**
