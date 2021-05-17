@@ -5,6 +5,8 @@ export interface INotification {
   type: string;
   message: string;
   link: string;
+  originatorId: string;
+  targetId: string;
   createdAt: Date;
   updatedAt: Date;
 }

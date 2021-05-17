@@ -51,6 +51,8 @@ export async function generateNotificationDocument(
   const notification = await NotificationModel.create({
     type: data.notificationType,
     read: false,
+    originatorId: originator.id,
+    targetId: validTargetUser.id,
     message,
     link,
   });

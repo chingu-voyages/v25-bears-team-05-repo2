@@ -9,6 +9,8 @@ const NotificationSchema = new Schema(
     read: { type: Boolean, default: false },
     type: String,
     message: String,
+    originatorId: { type: String, required: true},
+    targetId: { type: String, required: true},
     link: String,
   },
   { timestamps: true }

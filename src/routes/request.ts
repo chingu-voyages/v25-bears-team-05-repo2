@@ -6,7 +6,7 @@ import { routeProtector } from "../middleware/route-protector";
 
 const router = express.Router();
 
-router.post("/", routeProtector, async (req: any, res: any) => {
+router.post("/connection", routeProtector, async (req: any, res: any) => {
 
 })
 
