@@ -1,5 +1,8 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
+import { createTestUsers } from "../user/user-test-helper/user-test-helper";
+import { UserModel } from "../user/user.model";
+import { ConnectionRequestModel } from "./connection-request.model";
 let mongoServer: any;
 const options: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
@@ -7,6 +10,7 @@ const options: mongoose.ConnectionOptions = {
   useFindAndModify: false,
   useUnifiedTopology: true,
 };
+
 beforeAll(async () => {
   mongoServer = new MongoMemoryServer();
   const mongoUri = await mongoServer.getUri();
@@ -20,6 +24,24 @@ afterAll(async () => {
   await mongoServer.stop();
 });
 
-test("Place holder for connection requests test", () => {
-  expect(true).toBe(true);
+describe("generate connection request tests", () => {
+  test("connection requests generated correctly", async () => {
+    const testUsers = createTestUsers({ numberOfUsers: 2 });
+    const dummyUserDocuments = await UserModel.create(testUsers);
+
+    const connectionRequest =
+      await ConnectionRequestModel.generateConnectionRequest({
+        requestorId: dummyUserDocuments[0].id,
+        approverId: dummyUserDocuments[1].id,
+      });
+    const requestorUserDocument = await UserModel.findById(
+      dummyUserDocuments[0].id
+    );
+
+    expect(connectionRequest.requestorId).toBe(dummyUserDocuments[0].id);
+    expect(connectionRequest.approverId).toBe(dummyUserDocuments[1].id);
+    expect(
+      requestorUserDocument["connectionRequests"][dummyUserDocuments[1].id]
+    ).toBe(connectionRequest.id);
+  });
 });
