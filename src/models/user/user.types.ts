@@ -155,6 +155,9 @@ export interface IUserDocument extends IUser, Document {
     this: IUserDocument,
     notificationId: string
   ) => Promise<IUserDocument>;
+  getNotifications: (
+    this: IUserDocument
+  ) => Promise<INotificationDocument[]>;
 }
 export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (

@@ -13,6 +13,7 @@ import {
   getUserDocumentsFromSourceUserConnectionOf,
 } from "./user.connections/user.connections.methods";
 import {
+  getNotifications,
   getUnreadNotificationsForUserByNotificationIds,
   markNotificationAsRead,
 } from "./user.notifications/user.notifications.methods";
@@ -143,5 +144,6 @@ UserSchema.methods.changePassword = changePassword;
 UserSchema.methods.getUnreadNotificationsForUserByNotificationIds =
   getUnreadNotificationsForUserByNotificationIds;
 UserSchema.methods.markNotificationAsRead = markNotificationAsRead;
+UserSchema.methods.getNotifications = getNotifications;
 
 export default UserSchema;

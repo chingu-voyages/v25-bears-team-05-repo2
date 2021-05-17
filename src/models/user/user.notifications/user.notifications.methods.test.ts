@@ -85,4 +85,32 @@ describe("User notifications retrieval tests", () => {
       firstTestNotification.id
     );
   });
+
+  test("gets all notifications for target user id", async () => {
+    const testUsers = createTestUsers({ numberOfUsers: 2 });
+    const dummyUserDocuments = await UserModel.create(testUsers);
+
+    await NotificationModel.generateNotificationDocument({
+      originatorId: dummyUserDocuments[0].id,
+      targetUserId: dummyUserDocuments[1].id,
+      notificationType: NotificationType.ConnectionRequest,
+    });
+    await NotificationModel.generateNotificationDocument({
+      originatorId: dummyUserDocuments[0].id,
+      targetUserId: dummyUserDocuments[1].id,
+      notificationType: NotificationType.ConnectionRequest,
+    });
+    await NotificationModel.generateNotificationDocument({
+      originatorId: dummyUserDocuments[0].id,
+      targetUserId: dummyUserDocuments[1].id,
+      notificationType: NotificationType.ConnectionRequest,
+    });
+
+    const notifications = await dummyUserDocuments[1].getNotifications();
+    expect(notifications.length).toBe(3);
+    expect(notifications.every((n) => n.targetId === dummyUserDocuments[1].id));
+    expect(
+      notifications.every((n) => n.originatorId === dummyUserDocuments[0].id)
+    );
+  });
 });
