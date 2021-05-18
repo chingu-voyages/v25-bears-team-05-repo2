@@ -7,6 +7,7 @@ export interface IProfile {
   avatar: Array<{ url: string}>;
   connections: any;
   connectionOf: any;
+  connectionRequests: any;
   threads: IUserThread;
   id: string;
 }
