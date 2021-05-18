@@ -118,7 +118,7 @@ router.put(
     if (!errors.isEmpty()) {
       return res.status(400).send({ errors: errors.array() });
     }
-    
+
     try {
       await req.user.addConnectionToUser(req.params.id, req.body.isTeamMate);
       return res
@@ -343,7 +343,6 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).send({ errors: errors.array() });
     }
-    // Place holder for now
     const notifications =
       await req.user.getUnreadNotificationsForUserByNotificationIds();
     return res.status(200).send(notifications);

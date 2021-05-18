@@ -12,9 +12,13 @@ import {
 export async function generateConnectionRequest(
   this: IConnectionRequestModel,
   data: { requestorId: string; approverId: string }
-): Promise<IConnectionRequestDocument> {
+): Promise<{
+  document: IConnectionRequestDocument;
+  requestExists: boolean;
+}> {
   const requestor = await UserModel.findById(data.requestorId);
   const approver = await UserModel.findById(data.approverId);
+  let requestExistsInUserConnectionRequests = false;
   if (!requestor) {
     throw new Error("Invalid requestor");
   }
@@ -33,9 +37,10 @@ export async function generateConnectionRequest(
     requestor.markModified("connectionRequests");
     await requestor.save();
   } else {
-    throw new Error(
-      "Request for this approver already exists in requestor's connection request data"
-    );
+    requestExistsInUserConnectionRequests = true;
   }
-  return requestDocument;
+  return {
+    document: requestDocument,
+    requestExists: requestExistsInUserConnectionRequests,
+  };
 }

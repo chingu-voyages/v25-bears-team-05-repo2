@@ -6,6 +6,7 @@ import { NotificationModel } from "../models/notification/notification.model";
 import { dispatchNotificationToSocket } from "../models/notification/notification.methods";
 import { ConnectionRequestModel } from "../models/connection-request/connection-request.model";
 import { createError } from "../utils/errors";
+import { UserModel } from "../models/user/user.model";
 
 const router = express.Router();
 
@@ -28,7 +29,11 @@ router.post(
           requestorId,
           approverId,
         });
-      if (connectionRequest) {
+      if (
+        connectionRequest &&
+        connectionRequest.document &&
+        connectionRequest.requestExists === false
+      ) {
         const notification =
           await NotificationModel.generateNotificationDocument({
             originatorId: requestorId,
@@ -37,19 +42,23 @@ router.post(
           });
         const io = req.app.get("socketIo");
         dispatchNotificationToSocket({
-          io,
           targetUserId: approverId,
+          io,
           notification,
         });
-        return res.status(200).send(connectionRequest);
+        const refreshedUser = await UserModel.findById(req.user.id);
+        return res
+          .status(200)
+          .send([refreshedUser.connections, refreshedUser.connectionRequests]);
       }
+      return res.status(400).send("Request already exists");
     } catch (exception) {
       return res.status(500).send({
         errors: [
           {
             ...createError(
               "unable to initiate connection request due to a server error",
-              `server error`,
+              `server error ${exception.text}`,
               "n/a"
             ),
           },

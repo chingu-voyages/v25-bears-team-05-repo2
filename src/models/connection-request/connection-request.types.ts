@@ -11,9 +11,11 @@ export interface IConnectionRequestDocument
     Document {}
 export interface IConnectionRequestModel
   extends Model<IConnectionRequestDocument> {
-    generateConnectionRequest: (
-      this: IConnectionRequestModel,
-      data: { requestorId: string; approverId: string }
-    ) => Promise<IConnectionRequestDocument>;
-
-  }
+  generateConnectionRequest: (
+    this: IConnectionRequestModel,
+    data: { requestorId: string; approverId: string }
+  ) => Promise<{
+    document: IConnectionRequestDocument;
+    requestExists: boolean;
+  }>;
+}

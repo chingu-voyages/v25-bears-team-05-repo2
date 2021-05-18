@@ -38,10 +38,14 @@ describe("generate connection request tests", () => {
       dummyUserDocuments[0].id
     );
 
-    expect(connectionRequest.requestorId).toBe(dummyUserDocuments[0].id);
-    expect(connectionRequest.approverId).toBe(dummyUserDocuments[1].id);
+    expect(connectionRequest.document.requestorId).toBe(
+      dummyUserDocuments[0].id
+    );
+    expect(connectionRequest.document.approverId).toBe(
+      dummyUserDocuments[1].id
+    );
     expect(
       requestorUserDocument["connectionRequests"][dummyUserDocuments[1].id]
-    ).toBe(connectionRequest.id);
+    ).toBe(connectionRequest.document.id);
   });
 });
