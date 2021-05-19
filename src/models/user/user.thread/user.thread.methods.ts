@@ -18,7 +18,6 @@ import {
 } from "../../../models/thread-share/thread-share.types";
 import { deleteUserCommentsForThreadByThreadId } from "./user.thread.deletion.methods";
 import { getThreadById } from "../../../db/utils/get-thread-by-id/get-thread-by-id";
-import { ThreadLikeTypeTitle } from "../../thread-like/thread-like.types";
 
 /**
  *
@@ -123,7 +122,7 @@ export async function addLikeToThread(
     // Create the like object
     const threadLikeDocument = await ThreadLikeModel.create({
       postedByUserId: this.id,
-      title: data.title as ThreadLikeTypeTitle,
+      title: data.title,
     });
     targetThread.likes[
       `${threadLikeDocument._id.toString()}`
@@ -195,7 +194,9 @@ export async function addThreadComment(
       ...data.threadCommentData,
       parentThreadId: targetThread.id.toString(),
       parentThreadVisibility: targetThread.visibility,
-      parentThreadOriginatorId: targetThread.postedByUserId.toString()
+      parentThreadOriginatorId: targetThread.postedByUserId.toString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
     newThreadComment.postedByUserId = this.id.toString();
 
