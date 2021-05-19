@@ -1,4 +1,5 @@
 import { UserModel } from "../user/user.model";
+import { IUserDocument } from "../user/user.types";
 import {
   IConnectionRequestDocument,
   IConnectionRequestModel,
@@ -43,4 +44,31 @@ export async function generateConnectionRequest(
     document: requestDocument,
     requestExists: requestExistsInUserConnectionRequests,
   };
+}
+
+export async function deleteConnectionRequest(
+  this: IConnectionRequestModel,
+  data: { requestorId: string; approverId: string }
+): Promise<IUserDocument> {
+  const requestor = await UserModel.findById(data.requestorId);
+  const approver = await UserModel.findById(data.approverId);
+  if (!requestor) {
+    throw new Error("Invalid requestor");
+  }
+  if (!approver) {
+    throw new Error("Invalid approver");
+  }
+
+  // Delete all requests with matching requestor and approverIds
+  await this.deleteMany({
+    "$and": [
+      { "requestorId": data.requestorId },
+      { "approverId": data.approverId },
+    ],
+  });
+
+  delete requestor["connectionRequests"][approver.id.toString()];
+  requestor.markModified("connectionRequests");
+  await requestor.save();
+  return requestor;
 }

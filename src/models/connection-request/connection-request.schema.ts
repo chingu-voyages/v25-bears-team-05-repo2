@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import { generateConnectionRequest } from "./connection-request.methods";
+import { deleteConnectionRequest, generateConnectionRequest } from "./connection-request.methods";
 
 const ConnectionRequestSchema = new Schema(
   {
@@ -10,5 +10,6 @@ const ConnectionRequestSchema = new Schema(
 );
 
 ConnectionRequestSchema.statics.generateConnectionRequest = generateConnectionRequest;
+ConnectionRequestSchema.statics.deleteConnectionRequest = deleteConnectionRequest;
 
 export default ConnectionRequestSchema;

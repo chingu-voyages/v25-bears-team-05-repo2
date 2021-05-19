@@ -1,4 +1,5 @@
 import { Document, Model } from "mongoose";
+import { IUserDocument } from "../user/user.types";
 export interface IConnectionRequest {
   requestorId: string;
   approverId: string;
@@ -18,4 +19,8 @@ export interface IConnectionRequestModel
     document: IConnectionRequestDocument;
     requestExists: boolean;
   }>;
+  deleteConnectionRequest: (
+    this: IConnectionRequestModel,
+    data: { requestorId: string; approverId: string }
+  )=> Promise<IUserDocument>
 }

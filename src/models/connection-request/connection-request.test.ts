@@ -49,3 +49,40 @@ describe("generate connection request tests", () => {
     ).toBe(connectionRequest.document.id);
   });
 });
+
+describe("delete connection request tests", () => {
+  test("deletes all requests", async () => {
+    const testUsers = createTestUsers({ numberOfUsers: 2 });
+    const dummyUserDocuments = await UserModel.create(testUsers);
+
+    await ConnectionRequestModel.generateConnectionRequest({
+      requestorId: dummyUserDocuments[0].id,
+      approverId: dummyUserDocuments[1].id,
+    });
+    await ConnectionRequestModel.generateConnectionRequest({
+      requestorId: dummyUserDocuments[0].id,
+      approverId: dummyUserDocuments[1].id,
+    });
+    await ConnectionRequestModel.generateConnectionRequest({
+      requestorId: dummyUserDocuments[0].id,
+      approverId: dummyUserDocuments[1].id,
+    });
+
+    const userDocument = await ConnectionRequestModel.deleteConnectionRequest({
+      requestorId: dummyUserDocuments[0].id,
+      approverId: dummyUserDocuments[1].id,
+    });
+
+    const requestKeys = Object.keys(userDocument.connectionRequests);
+    expect(requestKeys.includes(dummyUserDocuments[1].id)).toBe(false);
+
+    const matchingRequests = await ConnectionRequestModel.find({
+      "$and": [
+        { "requestorId": dummyUserDocuments[0].id },
+        { "approverId": dummyUserDocuments[1].id },
+      ],
+    });
+
+    expect(matchingRequests.length).toBe(0);
+  });
+});
