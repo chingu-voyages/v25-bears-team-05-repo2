@@ -68,4 +68,28 @@ router.post(
   }
 );
 
+router.delete(
+  "/connection/:id",
+  routeProtector,
+  [param("id").not().isEmpty().trim().escape()],
+  async (req: any, res: any) => {
+    const requestorId = req.user.id;
+    const approverId = req.params.id;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ errors: errors.array() });
+    }
+    const refreshedRequestingUser =
+      await ConnectionRequestModel.deleteConnectionRequest({
+        requestorId,
+        approverId,
+      });
+    return res
+      .status(200)
+      .send([
+        refreshedRequestingUser.connections,
+        refreshedRequestingUser.connectionRequests,
+      ]);
+  }
+);
 export default router;
