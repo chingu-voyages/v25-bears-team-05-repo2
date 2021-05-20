@@ -248,18 +248,14 @@ export async function addThreadComment(
  */
 export async function deleteThreadComment(
   this: IUserDocument,
-  data: { targetThreadId: string; targetThreadCommentId: string }
+  data: { targetThreadCommentId: string }
 ) {
-  const targetThread = await ThreadModel.findById(data.targetThreadId);
+  const deletedCommentDocument = await ThreadCommentModel.findByIdAndDelete(data.targetThreadCommentId);
 
+  const targetThread = await ThreadModel.findById(deletedCommentDocument.parentThreadId);
   if (!targetThread) {
     throw new Error("Parent thread not found");
   }
-  if (!targetThread.comments[data.targetThreadCommentId]) {
-    throw new Error("Thread comment not found");
-  }
-
-  await ThreadCommentModel.findByIdAndDelete(data.targetThreadCommentId);
 
   if (
     this.threads.commented[targetThread.id.toString()][

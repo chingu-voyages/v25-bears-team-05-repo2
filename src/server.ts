@@ -5,6 +5,7 @@ import localRegistrationRouter from "./routes/register-local";
 import logOutRouter from "./routes/logout";
 import usersRoute from "./routes/users";
 import threadsRoute from "./routes/threads";
+import commentsRoute from "./routes/comments";
 import feedRoute from "./routes/feed";
 import searchRouter from "./routes/search";
 import passwordRecoveryRouter from "./routes/recover"
@@ -49,6 +50,7 @@ app.use("/register/local", localRegistrationRouter);
 app.use("/logout", logOutRouter);
 app.use("/users", usersRoute);
 app.use("/threads", threadsRoute);
+app.use("/comments", commentsRoute);
 app.use("/feed", feedRoute);
 app.use("/search", searchRouter);
 app.use("/recover", passwordRecoveryRouter);
