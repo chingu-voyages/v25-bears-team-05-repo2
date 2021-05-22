@@ -51,7 +51,8 @@ router.post(
           .status(200)
           .send([refreshedUser.connections, refreshedUser.connectionRequests]);
       }
-      return res.status(400).send("Request already exists");
+      res.statusMessage = "Request already exists";
+      return res.status(400).end();
     } catch (exception) {
       return res.status(500).send({
         errors: [
