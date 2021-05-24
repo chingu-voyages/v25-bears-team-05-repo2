@@ -5,7 +5,10 @@
       "node": true	
   },	
   "extends": [	
-      "google"	
+      "google",
+      "eslint:recommended",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended"	
   ],	
   "globals": {	
       "Atomics": "readonly",	
@@ -15,9 +18,13 @@
       "ecmaVersion": 2018,	
       "sourceType": "module"	
   },	
-  "rules": {	
-    "linebreak-style": 0,	
-    "max-len": ["error", {"code": 90, "ignoreComments": true }],	
+  "rules": {
+    "quotes": ["error", "double", {"allowTemplateLiterals": true}],
+    "indent": ["error", 2],
+    "linebreak-style": 0,
+    "@typescript-eslint/no-explicit-any": ["off"],
+    "max-len": ["error", {"code": 90, "ignoreComments": true }],
+    "new-cap": ["off"],
     "object-curly-spacing": [2, "always", {	
       "objectsInObjects": true,	
       "arraysInObjects": true	

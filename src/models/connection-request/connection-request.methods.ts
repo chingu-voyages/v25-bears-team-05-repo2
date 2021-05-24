@@ -12,7 +12,7 @@ import {
  */
 export async function generateConnectionRequest(
   this: IConnectionRequestModel,
-  data: { requestorId: string; approverId: string }
+  data: { requestorId: string; approverId: string },
 ): Promise<{
   document: IConnectionRequestDocument;
   requestExists: boolean;
@@ -45,10 +45,15 @@ export async function generateConnectionRequest(
     requestExists: requestExistsInUserConnectionRequests,
   };
 }
-
+/**
+ *
+ * @param this instance
+ * @param data requestorId and approverId user ids
+ * @return Promise<IUserDocument>
+ */
 export async function deleteConnectionRequest(
   this: IConnectionRequestModel,
-  data: { requestorId: string; approverId: string }
+  data: { requestorId: string; approverId: string },
 ): Promise<IUserDocument> {
   const requestor = await UserModel.findById(data.requestorId);
   const approver = await UserModel.findById(data.approverId);

@@ -14,7 +14,8 @@ export interface INotification {
 export enum NotificationType {
   ConnectionRequest = "connection_request",
   DirectMessage = "direct_message",
-  ThreadReply = "thread_reply"
+  ThreadReply = "thread_reply",
+  NewPost = "new_post"
 }
 
 export interface INotificationDocument extends INotification, Document {}

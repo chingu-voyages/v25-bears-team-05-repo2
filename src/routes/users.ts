@@ -8,6 +8,7 @@ import { UserModel } from "../models/user/user.model";
 import { IProfileData } from "../models/user/user.types";
 import { decrypt } from "../utils/crypto";
 import { getVisibleThreads } from "../db/utils/get-visible-threads/get-visible-threads";
+import { NotificationModel } from "../models/notification/notification.model";
 const router = express.Router();
 
 router.get(
@@ -50,7 +51,7 @@ router.get(
         ],
       });
     }
-  }
+  },
 );
 
 router.get(
@@ -92,7 +93,7 @@ router.get(
         });
       }
     }
-  }
+  },
 );
 
 router.put(
@@ -146,7 +147,7 @@ router.put(
         ],
       });
     }
-  }
+  },
 );
 
 router.delete(
@@ -199,7 +200,7 @@ router.delete(
         ],
       });
     }
-  }
+  },
 );
 
 router.patch(
@@ -237,7 +238,7 @@ router.patch(
         errors: [
           {
             "location": "/users",
-            "msg": `This operation can only be completed on the requesting user's profile. Id must be 'me'`,
+            "msg": `Id must be 'me'`,
             "param": "id",
           },
         ],
@@ -270,7 +271,7 @@ router.patch(
         ],
       });
     }
-  }
+  },
 );
 
 /**
@@ -331,7 +332,7 @@ router.get(
         ],
       });
     }
-  }
+  },
 );
 
 router.get(
@@ -344,9 +345,45 @@ router.get(
       return res.status(400).send({ errors: errors.array() });
     }
     const notifications =
-      await req.user.getUnreadNotificationsForUserByNotificationIds();
+      await req.user.getNotifications();
     return res.status(200).send(notifications);
-  }
+  },
+);
+
+router.patch(
+  "/:id/notifications/:notificationId",
+  routeProtector,
+  [
+    param("id").not().isEmpty().trim().escape(),
+    param("notificationId").not().isEmpty().trim().escape(),
+    body("read").not().isEmpty(),
+  ],
+  async (req: any, res: any) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ errors: errors.array() });
+    }
+    const { read } = req.body;
+    const notification = await NotificationModel.findById(
+      req.params.notificationId,
+    );
+    if (notification) {
+      notification.read = read;
+      await notification.save();
+      const updatedNotifications =
+        await req.user.getNotifications();
+      return res.status(200).send(updatedNotifications);
+    }
+    return res.status(500).send({
+      errors: [
+        {
+          "location": "/users/notifications",
+          "msg": `Notification id is invalid or doesn't exist`,
+          "param": "n/a",
+        },
+      ],
+    });
+  },
 );
 
 export default router;
