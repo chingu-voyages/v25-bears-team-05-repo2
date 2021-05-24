@@ -3,27 +3,11 @@ import { INotificationDocument } from "../../notification/notification.types";
 import { IUserDocument } from "../user.types";
 
 /**
- * @param this instance of user
- * @returns Unread notification documents
- */
-export async function getUnreadNotificationsForUserByNotificationIds(
-  this: IUserDocument
-): Promise<INotificationDocument[]> {
-  if (this.notifications.length > 0) {
-    const unreadNotificationDocuments = await NotificationModel.find({
-      "$and": [{ "read": false }, { "_id": { "$in": this.notifications } }],
-    });
-    return unreadNotificationDocuments;
-  }
-  return [];
-}
-
-/**
  * Returns all notifications where this user is the target
  * @param this
  */
 export async function getNotifications(
-  this: IUserDocument
+  this: IUserDocument,
 ): Promise<INotificationDocument[]> {
   const notifications = await NotificationModel.find({
     "targetId": this.id,
@@ -40,7 +24,7 @@ export async function getNotifications(
  */
 export async function markNotificationAsRead(
   this: IUserDocument,
-  notificationId: string
+  notificationId: string,
 ) {
   this.notifications = this.notifications.filter((notification) => {
     return notification !== notificationId;

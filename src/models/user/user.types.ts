@@ -148,9 +148,6 @@ export interface IUserDocument extends IUser, Document {
     this: IUserDocument,
     newPlainTextPassword: string
   ) => Promise<IUserDocument>;
-  getUnreadNotificationsForUserByNotificationIds: (
-    this: IUserDocument
-  ) => Promise<INotificationDocument[]>;
   markNotificationAsRead: (
     this: IUserDocument,
     notificationId: string

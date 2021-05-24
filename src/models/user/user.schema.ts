@@ -14,7 +14,6 @@ import {
 } from "./user.connections/user.connections.methods";
 import {
   getNotifications,
-  getUnreadNotificationsForUserByNotificationIds,
   markNotificationAsRead,
 } from "./user.notifications/user.notifications.methods";
 import { updateUserProfile } from "./user.profile/user.profile.methods";
@@ -111,7 +110,7 @@ const UserSchema: Schema = new Schema(
     timestamps: true,
     strict: false,
     typePojoToMixed: false,
-  } as SchemaOptionsWithPojoToMixed
+  } as SchemaOptionsWithPojoToMixed,
 );
 UserSchema.index({
   "firstName": "text",
@@ -141,8 +140,6 @@ UserSchema.methods.deleteThread = deleteThread;
 UserSchema.methods.getUserDocumentsFromSourceUserConnectionOf =
   getUserDocumentsFromSourceUserConnectionOf;
 UserSchema.methods.changePassword = changePassword;
-UserSchema.methods.getUnreadNotificationsForUserByNotificationIds =
-  getUnreadNotificationsForUserByNotificationIds;
 UserSchema.methods.markNotificationAsRead = markNotificationAsRead;
 UserSchema.methods.getNotifications = getNotifications;
 
