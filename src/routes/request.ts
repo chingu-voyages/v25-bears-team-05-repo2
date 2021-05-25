@@ -3,10 +3,8 @@ import { routeProtector } from "../middleware/route-protector";
 import { param, validationResult } from "express-validator/check";
 import { NotificationType } from "../models/notification/notification.types";
 import { NotificationModel } from "../models/notification/notification.model";
-import { dispatchNotificationToSocket,
-} from "../models/notification/notification.methods";
-import { ConnectionRequestModel,
-} from "../models/connection-request/connection-request.model";
+import { dispatchNotificationToSocket } from "../models/notification/notification.methods";
+import { ConnectionRequestModel } from "../models/connection-request/connection-request.model";
 import { createError } from "../utils/errors";
 import { UserModel } from "../models/user/user.model";
 
@@ -24,12 +22,13 @@ router.post(
 
     const approverId = req.params.id;
     const requestorId = req.user.id;
-
+    const isTeamMate = req.body.isTeamMate;
     try {
       const connectionRequest =
         await ConnectionRequestModel.generateConnectionRequest({
           requestorId,
           approverId,
+          isTeamMate,
         });
       if (
         connectionRequest &&

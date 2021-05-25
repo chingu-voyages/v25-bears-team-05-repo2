@@ -33,19 +33,20 @@ describe("generate connection request tests", () => {
       await ConnectionRequestModel.generateConnectionRequest({
         requestorId: dummyUserDocuments[0].id,
         approverId: dummyUserDocuments[1].id,
+        isTeamMate: false,
       });
     const requestorUserDocument = await UserModel.findById(
-      dummyUserDocuments[0].id
+      dummyUserDocuments[0].id,
     );
 
     expect(connectionRequest.document.requestorId).toBe(
-      dummyUserDocuments[0].id
+      dummyUserDocuments[0].id,
     );
     expect(connectionRequest.document.approverId).toBe(
-      dummyUserDocuments[1].id
+      dummyUserDocuments[1].id,
     );
     expect(
-      requestorUserDocument["connectionRequests"][dummyUserDocuments[1].id]
+      requestorUserDocument["connectionRequests"][dummyUserDocuments[1].id],
     ).toBe(connectionRequest.document.id);
   });
 });
@@ -58,14 +59,17 @@ describe("delete connection request tests", () => {
     await ConnectionRequestModel.generateConnectionRequest({
       requestorId: dummyUserDocuments[0].id,
       approverId: dummyUserDocuments[1].id,
+      isTeamMate: false,
     });
     await ConnectionRequestModel.generateConnectionRequest({
       requestorId: dummyUserDocuments[0].id,
       approverId: dummyUserDocuments[1].id,
+      isTeamMate: false,
     });
     await ConnectionRequestModel.generateConnectionRequest({
       requestorId: dummyUserDocuments[0].id,
       approverId: dummyUserDocuments[1].id,
+      isTeamMate: false,
     });
 
     const userDocument = await ConnectionRequestModel.deleteConnectionRequest({

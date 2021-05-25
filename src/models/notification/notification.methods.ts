@@ -1,3 +1,5 @@
+/* eslint-disable require-jsdoc */
+/* eslint-disable max-len */
 import { UserModel } from "../user/user.model";
 import { NotificationModel } from "./notification.model";
 import {
@@ -27,21 +29,24 @@ export async function generateNotificationDocument(
   }
 
   const originator = await UserModel.findById(data.originatorId);
+  const fullName = `${originator.firstName || ""} ${originator.lastName || ""}`;
   let message = "null";
   let link = "null";
   switch (data.notificationType) {
   case NotificationType.ConnectionRequest:
-    message = `${originator.firstName || ""} ${
-      originator.lastName || ""
-    } would like to add you as a connection`;
+    message = `${fullName} would like to add you as a connection`;
+    link = `${originator.id.toString()}`;
+    break;
+  case NotificationType.ConnectionRequestApproved:
+    message = `You are now connected to ${fullName}`;
     link = `${originator.id.toString()}`;
     break;
   case NotificationType.DirectMessage:
-    message = `${originator.firstName} ${originator.lastName} sent you a direct message`;
+    message = `${fullName} sent you a direct message`;
     link = `placeholder`;
     break;
   case NotificationType.ThreadReply:
-    message = `${originator.firstName} ${originator.lastName} replied to a thread you posted`;
+    message = `${fullName} replied to a thread you posted`;
     link = `placeholder`;
     break;
   default:
@@ -71,7 +76,7 @@ export function dispatchNotificationToSocket(data: {
   io: any;
   targetUserId: string;
   notification: INotification;
-}) {
+}): void {
   data.io.to(data.targetUserId).emit("notification", data.notification);
 }
 

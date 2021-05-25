@@ -13,6 +13,7 @@ export interface INotification {
 
 export enum NotificationType {
   ConnectionRequest = "connection_request",
+  ConnectionRequestApproved = "connection_request_approved",
   DirectMessage = "direct_message",
   ThreadReply = "thread_reply",
   NewPost = "new_post"

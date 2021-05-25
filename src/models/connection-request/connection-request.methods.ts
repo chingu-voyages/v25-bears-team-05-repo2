@@ -12,7 +12,7 @@ import {
  */
 export async function generateConnectionRequest(
   this: IConnectionRequestModel,
-  data: { requestorId: string; approverId: string },
+  data: { requestorId: string; approverId: string, isTeamMate: boolean },
 ): Promise<{
   document: IConnectionRequestDocument;
   requestExists: boolean;
@@ -30,6 +30,7 @@ export async function generateConnectionRequest(
   const requestDocument = await this.create({
     requestorId: data.requestorId,
     approverId: data.approverId,
+    isTeamMate: data.isTeamMate,
   });
 
   if (!requestor["connectionRequests"][approver.id.toString()]) {

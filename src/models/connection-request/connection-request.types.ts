@@ -3,6 +3,7 @@ import { IUserDocument } from "../user/user.types";
 export interface IConnectionRequest {
   requestorId: string;
   approverId: string;
+  isTeamMate: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,7 +15,7 @@ export interface IConnectionRequestModel
   extends Model<IConnectionRequestDocument> {
   generateConnectionRequest: (
     this: IConnectionRequestModel,
-    data: { requestorId: string; approverId: string }
+    data: { requestorId: string; approverId: string, isTeamMate: boolean }
   ) => Promise<{
     document: IConnectionRequestDocument;
     requestExists: boolean;

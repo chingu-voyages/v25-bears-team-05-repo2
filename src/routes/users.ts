@@ -9,6 +9,9 @@ import { IProfileData } from "../models/user/user.types";
 import { decrypt } from "../utils/crypto";
 import { getVisibleThreads } from "../db/utils/get-visible-threads/get-visible-threads";
 import { NotificationModel } from "../models/notification/notification.model";
+import { ConnectionRequestModel } from "../models/connection-request/connection-request.model";
+import { dispatchNotificationToSocket } from "../models/notification/notification.methods";
+import { NotificationType } from "../models/notification/notification.types";
 const router = express.Router();
 
 router.get(
@@ -51,7 +54,7 @@ router.get(
         ],
       });
     }
-  },
+  }
 );
 
 router.get(
@@ -93,7 +96,7 @@ router.get(
         });
       }
     }
-  },
+  }
 );
 
 router.put(
@@ -101,14 +104,14 @@ router.put(
   routeProtector,
   [
     param("id").not().isEmpty().trim().escape(),
-    body("isTeamMate").not().isEmpty().isBoolean().trim().escape(),
+    body("connectionRequestDocumentId").not().isEmpty().trim().escape(),
   ],
   async (req: any, res: Response) => {
     if (req.params.id === "me") {
       return res.status(400).send({
         errors: [
           {
-            "location": "/users",
+            "location": "/users/connections",
             "msg": "Can't use 'me' in this type of request",
             "param": "id",
           },
@@ -120,23 +123,63 @@ router.put(
       return res.status(400).send({ errors: errors.array() });
     }
 
+    const connectionReqDocumentId = req.body.connectionRequestDocumentId;
+
     try {
-      await req.user.addConnectionToUser(req.params.id, req.body.isTeamMate);
-      return res
-        .status(200)
-        .send([req.user.connections, req.user.connectionOf]);
-    } catch (err) {
-      if (err.message === "User id not found") {
-        return res.status(404).send({
+      const connectionRequestDocument = await ConnectionRequestModel.findById(
+        connectionReqDocumentId
+      );
+      if (connectionRequestDocument.approverId !== req.user.id) {
+        return res.status(400).send({
           errors: [
             {
-              "location": "/users",
-              "msg": `Id: ${req.params.id} ${err.message}`,
-              "param": "id",
+              "location": "/users/connections",
+              "msg": `approverId doesn't match req.user.id`,
+              "param": "req.user.id",
             },
           ],
         });
       }
+      if (req.params.id !== connectionRequestDocument.requestorId) {
+        return res.status(400).send({
+          errors: [
+            {
+              "location": "/users/connections",
+              "msg": `requestorId does not match req.params.id`,
+              "param": "req.params.id",
+            },
+          ],
+        });
+      }
+      await req.user.addConnectionToUser(
+        connectionRequestDocument.requestorId,
+        connectionRequestDocument.isTeamMate
+      );
+
+      await ConnectionRequestModel.deleteConnectionRequest({
+        requestorId: connectionRequestDocument.requestorId,
+        approverId: connectionRequestDocument.approverId,
+      });
+
+      // Notify requestor of success
+      const notification = await NotificationModel.generateNotificationDocument(
+        {
+          originatorId: connectionRequestDocument.approverId,
+          targetUserId: connectionRequestDocument.requestorId,
+          notificationType: NotificationType.ConnectionRequestApproved,
+        }
+      );
+      const io = req.app.get("socketIo");
+      dispatchNotificationToSocket({
+        targetUserId: connectionRequestDocument.requestorId,
+        io,
+        notification,
+      });
+
+      return res
+        .status(200)
+        .send([req.user.connections, req.user.connectionOf]);
+    } catch (err) {
       return res.status(500).send({
         errors: [
           {
@@ -147,7 +190,7 @@ router.put(
         ],
       });
     }
-  },
+  }
 );
 
 router.delete(
@@ -200,7 +243,7 @@ router.delete(
         ],
       });
     }
-  },
+  }
 );
 
 router.patch(
@@ -271,7 +314,7 @@ router.patch(
         ],
       });
     }
-  },
+  }
 );
 
 /**
@@ -332,7 +375,7 @@ router.get(
         ],
       });
     }
-  },
+  }
 );
 
 router.get(
@@ -344,10 +387,9 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).send({ errors: errors.array() });
     }
-    const notifications =
-      await req.user.getNotifications();
+    const notifications = await req.user.getNotifications();
     return res.status(200).send(notifications);
-  },
+  }
 );
 
 router.patch(
@@ -365,13 +407,12 @@ router.patch(
     }
     const { read } = req.body;
     const notification = await NotificationModel.findById(
-      req.params.notificationId,
+      req.params.notificationId
     );
     if (notification) {
       notification.read = read;
       await notification.save();
-      const updatedNotifications =
-        await req.user.getNotifications();
+      const updatedNotifications = await req.user.getNotifications();
       return res.status(200).send(updatedNotifications);
     }
     return res.status(500).send({
@@ -383,7 +424,7 @@ router.patch(
         },
       ],
     });
-  },
+  }
 );
 
 export default router;
