@@ -9,8 +9,10 @@ import { IProfileData } from "../models/user/user.types";
 import { decrypt } from "../utils/crypto";
 import { getVisibleThreads } from "../db/utils/get-visible-threads/get-visible-threads";
 import { NotificationModel } from "../models/notification/notification.model";
-import { ConnectionRequestModel } from "../models/connection-request/connection-request.model";
-import { dispatchNotificationToSocket } from "../models/notification/notification.methods";
+import { ConnectionRequestModel }
+  from "../models/connection-request/connection-request.model";
+import { dispatchNotificationToSocket }
+  from "../models/notification/notification.methods";
 import { NotificationType } from "../models/notification/notification.types";
 const router = express.Router();
 
@@ -54,7 +56,7 @@ router.get(
         ],
       });
     }
-  }
+  },
 );
 
 router.get(
@@ -96,23 +98,25 @@ router.get(
         });
       }
     }
-  }
+  },
 );
 
+/**
+ * Handles connection request approval */
 router.put(
-  "/connections/:id",
+  "/:id/connections",
   routeProtector,
   [
     param("id").not().isEmpty().trim().escape(),
     body("connectionRequestDocumentId").not().isEmpty().trim().escape(),
   ],
   async (req: any, res: Response) => {
-    if (req.params.id === "me") {
+    if (req.params.id === "me" || req.params.id === req.user.id) {
       return res.status(400).send({
         errors: [
           {
-            "location": "/users/connections",
-            "msg": "Can't use 'me' in this type of request",
+            "location": "/users/:id/connections",
+            "msg": "Can't use 'me' or own id in this type of request",
             "param": "id",
           },
         ],
@@ -127,8 +131,12 @@ router.put(
 
     try {
       const connectionRequestDocument = await ConnectionRequestModel.findById(
-        connectionReqDocumentId
+        connectionReqDocumentId,
       );
+      if (!connectionRequestDocument) {
+        res.statusMessage = "request not found or no longer exists";
+        return res.status(400).end();
+      }
       if (connectionRequestDocument.approverId !== req.user.id) {
         return res.status(400).send({
           errors: [
@@ -153,7 +161,7 @@ router.put(
       }
       await req.user.addConnectionToUser(
         connectionRequestDocument.requestorId,
-        connectionRequestDocument.isTeamMate
+        connectionRequestDocument.isTeamMate,
       );
 
       await ConnectionRequestModel.deleteConnectionRequest({
@@ -167,7 +175,7 @@ router.put(
           originatorId: connectionRequestDocument.approverId,
           targetUserId: connectionRequestDocument.requestorId,
           notificationType: NotificationType.ConnectionRequestApproved,
-        }
+        },
       );
       const io = req.app.get("socketIo");
       dispatchNotificationToSocket({
@@ -190,20 +198,21 @@ router.put(
         ],
       });
     }
-  }
+  },
 );
 
+// Delete a connection
 router.delete(
-  "/connections/:id",
+  "/me/connections/:targetId",
   routeProtector,
-  [param("id").not().isEmpty().trim().escape()],
+  [param("targetId").not().isEmpty().trim().escape()],
   async (req: any, res: Response) => {
-    if (req.params.id === "me") {
+    if (req.params.targetId === "me" || req.params.targetId === req.user.id) {
       return res.status(400).send({
         errors: [
           {
             "location": "param",
-            "msg": "Can't use 'me' in this type of request",
+            "msg": "Can't use 'me' or own id in this type of request",
             "param": "id",
           },
         ],
@@ -214,7 +223,7 @@ router.delete(
       return res.status(400).send({ errors: errors.array() });
     }
     try {
-      await req.user.deleteConnectionFromUser(req.params.id);
+      await req.user.deleteConnectionFromUser(req.params.targetId);
       return res
         .status(200)
         .send([req.user.connections, req.user.connectionOf]);
@@ -243,7 +252,7 @@ router.delete(
         ],
       });
     }
-  }
+  },
 );
 
 router.patch(
@@ -314,7 +323,7 @@ router.patch(
         ],
       });
     }
-  }
+  },
 );
 
 /**
@@ -375,7 +384,7 @@ router.get(
         ],
       });
     }
-  }
+  },
 );
 
 router.get(
@@ -389,7 +398,7 @@ router.get(
     }
     const notifications = await req.user.getNotifications();
     return res.status(200).send(notifications);
-  }
+  },
 );
 
 router.patch(
@@ -407,7 +416,7 @@ router.patch(
     }
     const { read } = req.body;
     const notification = await NotificationModel.findById(
-      req.params.notificationId
+      req.params.notificationId,
     );
     if (notification) {
       notification.read = read;
@@ -424,7 +433,7 @@ router.patch(
         },
       ],
     });
-  }
+  },
 );
 
 export default router;

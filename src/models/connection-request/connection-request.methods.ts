@@ -1,3 +1,4 @@
+/* eslint-disable valid-jsdoc */
 import { UserModel } from "../user/user.model";
 import { IUserDocument } from "../user/user.types";
 import {
@@ -12,7 +13,7 @@ import {
  */
 export async function generateConnectionRequest(
   this: IConnectionRequestModel,
-  data: { requestorId: string; approverId: string, isTeamMate: boolean },
+  data: { requestorId: string; approverId: string; isTeamMate: boolean }
 ): Promise<{
   document: IConnectionRequestDocument;
   requestExists: boolean;
@@ -54,7 +55,7 @@ export async function generateConnectionRequest(
  */
 export async function deleteConnectionRequest(
   this: IConnectionRequestModel,
-  data: { requestorId: string; approverId: string },
+  data: { requestorId: string; approverId: string }
 ): Promise<IUserDocument> {
   const requestor = await UserModel.findById(data.requestorId);
   const approver = await UserModel.findById(data.approverId);

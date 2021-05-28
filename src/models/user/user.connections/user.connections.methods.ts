@@ -13,25 +13,29 @@ import isEmpty from "lodash/isEmpty";
 export async function addConnectionToUser(
   this: IUserDocument,
   objId: string,
-  isTeamMate?: boolean,
+  isTeamMate?: boolean
 ): Promise<IUserDocument> {
   const targetUser = await UserModel.findById(objId);
   if (targetUser) {
     const targetUserConnection = transformUserDataToConnection(
       targetUser,
-      isTeamMate,
+      isTeamMate
     ); // Adds to originator's connections object
     const originatorConnection = transformUserDataToConnection(
       this,
-      isTeamMate,
+      isTeamMate
     ); // Adds to target;s connectionsOf object
 
     if (this["connections"][targetUser._id]) {
-      throw new Error(` Target user ${targetUser._id} already exists in ${this._id} connections object`);
+      throw new Error(
+        ` Target user ${targetUser._id} already exists in ${this._id} connections object`
+      );
     }
 
     if (targetUser["connections"][this._id]) {
-      throw new Error(`${this._id} already exists in ${targetUser._id} connections object`);
+      throw new Error(
+        `${this._id} already exists in ${targetUser._id} connections object`
+      );
     }
 
     this["connections"][targetUser._id] = targetUserConnection;
@@ -57,7 +61,7 @@ export async function addConnectionToUser(
  */
 export async function deleteConnectionFromUser(
   this: IUserDocument,
-  objId: string,
+  objId: string
 ): Promise<IUserDocument> {
   if (!this["connections"][objId]) {
     throw new Error(`User is not a connection`);
@@ -66,8 +70,10 @@ export async function deleteConnectionFromUser(
   const targetUser = await UserModel.findById(objId);
   if (targetUser) {
     delete targetUser["connectionOf"][this._id];
+    delete targetUser["connections"][this._id];
     this.markModified("connections");
     targetUser.markModified("connectionOf");
+    targetUser.markModified("connections");
     await this.save();
     await targetUser.save();
     return targetUser;
@@ -81,7 +87,7 @@ export async function deleteConnectionFromUser(
  * @param this instance of user making the request
  */
 export async function getConnectionOfFromConnections(
-  this: IUserDocument,
+  this: IUserDocument
 ): Promise<IUserConnection[]> {
   // Get an array of userIds for this.connections
   const connectionUserIds = Object.keys(this.connections);
@@ -112,7 +118,7 @@ export async function getConnectionOfFromConnections(
  * @param this instance of IUserDocument
  */
 export async function getUserDocumentsFromSourceUserConnectionOf(
-  this: IUserDocument,
+  this: IUserDocument
 ): Promise<IUserDocument[]> {
   if (!this.connectionOf || isEmpty(this.connectionOf)) {
     return [];
@@ -128,7 +134,7 @@ export async function getUserDocumentsFromSourceUserConnectionOf(
  */
 function transformUserDataToConnection(
   userData: IUserDocument,
-  isTeamMate?: boolean,
+  isTeamMate?: boolean
 ): IUserConnection {
   return {
     firstName: userData.firstName,

@@ -1,10 +1,12 @@
 import * as express from "express";
 import { routeProtector } from "../middleware/route-protector";
-import { param, validationResult } from "express-validator/check";
+import { body, param, validationResult } from "express-validator/check";
 import { NotificationType } from "../models/notification/notification.types";
 import { NotificationModel } from "../models/notification/notification.model";
-import { dispatchNotificationToSocket } from "../models/notification/notification.methods";
-import { ConnectionRequestModel } from "../models/connection-request/connection-request.model";
+import { dispatchNotificationToSocket }
+  from "../models/notification/notification.methods";
+import { ConnectionRequestModel }
+  from "../models/connection-request/connection-request.model";
 import { createError } from "../utils/errors";
 import { UserModel } from "../models/user/user.model";
 
@@ -73,14 +75,34 @@ router.post(
 router.delete(
   "/connection/:id",
   routeProtector,
-  [param("id").not().isEmpty().trim().escape()],
+  [
+    param("id").not().isEmpty().trim().escape(),
+    body("origin").not().isEmpty().trim().escape(),
+  ],
   async (req: any, res: any) => {
-    const requestorId = req.user.id;
-    const approverId = req.params.id;
+    // req.body.origin tells us if this is a request from
+    // the requestor: ie. the person who made the connection request (who is now canceling the request)
+    // or the approver - this person is declining the request.
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).send({ errors: errors.array() });
     }
+
+    let requestorId = req.user.id;
+    let approverId = req.params.id;
+
+    if (req.body.origin === "requestor") {
+      requestorId = req.user.id;
+      approverId = req.params.id;
+    } else if (req.body.origin === "approver") {
+      requestorId = req.params.id;
+      approverId = req.user.id;
+    } else {
+      res.statusMessage =
+        "Invalid origin string type. It should be either 'requestor' or 'approver'";
+      return res(400).end();
+    }
+
     const refreshedRequestingUser =
       await ConnectionRequestModel.deleteConnectionRequest({
         requestorId,
@@ -94,4 +116,5 @@ router.delete(
       ]);
   },
 );
+
 export default router;
