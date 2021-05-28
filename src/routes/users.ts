@@ -8,6 +8,12 @@ import { UserModel } from "../models/user/user.model";
 import { IProfileData } from "../models/user/user.types";
 import { decrypt } from "../utils/crypto";
 import { getVisibleThreads } from "../db/utils/get-visible-threads/get-visible-threads";
+import { NotificationModel } from "../models/notification/notification.model";
+import { ConnectionRequestModel }
+  from "../models/connection-request/connection-request.model";
+import { dispatchNotificationToSocket }
+  from "../models/notification/notification.methods";
+import { NotificationType } from "../models/notification/notification.types";
 const router = express.Router();
 
 router.get(
@@ -30,17 +36,15 @@ router.get(
       }
     } catch (err) {
       if (err.message === "Unable to find profile for id") {
-        return res
-          .status(404)
-          .send({
-            errors: [
-              {
-                "location": "/users",
-                "msg": `invalid id ${req.params.id} ${err.message}`,
-                "param": "id",
-              },
-            ],
-          });
+        return res.status(404).send({
+          errors: [
+            {
+              "location": "/users",
+              "msg": `invalid id ${req.params.id} ${err.message}`,
+              "param": "id",
+            },
+          ],
+        });
       }
       return res.status(500).send({
         errors: [
@@ -52,7 +56,7 @@ router.get(
         ],
       });
     }
-  }
+  },
 );
 
 router.get(
@@ -94,23 +98,25 @@ router.get(
         });
       }
     }
-  }
+  },
 );
 
+/**
+ * Handles connection request approval */
 router.put(
-  "/connections/:id",
+  "/:id/connections",
   routeProtector,
   [
     param("id").not().isEmpty().trim().escape(),
-    body("isTeamMate").not().isEmpty().isBoolean().trim().escape(),
+    body("connectionRequestDocumentId").not().isEmpty().trim().escape(),
   ],
   async (req: any, res: Response) => {
-    if (req.params.id === "me") {
+    if (req.params.id === "me" || req.params.id === req.user.id) {
       return res.status(400).send({
         errors: [
           {
-            "location": "/users",
-            "msg": "Can't use 'me' in this type of request",
+            "location": "/users/:id/connections",
+            "msg": "Can't use 'me' or own id in this type of request",
             "param": "id",
           },
         ],
@@ -120,23 +126,68 @@ router.put(
     if (!errors.isEmpty()) {
       return res.status(400).send({ errors: errors.array() });
     }
+
+    const connectionReqDocumentId = req.body.connectionRequestDocumentId;
+
     try {
-      await req.user.addConnectionToUser(req.params.id, req.body.isTeamMate);
-      return res
-        .status(200)
-        .send([req.user.connections, req.user.connectionOf]);
-    } catch (err) {
-      if (err.message === "User id not found") {
-        return res.status(404).send({
+      const connectionRequestDocument = await ConnectionRequestModel.findById(
+        connectionReqDocumentId,
+      );
+      if (!connectionRequestDocument) {
+        res.statusMessage = "request not found or no longer exists";
+        return res.status(400).end();
+      }
+      if (connectionRequestDocument.approverId !== req.user.id) {
+        return res.status(400).send({
           errors: [
             {
-              "location": "/users",
-              "msg": `Id: ${req.params.id} ${err.message}`,
-              "param": "id",
+              "location": "/users/connections",
+              "msg": `approverId doesn't match req.user.id`,
+              "param": "req.user.id",
             },
           ],
         });
       }
+      if (req.params.id !== connectionRequestDocument.requestorId) {
+        return res.status(400).send({
+          errors: [
+            {
+              "location": "/users/connections",
+              "msg": `requestorId does not match req.params.id`,
+              "param": "req.params.id",
+            },
+          ],
+        });
+      }
+      await req.user.addConnectionToUser(
+        connectionRequestDocument.requestorId,
+        connectionRequestDocument.isTeamMate,
+      );
+
+      await ConnectionRequestModel.deleteConnectionRequest({
+        requestorId: connectionRequestDocument.requestorId,
+        approverId: connectionRequestDocument.approverId,
+      });
+
+      // Notify requestor of success
+      const notification = await NotificationModel.generateNotificationDocument(
+        {
+          originatorId: connectionRequestDocument.approverId,
+          targetUserId: connectionRequestDocument.requestorId,
+          notificationType: NotificationType.ConnectionRequestApproved,
+        },
+      );
+      const io = req.app.get("socketIo");
+      dispatchNotificationToSocket({
+        targetUserId: connectionRequestDocument.requestorId,
+        io,
+        notification,
+      });
+
+      return res
+        .status(200)
+        .send([req.user.connections, req.user.connectionOf]);
+    } catch (err) {
       return res.status(500).send({
         errors: [
           {
@@ -147,20 +198,21 @@ router.put(
         ],
       });
     }
-  }
+  },
 );
 
+// Delete a connection
 router.delete(
-  "/connections/:id",
+  "/me/connections/:targetId",
   routeProtector,
-  [param("id").not().isEmpty().trim().escape()],
+  [param("targetId").not().isEmpty().trim().escape()],
   async (req: any, res: Response) => {
-    if (req.params.id === "me") {
+    if (req.params.targetId === "me" || req.params.targetId === req.user.id) {
       return res.status(400).send({
         errors: [
           {
             "location": "param",
-            "msg": "Can't use 'me' in this type of request",
+            "msg": "Can't use 'me' or own id in this type of request",
             "param": "id",
           },
         ],
@@ -171,7 +223,7 @@ router.delete(
       return res.status(400).send({ errors: errors.array() });
     }
     try {
-      await req.user.deleteConnectionFromUser(req.params.id);
+      await req.user.deleteConnectionFromUser(req.params.targetId);
       return res
         .status(200)
         .send([req.user.connections, req.user.connectionOf]);
@@ -200,7 +252,7 @@ router.delete(
         ],
       });
     }
-  }
+  },
 );
 
 router.patch(
@@ -238,7 +290,7 @@ router.patch(
         errors: [
           {
             "location": "/users",
-            "msg": `This operation can only be completed on the requesting user's profile. Id must be 'me'`,
+            "msg": `Id must be 'me'`,
             "param": "id",
           },
         ],
@@ -253,15 +305,13 @@ router.patch(
 
     try {
       await req.user.updateUserProfile(profileUpdateRequest);
-      return res
-        .status(200)
-        .send({
-          firstName: req.user.firstName,
-          lastName: req.user.lastName,
-          jobTitle: req.user.jobTitle,
-          avatar: req.body.avatar,
-          email: decrypt(req.user.auth.email),
-        });
+      return res.status(200).send({
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        jobTitle: req.user.jobTitle,
+        avatar: req.body.avatar,
+        email: decrypt(req.user.auth.email),
+      });
     } catch (err) {
       return res.status(500).send({
         errors: [
@@ -273,7 +323,7 @@ router.patch(
         ],
       });
     }
-  }
+  },
 );
 
 /**
@@ -288,6 +338,7 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).send({ errors: errors.array() });
     }
+
     if (req.params.id === "me") {
       return res
         .status(200)
@@ -300,20 +351,16 @@ router.get(
         // If user is a connection, return all threads
         // If not a connection, only return threads with a "anyone" visibility
         if (targetUser.connections[req.user.id] !== undefined) {
-          return res
-            .status(200)
-            .send({
-              id: targetUser.id.toString(),
-              threads: targetUser.threads,
-            });
+          return res.status(200).send({
+            id: targetUser.id.toString(),
+            threads: targetUser.threads,
+          });
         } else {
           const onlyVisibleThreads = getVisibleThreads(targetUser.threads);
-          return res
-            .status(200)
-            .send({
-              id: targetUser.id.toString(),
-              threads: onlyVisibleThreads,
-            });
+          return res.status(200).send({
+            id: targetUser.id.toString(),
+            threads: onlyVisibleThreads,
+          });
         }
       } else {
         return res.status(404).send({
@@ -337,7 +384,56 @@ router.get(
         ],
       });
     }
-  }
+  },
+);
+
+router.get(
+  "/:id/notifications",
+  routeProtector,
+  [param("id").not().isEmpty().trim().escape()],
+  async (req: any, res: any) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ errors: errors.array() });
+    }
+    const notifications = await req.user.getNotifications();
+    return res.status(200).send(notifications);
+  },
+);
+
+router.patch(
+  "/:id/notifications/:notificationId",
+  routeProtector,
+  [
+    param("id").not().isEmpty().trim().escape(),
+    param("notificationId").not().isEmpty().trim().escape(),
+    body("read").not().isEmpty(),
+  ],
+  async (req: any, res: any) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ errors: errors.array() });
+    }
+    const { read } = req.body;
+    const notification = await NotificationModel.findById(
+      req.params.notificationId,
+    );
+    if (notification) {
+      notification.read = read;
+      await notification.save();
+      const updatedNotifications = await req.user.getNotifications();
+      return res.status(200).send(updatedNotifications);
+    }
+    return res.status(500).send({
+      errors: [
+        {
+          "location": "/users/notifications",
+          "msg": `Notification id is invalid or doesn't exist`,
+          "param": "n/a",
+        },
+      ],
+    });
+  },
 );
 
 export default router;

@@ -25,6 +25,8 @@ export function createTestUsers(input: {
       avatar: [{ url: `testUser${i.toString()}AvatarUrl` }],
       connections: {},
       connectionOf: {},
+      connectionRequests: {},
+      notifications: [],
       threads: {
         started: {},
         commented: {},

@@ -8,4 +8,4 @@ import ConnectionRequestSchema from "./connection-request.schema";
 export const ConnectionRequestModel = model<
   IConnectionRequestDocument,
   IConnectionRequestModel
->("connection_requests", ConnectionRequestSchema);
+>("connection_requests", ConnectionRequestSchema, "connection_requests");

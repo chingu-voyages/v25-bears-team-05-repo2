@@ -1,4 +1,5 @@
 import { Document, Model } from "mongoose";
+import { INotificationDocument } from "../notification/notification.types";
 import {
   IAttachmentType,
   IThreadCommentDocument,
@@ -33,6 +34,8 @@ export interface IUser {
   avatar: Array<{ url: string }>;
   connections: { [keyof: string]: IUserConnection };
   connectionOf: { [keyof: string]: IUserConnection };
+  connectionRequests: { [keyof: string]: any };
+  notifications: Array<string>;
   threads: IUserThread;
   readonly createdAt: Date;
   readonly updatedAt: Date;
@@ -145,6 +148,13 @@ export interface IUserDocument extends IUser, Document {
     this: IUserDocument,
     newPlainTextPassword: string
   ) => Promise<IUserDocument>;
+  markNotificationAsRead: (
+    this: IUserDocument,
+    notificationId: string
+  ) => Promise<IUserDocument>;
+  getNotifications: (
+    this: IUserDocument
+  ) => Promise<INotificationDocument[]>;
 }
 export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (

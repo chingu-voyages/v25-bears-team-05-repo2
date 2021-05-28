@@ -15,7 +15,8 @@ export async function getProfileById(userId: string): Promise<IProfile> {
     avatar: result.avatar,
     connections: result.connections,
     connectionOf: result.connectionOf,
-    threads:  result.threads,
+    connectionRequests: result.connectionRequests || {},
+    threads: result.threads,
     id: result._id.toString(),
   };
 }

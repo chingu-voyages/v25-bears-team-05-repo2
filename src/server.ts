@@ -9,6 +9,7 @@ import commentsRoute from "./routes/comments";
 import feedRoute from "./routes/feed";
 import searchRouter from "./routes/search";
 import passwordRecoveryRouter from "./routes/recover"
+import requestRouter from "./routes/request"
 import express from "express";
 import passport from "passport";
 import checkClientApiPass from "./middleware/check-client-api-pass";
@@ -16,8 +17,19 @@ import checkClientApiPass from "./middleware/check-client-api-pass";
 import connectDB from "../config/database";
 import { createError } from "./utils/errors";
 const cookieSession = require("cookie-session");
-
 const app = express();
+
+import { createServer } from "http";
+import { Server } from "socket.io";
+
+const httpServer = createServer(app);
+export const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
+  }
+});
+
 const isProduction =
   process.env.NODE_ENV && process.env.NODE_ENV.match("production");
 
@@ -26,6 +38,7 @@ connectDB();
 
 // Express configuration
 app.set("port", process.env.PORT || 7000);
+app.set("socketIo", io);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -54,6 +67,7 @@ app.use("/comments", commentsRoute);
 app.use("/feed", feedRoute);
 app.use("/search", searchRouter);
 app.use("/recover", passwordRecoveryRouter);
+app.use("/request", requestRouter);
 
 app.get("/", (_req, res) => {
   res.send("API Running");
@@ -69,8 +83,15 @@ app.get("/fail", (req, res) => {
   });
 });
 const port = app.get("port");
-const server = app.listen(port, () =>
-  console.log(`Server started on port ${port}`)
-);
 
-export default server;
+httpServer.listen(port, ()=> {
+  console.log(`http server listening on port ${port}`);
+})
+
+io.on("connection", (socket) => {
+  socket.on("myId", (data)=> {
+    socket.join(data);
+  })
+})
+
+export default httpServer;

@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+/* eslint-disable no-invalid-this */
 import { IUserConnection } from "../../user-connection/user-connection.types";
 import { UserModel } from "../user.model";
 import { IUserDocument } from "../user.types";
@@ -24,12 +26,26 @@ export async function addConnectionToUser(
       isTeamMate
     ); // Adds to target;s connectionsOf object
 
+    if (this["connections"][targetUser._id]) {
+      throw new Error(
+        ` Target user ${targetUser._id} already exists in ${this._id} connections object`
+      );
+    }
+
+    if (targetUser["connections"][this._id]) {
+      throw new Error(
+        `${this._id} already exists in ${targetUser._id} connections object`
+      );
+    }
+
     this["connections"][targetUser._id] = targetUserConnection;
     targetUser["connectionOf"][this._id] = originatorConnection;
+    targetUser["connections"][this._id] = originatorConnection;
 
     this.markModified("connections");
     targetUser.markModified("connectionOf");
-    // Saves the changes
+    targetUser.markModified("connections");
+
     await this.save();
     await targetUser.save();
     return targetUser;
@@ -50,12 +66,14 @@ export async function deleteConnectionFromUser(
   if (!this["connections"][objId]) {
     throw new Error(`User is not a connection`);
   }
-  delete this["connections"][objId]; 
+  delete this["connections"][objId];
   const targetUser = await UserModel.findById(objId);
   if (targetUser) {
     delete targetUser["connectionOf"][this._id];
+    delete targetUser["connections"][this._id];
     this.markModified("connections");
     targetUser.markModified("connectionOf");
+    targetUser.markModified("connections");
     await this.save();
     await targetUser.save();
     return targetUser;

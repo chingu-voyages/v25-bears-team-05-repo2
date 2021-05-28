@@ -12,6 +12,10 @@ import {
   getConnectionOfFromConnections,
   getUserDocumentsFromSourceUserConnectionOf,
 } from "./user.connections/user.connections.methods";
+import {
+  getNotifications,
+  markNotificationAsRead,
+} from "./user.notifications/user.notifications.methods";
 import { updateUserProfile } from "./user.profile/user.profile.methods";
 import {
   addLikeToThread,
@@ -75,9 +79,9 @@ const UserSchema: Schema = new Schema(
       default: {},
     },
     notifications: {
-      type: Schema.Types.Mixed,
+      type: [String],
       required: true,
-      default: {},
+      default: [],
     },
     threads: {
       started: {
@@ -106,7 +110,7 @@ const UserSchema: Schema = new Schema(
     timestamps: true,
     strict: false,
     typePojoToMixed: false,
-  } as SchemaOptionsWithPojoToMixed
+  } as SchemaOptionsWithPojoToMixed,
 );
 UserSchema.index({
   "firstName": "text",
@@ -124,7 +128,8 @@ UserSchema.methods.deleteConnectionFromUser = deleteConnectionFromUser;
 UserSchema.methods.updateUserProfile = updateUserProfile;
 UserSchema.methods.createAndPostThread = createAndPostThread;
 UserSchema.methods.getConnectionThreads = getConnectionThreads;
-UserSchema.methods.getConnectionOfFromConnections = getConnectionOfFromConnections;
+UserSchema.methods.getConnectionOfFromConnections =
+  getConnectionOfFromConnections;
 UserSchema.methods.addLikeToThread = addLikeToThread;
 UserSchema.methods.deleteLikeFromThread = deleteLikeFromThread;
 UserSchema.methods.addThreadComment = addThreadComment;
@@ -132,7 +137,10 @@ UserSchema.methods.deleteThreadComment = deleteThreadComment;
 UserSchema.methods.shareThread = shareThread;
 UserSchema.methods.deleteThreadShare = deleteThreadShare;
 UserSchema.methods.deleteThread = deleteThread;
-UserSchema.methods.getUserDocumentsFromSourceUserConnectionOf = getUserDocumentsFromSourceUserConnectionOf;
+UserSchema.methods.getUserDocumentsFromSourceUserConnectionOf =
+  getUserDocumentsFromSourceUserConnectionOf;
 UserSchema.methods.changePassword = changePassword;
+UserSchema.methods.markNotificationAsRead = markNotificationAsRead;
+UserSchema.methods.getNotifications = getNotifications;
 
 export default UserSchema;
