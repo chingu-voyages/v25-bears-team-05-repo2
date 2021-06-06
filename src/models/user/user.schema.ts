@@ -68,11 +68,6 @@ const UserSchema: Schema = new Schema(
       required: true,
       default: {},
     },
-    connectionOf: {
-      type: Schema.Types.Mixed,
-      required: true,
-      default: {},
-    },
     connectionRequests: {
       type: Schema.Types.Mixed,
       required: true,

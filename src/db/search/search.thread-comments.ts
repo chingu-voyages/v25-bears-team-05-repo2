@@ -6,11 +6,17 @@ import { IThreadCommentDocument } from "../../models/thread-comment/thread-comme
 import { ThreadModel } from "../../models/thread/thread.model";
 import { computeLimitAndSkip } from "./helpers/compute-limit-skip";
 
+/**
+ *
+ * @param {object} data
+ * @param {ISearchOptions} options
+ * @return {Promise<IThreadCommentDetails[]>}
+ */
 export async function queryPublicThreadComments(
   data: {
     queryString: string;
   },
-  options?: ISearchOptions
+  options?: ISearchOptions,
 ): Promise<IThreadCommentDetails[]> {
   options = computeLimitAndSkip(options);
   const query = { "$search": data.queryString };
@@ -24,19 +30,25 @@ export async function queryPublicThreadComments(
     .skip(options.skip);
 
   if (queryResults) {
-    return await matchParentThreadWithThreadComment({
+    return matchParentThreadWithThreadComment({
       queryResultsThreadCommentDocuments: queryResults,
     });
   }
   return [];
 }
 
+/**
+ *
+ * @param {object} data
+ * @param {ISearchOptions} options
+ * @return {Promise<IThreadCommentDetails[]>}
+ */
 export async function queryPrivateThreadComments(
   data: {
     requestorUserId: string;
     queryString: string;
   },
-  options?: ISearchOptions
+  options?: ISearchOptions,
 ): Promise<IThreadCommentDetails[]> {
   const requestingUser = await UserModel.findById(data.requestorUserId);
   if (!requestingUser) {
@@ -44,13 +56,14 @@ export async function queryPrivateThreadComments(
   }
   options = computeLimitAndSkip(options);
 
-  const connectionOfUserDocuments = await requestingUser.getUserDocumentsFromSourceUserConnectionOf();
+  const connectionOfUserDocuments =
+    await requestingUser.getUserDocumentsFromSourceUserConnectionOf();
   if (!connectionOfUserDocuments || connectionOfUserDocuments.length === 0) {
     return [];
   }
 
   const connectionOfIds = connectionOfUserDocuments.map((document) =>
-    document.id.toString()
+    document.id.toString(),
   );
   const query = { "$search": data.queryString };
 
@@ -63,7 +76,7 @@ export async function queryPrivateThreadComments(
   })
     .limit(options.limit)
     .skip(options.skip);
-  return await matchParentThreadWithThreadComment({
+  return matchParentThreadWithThreadComment({
     queryResultsThreadCommentDocuments: queryResults,
   });
 }
@@ -81,7 +94,7 @@ async function matchParentThreadWithThreadComment(data: {
   }
 
   const parentThreadIds = data.queryResultsThreadCommentDocuments.map(
-    (document) => document.parentThreadId.toString()
+    (document) => document.parentThreadId.toString(),
   );
 
   const matchingThreadDocuments = await ThreadModel.find({
@@ -96,7 +109,7 @@ async function matchParentThreadWithThreadComment(data: {
         const fndParentThreadsMatch = matchingThreadDocuments.find(
           (document) =>
             document._id.toString() ===
-            foundThreadCommentDocument.parentThreadId.toString()
+            foundThreadCommentDocument.parentThreadId.toString(),
         );
 
         if (fndParentThreadsMatch) {
@@ -127,12 +140,12 @@ async function matchParentThreadWithThreadComment(data: {
             parentThread: null,
           });
         }
-      }
+      },
     );
     return matches;
   } else {
     throw new Error(
-      "Please verify: found no matching parent thread documents."
+      "Please verify: found no matching parent thread documents.",
     );
   }
 }
