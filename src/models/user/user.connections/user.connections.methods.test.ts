@@ -137,7 +137,7 @@ describe("delete user connection tests", () => {
   });
 });
 
-test("gets user documents from users connectionOf object", async () => {
+test("gets user documents from user's connections object", async () => {
   const testUsers = createTestUsers({ numberOfUsers: 5 });
   const dummyUserDocuments = await UserModel.create(testUsers);
 
