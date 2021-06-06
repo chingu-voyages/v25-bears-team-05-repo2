@@ -56,13 +56,13 @@ export async function queryPrivateThreadComments(
   }
   options = computeLimitAndSkip(options);
 
-  const connectionOfUserDocuments =
+  const connectionUserDocuments =
     await requestingUser.getUserDocumentsFromConnections();
-  if (!connectionOfUserDocuments || connectionOfUserDocuments.length === 0) {
+  if (!connectionUserDocuments || connectionUserDocuments.length === 0) {
     return [];
   }
 
-  const connectionOfIds = connectionOfUserDocuments.map((document) =>
+  const connectionUserIds = connectionUserDocuments.map((document) =>
     document.id.toString(),
   );
   const query = { "$search": data.queryString };
@@ -71,7 +71,7 @@ export async function queryPrivateThreadComments(
     "$and": [
       { "$text": query },
       { "parentThreadVisibility": ThreadVisibility.Connections },
-      { "parentThreadOriginatorId": { "$in": connectionOfIds } },
+      { "parentThreadOriginatorId": { "$in": connectionUserIds } },
     ],
   })
     .limit(options.limit)

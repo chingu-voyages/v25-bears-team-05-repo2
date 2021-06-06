@@ -2,6 +2,11 @@ import { IUser } from "../user.types";
 import { encrypt } from "../../../utils/crypto";
 import { IGoogleOauthProfile } from "../../../types/google-oath-profile";
 
+/**
+ *
+ * @param {IGoogleOauthProfile} profile
+ * @return {IUser}
+ */
 export function createUserFromGoogleData(profile: IGoogleOauthProfile): IUser {
   return {
     firstName: profile.name.givenName,
@@ -15,7 +20,6 @@ export function createUserFromGoogleData(profile: IGoogleOauthProfile): IUser {
       return { url: photo.value };
     }),
     connections: {},
-    connectionOf: {},
     connectionRequests: {},
     notifications: [],
     threads: {

@@ -5,7 +5,7 @@ import { UserModel } from "../user.model";
 import { IUserDocument } from "../user.types";
 import isEmpty from "lodash/isEmpty";
 /**
- *  Adds a connection object to user's profile and updates the connectionOf property
+ *  Adds a connection object to user's profile and updates the connections property
  * on the target.
  * @param {object} this the source users to which we add the connection
  * @param {string} objId object id id of user to add to the source user's connections object

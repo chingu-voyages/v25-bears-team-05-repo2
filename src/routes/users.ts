@@ -186,7 +186,7 @@ router.put(
 
       return res
         .status(200)
-        .send([req.user.connections, req.user.connectionOf]);
+        .send([req.user.connections]);
     } catch (err) {
       return res.status(500).send({
         errors: [
@@ -226,7 +226,7 @@ router.delete(
       await req.user.deleteConnectionFromUser(req.params.targetId);
       return res
         .status(200)
-        .send([req.user.connections, req.user.connectionOf]);
+        .send([req.user.connections]);
     } catch (err) {
       if (
         err.message.includes("is not a connection") ||
