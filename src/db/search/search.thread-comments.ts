@@ -57,7 +57,7 @@ export async function queryPrivateThreadComments(
   options = computeLimitAndSkip(options);
 
   const connectionOfUserDocuments =
-    await requestingUser.getUserDocumentsFromSourceUserConnectionOf();
+    await requestingUser.getUserDocumentsFromConnections();
   if (!connectionOfUserDocuments || connectionOfUserDocuments.length === 0) {
     return [];
   }
@@ -84,7 +84,7 @@ export async function queryPrivateThreadComments(
 /**
  * This is a helper method that matches a parent thread to a comment that is
  * is returned in a search query
- * @param data
+ * @param {object} data
  */
 async function matchParentThreadWithThreadComment(data: {
   queryResultsThreadCommentDocuments: IThreadCommentDocument[];

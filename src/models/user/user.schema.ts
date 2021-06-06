@@ -9,8 +9,8 @@ import {
 import {
   addConnectionToUser,
   deleteConnectionFromUser,
-  getConnectionOfFromConnections,
-  getUserDocumentsFromSourceUserConnectionOf,
+  getSecondTierConnections,
+  getUserDocumentsFromConnections,
 } from "./user.connections/user.connections.methods";
 import {
   getNotifications,
@@ -123,8 +123,8 @@ UserSchema.methods.deleteConnectionFromUser = deleteConnectionFromUser;
 UserSchema.methods.updateUserProfile = updateUserProfile;
 UserSchema.methods.createAndPostThread = createAndPostThread;
 UserSchema.methods.getConnectionThreads = getConnectionThreads;
-UserSchema.methods.getConnectionOfFromConnections =
-  getConnectionOfFromConnections;
+UserSchema.methods.getSecondTierConnections =
+  getSecondTierConnections;
 UserSchema.methods.addLikeToThread = addLikeToThread;
 UserSchema.methods.deleteLikeFromThread = deleteLikeFromThread;
 UserSchema.methods.addThreadComment = addThreadComment;
@@ -132,8 +132,8 @@ UserSchema.methods.deleteThreadComment = deleteThreadComment;
 UserSchema.methods.shareThread = shareThread;
 UserSchema.methods.deleteThreadShare = deleteThreadShare;
 UserSchema.methods.deleteThread = deleteThread;
-UserSchema.methods.getUserDocumentsFromSourceUserConnectionOf =
-  getUserDocumentsFromSourceUserConnectionOf;
+UserSchema.methods.getUserDocumentsFromConnections =
+  getUserDocumentsFromConnections;
 UserSchema.methods.changePassword = changePassword;
 UserSchema.methods.markNotificationAsRead = markNotificationAsRead;
 UserSchema.methods.getNotifications = getNotifications;

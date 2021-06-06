@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Document, Model } from "mongoose";
 import { INotificationDocument } from "../notification/notification.types";
 import {
@@ -81,7 +82,7 @@ export interface IUserDocument extends IUser, Document {
     [keyof: string]: IThreadDocument;
   }>;
   getConnectionThreads: (this: IUserDocument) => Promise<Array<IThread>>;
-  getConnectionOfFromConnections: (
+  getSecondTierConnections: (
     this: IUserDocument
   ) => Promise<IUserConnection[]>;
   addLikeToThread: (
@@ -141,7 +142,7 @@ export interface IUserDocument extends IUser, Document {
     };
     updatedThreadDocument: IThreadDocument;
   }>;
-  getUserDocumentsFromSourceUserConnectionOf: (
+  getUserDocumentsFromConnections: (
     this: IUserDocument
   ) => Promise<IUserDocument[]>;
   changePassword: (

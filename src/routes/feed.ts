@@ -8,9 +8,9 @@ const router = express.Router();
 router.get("/", routeProtector, async (req: any, res: Response) => {
   try {
     const connectionThreads = await req.user.getConnectionThreads();
-    const connectionSuggestions = await req.user.getConnectionOfFromConnections();
+    const connectionSuggestions = await req.user.getSecondTierConnections();
     const connectionIdsOfConnectionThreads = connectionThreads.map(
-      ({ postedByUserId }: { postedByUserId: string }) => postedByUserId
+      ({ postedByUserId }: { postedByUserId: string }) => postedByUserId,
     );
     const publicThreads = await ThreadModel.getAllPublicThreads([
       req.user.id.toString(),
