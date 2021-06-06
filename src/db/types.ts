@@ -6,7 +6,6 @@ export interface IProfile {
   jobTitle: string;
   avatar: Array<{ url: string}>;
   connections: any;
-  connectionOf: any;
   connectionRequests: any;
   threads: IUserThread;
   id: string;

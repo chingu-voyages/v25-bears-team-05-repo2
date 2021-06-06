@@ -26,30 +26,30 @@ afterEach(async () => {
 
 describe("feed tests", () => {
   describe("getConnectionThreads method tests", () => {
-    test("gets threads properly", async() => {
+    test("gets threads properly", async () => {
       // Create a few test users
-      const testUser = createTestUsers({ numberOfUsers: 10});
+      const testUser = createTestUsers({ numberOfUsers: 10 });
       const dummyUserDocuments = await UserModel.create(testUser);
 
       // Have the users create random threads
       await dummyUserDocuments[1].createAndPostThread({
-        html: "dummy-user-1-thread-1-test", });
+        html: "dummy-user-1-thread-1-test" });
       await dummyUserDocuments[1].createAndPostThread({
-        html: "dummy-user-1-thread-2-test", });
+        html: "dummy-user-1-thread-2-test" });
       await dummyUserDocuments[1].createAndPostThread({
-        html: "dummy-user-1-thread-3-test", });
+        html: "dummy-user-1-thread-3-test" });
       await dummyUserDocuments[1].createAndPostThread({
-        html: "dummy-user-1-thread-4-test", });
+        html: "dummy-user-1-thread-4-test" });
       await dummyUserDocuments[2].createAndPostThread({
-        html: "dummy-user-2-thread-1-test", });
+        html: "dummy-user-2-thread-1-test" });
       await dummyUserDocuments[2].createAndPostThread({
-        html: "dummy-user-2-thread-2-test", });
+        html: "dummy-user-2-thread-2-test" });
       await dummyUserDocuments[2].createAndPostThread({
-        html: "dummy-user-2-thread-3-test"});
+        html: "dummy-user-2-thread-3-test" });
       await dummyUserDocuments[3].createAndPostThread({
-        html: "dummy-user-3-thread-1-test"});
+        html: "dummy-user-3-thread-1-test" });
       await dummyUserDocuments[3].createAndPostThread({
-        html: "dummy-user-3-thread-2-test"});
+        html: "dummy-user-3-thread-2-test" });
 
 
       // Create connections
@@ -58,7 +58,7 @@ describe("feed tests", () => {
       await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[3].id);
       await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[4].id);
 
-       // Get our threads
+      // Get our threads
       const results = await dummyUserDocuments[0].getConnectionThreads();
       expect(results).toHaveLength(9);
       let numberOfChecks = 0;
@@ -68,45 +68,50 @@ describe("feed tests", () => {
       // recent date)
       results.forEach((result, index) => {
         if (results[index + 1]) {
-          expect(result.createdAt.valueOf()).toBeGreaterThan(results[index + 1].createdAt.valueOf());
+          expect(result.createdAt.valueOf())
+            .toBeGreaterThan(results[index + 1].createdAt.valueOf());
           numberOfChecks += 1;
         }
       });
       expect(numberOfChecks).toBe(8);
     });
   });
-  describe("get connectionsOf tests", () => {
-    test("ensures we get the correct connectionsOf", async() => {
-       // Create a few test users
-       const testUser = createTestUsers({ numberOfUsers: 20});
-       const dummyUserDocuments = await UserModel.create(testUser);
+  describe("get second tier connections tests", () => {
+    test("ensures we get the correct second tier connections", async () => {
+      // Create a few test users
+      const testUser = createTestUsers({ numberOfUsers: 20 });
+      const dummyUserDocuments = await UserModel.create(testUser);
 
-       // The source user will add some connections
-       // For those connections added (4, 15, 14), some other user will add them as connections,
-       // populating 4, 15, and 14's connectionOf object properties
-       await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[4].id);
-       await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[14].id);
-       await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[15].id);
+      // The source user will add some connections
+      // For those connections added (4, 15, 14), some other user will add them as connections,
+      // populating 4, 15, and 14's connections object properties
+      await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[4].id);
+      await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[14].id);
+      await dummyUserDocuments[0].addConnectionToUser(dummyUserDocuments[15].id);
 
-       // Dummy users 19, 18, 17 and 16 become connectionOf user 4, 15 and 14
-       await dummyUserDocuments[19].addConnectionToUser(dummyUserDocuments[4].id);
-       await dummyUserDocuments[18].addConnectionToUser(dummyUserDocuments[4].id);
-       await dummyUserDocuments[17].addConnectionToUser(dummyUserDocuments[4].id);
-       await dummyUserDocuments[16].addConnectionToUser(dummyUserDocuments[4].id);
+      // Dummy users 19, 18, 17 and 16 become connection of user 4, 15 and 14
+      await dummyUserDocuments[19].addConnectionToUser(dummyUserDocuments[4].id);
+      await dummyUserDocuments[18].addConnectionToUser(dummyUserDocuments[4].id);
+      await dummyUserDocuments[17].addConnectionToUser(dummyUserDocuments[4].id);
+      await dummyUserDocuments[16].addConnectionToUser(dummyUserDocuments[4].id);
 
-       await dummyUserDocuments[19].addConnectionToUser(dummyUserDocuments[15].id);
-       await dummyUserDocuments[18].addConnectionToUser(dummyUserDocuments[15].id);
-       await dummyUserDocuments[17].addConnectionToUser(dummyUserDocuments[15].id);
-       await dummyUserDocuments[16].addConnectionToUser(dummyUserDocuments[15].id);
+      await dummyUserDocuments[19].addConnectionToUser(dummyUserDocuments[15].id);
+      await dummyUserDocuments[18].addConnectionToUser(dummyUserDocuments[15].id);
+      await dummyUserDocuments[17].addConnectionToUser(dummyUserDocuments[15].id);
+      await dummyUserDocuments[16].addConnectionToUser(dummyUserDocuments[15].id);
 
-       await dummyUserDocuments[19].addConnectionToUser(dummyUserDocuments[14].id);
-       await dummyUserDocuments[18].addConnectionToUser(dummyUserDocuments[14].id);
-       await dummyUserDocuments[17].addConnectionToUser(dummyUserDocuments[14].id);
-       await dummyUserDocuments[16].addConnectionToUser(dummyUserDocuments[14].id);
+      await dummyUserDocuments[19].addConnectionToUser(dummyUserDocuments[14].id);
+      await dummyUserDocuments[18].addConnectionToUser(dummyUserDocuments[14].id);
+      await dummyUserDocuments[17].addConnectionToUser(dummyUserDocuments[14].id);
+      await dummyUserDocuments[16].addConnectionToUser(dummyUserDocuments[14].id);
 
-       const result = await dummyUserDocuments[0].getConnectionOfFromConnections();
-       expect(result).toHaveLength(4);
-       expect(result[0].firstName).toBe("testUser19FirstName");
+      const results = await dummyUserDocuments[0].getSecondTierConnections();
+      expect(results).toHaveLength(4);
+      expect(results[0].firstName).toBe("testUser19FirstName");
+      const sourceIdPresent = results.filter((result) => {
+        return result.userId === dummyUserDocuments[0].id;
+      });
+      expect(sourceIdPresent.length).toBe(0);
     });
   });
 });

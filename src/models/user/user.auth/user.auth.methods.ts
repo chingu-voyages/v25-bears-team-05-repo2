@@ -10,12 +10,12 @@ import { decrypt } from "../../../utils/crypto";
 /**
  * Find user by googleId, if not found, create user, populating with google
  * profile data
- * @param this *
- * @param data User data
+ * @param {object} this instance of IUserModel
+ * @param {IUser} data User data
  */
 export async function findOneOrCreateByGoogleId(
   this: IUserModel,
-  data: IUser
+  data: IUser,
 ): Promise<IUserDocument> {
   const documents = await this.find({ "auth.googleId": data.auth.googleId });
   if (documents && documents.length > 0) {
@@ -32,20 +32,23 @@ export async function findOneOrCreateByGoogleId(
 
 /**
  *  Registers user. Checks to ensure e-mail address is unique
+ * @param {object} this instance of IUserModel
+ * @param {IUserRegistrationDetails} details
+ * @return {Promise<IUserDocument>}
  */
 export async function registerUser(
   this: IUserModel,
-  details: IUserRegistrationDetails
-) {
+  details: IUserRegistrationDetails,
+): Promise<IUserDocument> {
   const users = await this.findByEncryptedEmail(details.encryptedEmail);
   if (users && users.length > 0) {
     throw new Error(
-      `User with email ${decrypt(details.encryptedEmail)} already exists`
+      `User with email ${decrypt(details.encryptedEmail)} already exists`,
     );
   } else {
     // Create
     const hashedPassword = await bcrypt.hash(details.plainTextPassword, 10);
-    const newUser = await this.create({
+    return this.create({
       firstName: details.firstName,
       lastName: details.lastName,
       auth: {
@@ -54,7 +57,6 @@ export async function registerUser(
       },
       avatar: [{ url: "defaultAvatar" }],
       connections: {},
-      connectionOf: {},
       threads: {
         started: {},
         commented: {},
@@ -62,18 +64,18 @@ export async function registerUser(
         shared: {},
       },
     });
-    return newUser;
   }
 }
 
 /**
  * Finds all instances of records with matching e-mail
- * @param this reference to IUserModel object
- * @param encryptedEmail e-mail in encrypted format
+ * @param {object} this reference to IUserModel object
+ * @param {string} encryptedEmail e-mail in encrypted format
+ * @return {Promise<IUserDocument[]>}
  */
 export async function findByEncryptedEmail(
   this: IUserModel,
-  encryptedEmail: string
+  encryptedEmail: string,
 ): Promise<IUserDocument[]> {
   const decryptedEmail = decrypt(encryptedEmail);
   const allRecords: IUserDocument[] = await this.find();
@@ -83,30 +85,37 @@ export async function findByEncryptedEmail(
 }
 
 /**
- * Returns first instance of record with matching e-mail
- * @param this reference to IUserModel object
- * @param encryptedEmail e-mail in encrypted format
+ * Returns first instance of user with matching e-mail
+ * @param {object} this reference to IUserModel object
+ * @param {string} encryptedEmail e-mail in encrypted format
+ * @return {Promise<IUserDocument>}
  */
 export async function findOneByEncryptedEmail(
   this: IUserModel,
-  encryptedEmail: string
-) {
+  encryptedEmail: string,
+): Promise<IUserDocument> {
   const decryptedEmail = decrypt(encryptedEmail);
-  const allRecords = await this.find();
+  const users = await this.find();
 
-  for (let i = 0; i < allRecords.length; i++) {
-    if (decrypt(allRecords[i].auth.email) === decryptedEmail) {
-      return allRecords[i];
+  for (const user of users) {
+    if (decrypt(user.auth.email) === decryptedEmail) {
+      return user;
     }
   }
 }
 
+/**
+ *
+ * @param {object} this
+ * @param {string} newPlainTextPassword
+ * @return {Promise<IUserDocument>}
+ */
 export async function changePassword(
   this: IUserDocument,
-  newPlainTextPassword: string
-) {
+  newPlainTextPassword: string,
+): Promise<IUserDocument> {
   const hashedNewPassword = bcrypt.hashSync(newPlainTextPassword);
   this.auth.password = hashedNewPassword;
   this.markModified("auth");
-  return await this.save();
+  return this.save();
 }

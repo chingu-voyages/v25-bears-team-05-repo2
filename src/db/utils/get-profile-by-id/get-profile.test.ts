@@ -27,7 +27,7 @@ afterEach(async () => {
 describe("get profile tests", () => {
   test("returns object with the correct properties (no auth)", async () => {
     // Setup test users and enter them into db
-    const testUsers = createTestUsers({ numberOfUsers: 5});
+    const testUsers = createTestUsers({ numberOfUsers: 5 });
     const newUsers = await UserModel.create(testUsers);
 
     // Grab the id from one of the users so we can test the function
@@ -39,7 +39,6 @@ describe("get profile tests", () => {
     expect(result).toHaveProperty("firstName");
     expect(result).toHaveProperty("lastName");
     expect(result).toHaveProperty("connections");
-    expect(result).toHaveProperty("connectionOf");
     expect(result).toHaveProperty("threads");
     expect(result).toHaveProperty("avatar");
     expect(result).toHaveProperty("id");
