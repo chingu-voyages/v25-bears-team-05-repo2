@@ -37,18 +37,18 @@ describe("notification request tests", () => {
 
     // Test that the notification has been saved to its own collection
     const testNotificationDocument = await NotificationModel.findById(
-      notification.id
+      notification.id,
     );
     expect(testNotificationDocument).toBeDefined();
     expect(testNotificationDocument.message).toBe(
-      "testUser0FirstName testUser0LastName would like to add you as a connection"
+      "testUser0FirstName testUser0LastName would like to add you as a connection",
     );
     expect(testNotificationDocument.read).toBe(false);
 
     // Test that the notification has been saved on target user's document
     const testTargetUser = await UserModel.findById(dummyUserDocuments[1].id);
     expect(
-      testTargetUser.notifications.includes(testNotificationDocument.id)
+      testTargetUser.notifications.includes(testNotificationDocument.id),
     ).toBe(true);
   });
   describe("mark as read tests", () => {
@@ -63,7 +63,9 @@ describe("notification request tests", () => {
           notificationType: NotificationType.ConnectionRequest,
         });
       const markedAsReadNotification =
-        await NotificationModel.findByIdAndMarkAsRead(firstTestNotification.id);
+        await NotificationModel
+          .findByIdAndMarkAsRead({ notificationId: firstTestNotification.id,
+            read: true });
       expect(markedAsReadNotification.read).toBe(true);
     });
   });
