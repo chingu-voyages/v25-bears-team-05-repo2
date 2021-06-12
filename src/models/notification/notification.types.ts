@@ -27,5 +27,7 @@ export interface INotificationModel extends Model<INotificationDocument> {
     notificationType: NotificationType;
     threadId?: string;
   })=> Promise<INotificationDocument>,
-  findByIdAndMarkAsRead:(notificationId: string) => Promise<INotificationDocument>
+  findByIdAndMarkAsRead:
+  (data: { notificationId: string, read: boolean})
+  => Promise<INotificationDocument>
 }
