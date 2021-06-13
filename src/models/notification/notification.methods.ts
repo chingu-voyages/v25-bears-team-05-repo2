@@ -30,24 +30,24 @@ export async function generateNotificationDocument(
   }
 
   const originator = await UserModel.findById(data.originatorId);
-  const fullName = `${originator.firstName || ""} ${originator.lastName || ""}`;
+
   let message = "null";
   let link = "null";
   switch (data.notificationType) {
   case NotificationType.ConnectionRequest:
-    message = `${fullName} would like to add you as a connection`;
+    message = `${originator.getFullName()} would like to add you as a connection`;
     link = `${originator.id.toString()}`;
     break;
   case NotificationType.ConnectionRequestApproved:
-    message = `You are now connected to ${fullName}`;
+    message = `You are now connected to ${originator.getFullName()}`;
     link = `${originator.id.toString()}`;
     break;
   case NotificationType.DirectMessage:
-    message = `${fullName} sent you a direct message`;
+    message = `${originator.getFullName()} sent you a direct message`;
     link = `placeholder`;
     break;
   case NotificationType.ThreadReply:
-    message = `${fullName} replied to a thread you posted`;
+    message = `${originator.getFullName()} replied to a thread you posted`;
     link = `placeholder`;
     break;
   default:
