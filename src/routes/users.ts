@@ -9,8 +9,10 @@ import { IProfileData } from "../models/user/user.types";
 import { decrypt } from "../utils/crypto";
 import { getVisibleThreads } from "../db/utils/get-visible-threads/get-visible-threads";
 import { NotificationModel } from "../models/notification/notification.model";
-import { ConnectionRequestModel } from "../models/connection-request/connection-request.model";
-import { dispatchNotificationToSocket } from "../models/notification/notification.methods";
+import { ConnectionRequestModel }
+  from "../models/connection-request/connection-request.model";
+import { dispatchNotificationToSocket }
+  from "../models/notification/notification.methods";
 import { NotificationType } from "../models/notification/notification.types";
 const router = express.Router();
 
@@ -442,7 +444,7 @@ router.delete(
         errors: [
           {
             "location": "/users/notifications",
-            "msg": `Server error/ invalid notification id`,
+            "msg": `${exception}`,
             "param": "id",
           },
         ],
