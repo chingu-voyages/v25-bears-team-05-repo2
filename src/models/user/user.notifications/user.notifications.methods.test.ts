@@ -83,3 +83,23 @@ describe("User notifications retrieval tests", () => {
     );
   });
 });
+
+describe("dismiss notification tests", ()=> {
+  test("notifications are dismissed correctly", async ()=> {
+    const testUsers = createTestUsers({ numberOfUsers: 2 });
+    const dummyUserDocuments = await UserModel.create(testUsers);
+    const notification = await NotificationModel.generateNotificationDocument({
+      originatorId: dummyUserDocuments[0].id,
+      targetUserId: dummyUserDocuments[1].id,
+      notificationType: NotificationType.ConnectionRequest,
+    });
+
+    const targetUser = await UserModel.findById(notification.targetId);
+    await targetUser.dismissNotification(notification.id);
+    expect(targetUser.notifications.includes(notification.id)).toBe(false);
+    expect(targetUser.notifications.length).toBe(0);
+
+    const notificationResult = await NotificationModel.findById(notification.id);
+    expect(notificationResult).toBeNull();
+  });
+});
