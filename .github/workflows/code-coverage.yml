@@ -30,8 +30,9 @@ jobs:
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
-      env:
+      with:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      env:
         PASSPHRASE: ${{ secrets.PASSPHRASE }}
         PASSWORD_RECOVERY_EXPIRY_MINUTES: ${{ secrets.PASSWORD_RECOVERY_EXPIRY_MINUTES }}
         CI: true
