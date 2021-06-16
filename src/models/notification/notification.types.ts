@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Document, Model } from "mongoose";
 
 export interface INotification {
@@ -27,5 +28,7 @@ export interface INotificationModel extends Model<INotificationDocument> {
     notificationType: NotificationType;
     threadId?: string;
   })=> Promise<INotificationDocument>,
-  findByIdAndMarkAsRead:(notificationId: string) => Promise<INotificationDocument>
+  findByIdAndMarkAsRead:
+  (data: { notificationId: string, read: boolean})
+  => Promise<INotificationDocument>
 }

@@ -184,9 +184,7 @@ router.put(
         notification,
       });
 
-      return res
-        .status(200)
-        .send([req.user.connections]);
+      return res.status(200).send([req.user.connections]);
     } catch (err) {
       return res.status(500).send({
         errors: [
@@ -224,9 +222,7 @@ router.delete(
     }
     try {
       await req.user.deleteConnectionFromUser(req.params.targetId);
-      return res
-        .status(200)
-        .send([req.user.connections]);
+      return res.status(200).send([req.user.connections]);
     } catch (err) {
       if (
         err.message.includes("is not a connection") ||
@@ -387,27 +383,21 @@ router.get(
   },
 );
 
-router.get(
-  "/:id/notifications",
-  routeProtector,
-  [param("id").not().isEmpty().trim().escape()],
-  async (req: any, res: any) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).send({ errors: errors.array() });
-    }
-    const notifications = await req.user.getNotifications();
-    return res.status(200).send(notifications);
-  },
-);
+router.get("/me/notifications", routeProtector, async (req: any, res: any) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+  const notifications = await req.user.getNotifications();
+  return res.status(200).send(notifications);
+});
 
 router.patch(
-  "/:id/notifications/:notificationId",
+  "/me/notifications/:notificationId",
   routeProtector,
   [
-    param("id").not().isEmpty().trim().escape(),
     param("notificationId").not().isEmpty().trim().escape(),
-    body("read").not().isEmpty(),
+    body("read").not().isEmpty().isBoolean(),
   ],
   async (req: any, res: any) => {
     const errors = validationResult(req);
@@ -415,24 +405,51 @@ router.patch(
       return res.status(400).send({ errors: errors.array() });
     }
     const { read } = req.body;
-    const notification = await NotificationModel.findById(
-      req.params.notificationId,
-    );
-    if (notification) {
-      notification.read = read;
-      await notification.save();
+    try {
+      await NotificationModel.findByIdAndMarkAsRead({
+        notificationId: req.params.notificationId,
+        read,
+      });
       const updatedNotifications = await req.user.getNotifications();
       return res.status(200).send(updatedNotifications);
+    } catch (exception) {
+      return res.status(500).send({
+        errors: [
+          {
+            "location": "/users/notifications",
+            "msg": `Server error/ invalid notification id`,
+            "param": "id",
+          },
+        ],
+      });
     }
-    return res.status(500).send({
-      errors: [
-        {
-          "location": "/users/notifications",
-          "msg": `Notification id is invalid or doesn't exist`,
-          "param": "n/a",
-        },
-      ],
-    });
+  },
+);
+
+router.delete(
+  "/me/notifications/:notificationId",
+  routeProtector,
+  [param("notificationId").not().isEmpty().trim().escape()],
+  async (req: any, res: any) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ errors: errors.array() });
+    }
+    try {
+      await req.user.dismissNotification(req.params.notificationId);
+      const updatedNotifications = await req.user.getNotifications();
+      return res.status(200).send(updatedNotifications);
+    } catch (exception) {
+      return res.status(500).send({
+        errors: [
+          {
+            "location": "/users/notifications",
+            "msg": `${exception}`,
+            "param": "id",
+          },
+        ],
+      });
+    }
   },
 );
 

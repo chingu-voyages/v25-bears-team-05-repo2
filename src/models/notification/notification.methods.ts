@@ -10,7 +10,8 @@ import {
 } from "./notification.types";
 
 /**
- * @param data Creates a notification document and inserts it into the
+ * @param {INotificationModel} this reference to notification model
+ * @param {object} data Creates a notification document and inserts it into the
  * target user's notification object
  */
 export async function generateNotificationDocument(
@@ -29,24 +30,24 @@ export async function generateNotificationDocument(
   }
 
   const originator = await UserModel.findById(data.originatorId);
-  const fullName = `${originator.firstName || ""} ${originator.lastName || ""}`;
+
   let message = "null";
   let link = "null";
   switch (data.notificationType) {
   case NotificationType.ConnectionRequest:
-    message = `${fullName} would like to add you as a connection`;
+    message = `${originator.getFullName()} would like to add you as a connection`;
     link = `${originator.id.toString()}`;
     break;
   case NotificationType.ConnectionRequestApproved:
-    message = `You are now connected to ${fullName}`;
+    message = `You are now connected to ${originator.getFullName()}`;
     link = `${originator.id.toString()}`;
     break;
   case NotificationType.DirectMessage:
-    message = `${fullName} sent you a direct message`;
+    message = `${originator.getFullName()} sent you a direct message`;
     link = `placeholder`;
     break;
   case NotificationType.ThreadReply:
-    message = `${fullName} replied to a thread you posted`;
+    message = `${originator.getFullName()} replied to a thread you posted`;
     link = `placeholder`;
     break;
   default:
@@ -69,8 +70,10 @@ export async function generateNotificationDocument(
 
 /**
  * Sends notification via sockets to target user.
- * @param io socket reference
- * @param targetUserId string (id to send the notification alert to)
+ * @param {object} data
+ * @param {object} data.io socket reference
+ * @param {string} data.targetUserId (id to send the notification alert to)
+ * @param {INotification} data.notification notification to send
  */
 export function dispatchNotificationToSocket(data: {
   io: any;
@@ -80,16 +83,20 @@ export function dispatchNotificationToSocket(data: {
   data.io.to(data.targetUserId).emit("notification", data.notification);
 }
 
+
 export async function findByIdAndMarkAsRead(
   this: INotificationModel,
-  notificationId: string,
+  data: {
+    notificationId: string,
+    read: boolean,
+  },
 ): Promise<INotificationDocument> {
-  const notification = await NotificationModel.findById(notificationId);
+  const notification = await NotificationModel.findById(data.notificationId);
   if (notification) {
-    notification.read = true;
+    notification.read = data.read;
     await notification.save();
     return notification;
   } else {
-    throw new Error(`notification with id ${notificationId} not found`);
+    throw new Error(`notification with id ${data.notificationId} not found`);
   }
 }

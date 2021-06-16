@@ -14,9 +14,9 @@ import {
 } from "./user.connections/user.connections.methods";
 import {
   getNotifications,
-  markNotificationAsRead,
+  dismissNotification,
 } from "./user.notifications/user.notifications.methods";
-import { updateUserProfile } from "./user.profile/user.profile.methods";
+import { getFullName, updateUserProfile } from "./user.profile/user.profile.methods";
 import {
   addLikeToThread,
   addThreadComment,
@@ -135,7 +135,8 @@ UserSchema.methods.deleteThread = deleteThread;
 UserSchema.methods.getUserDocumentsFromConnections =
   getUserDocumentsFromConnections;
 UserSchema.methods.changePassword = changePassword;
-UserSchema.methods.markNotificationAsRead = markNotificationAsRead;
 UserSchema.methods.getNotifications = getNotifications;
+UserSchema.methods.dismissNotification = dismissNotification;
+UserSchema.methods.getFullName = getFullName;
 
 export default UserSchema;

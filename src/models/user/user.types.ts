@@ -148,13 +148,14 @@ export interface IUserDocument extends IUser, Document {
     this: IUserDocument,
     newPlainTextPassword: string
   ) => Promise<IUserDocument>;
-  markNotificationAsRead: (
-    this: IUserDocument,
-    notificationId: string
-  ) => Promise<IUserDocument>;
   getNotifications: (
     this: IUserDocument
   ) => Promise<INotificationDocument[]>;
+  dismissNotification: (
+    this: IUserDocument,
+    notificationId: string,
+  ) => Promise<INotificationDocument[]>;
+  getFullName: (this: IUserDocument) => string;
 }
 export interface IUserModel extends Model<IUserDocument> {
   findOneOrCreateByGoogleId: (
