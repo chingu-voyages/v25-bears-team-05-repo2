@@ -26,7 +26,7 @@ This is the API portion of the SyncedUp project (a full-stack LinkedIn clone). T
 - Use keyword search to find users and user posts
 #### Notifications
 - Receive notifications like connection requests
-### Future features (nice to haves)
+### Future features
 
 - Private messaging
 - Job posts
@@ -103,7 +103,7 @@ Other tools:
 1. Deploy a branch to heroku master
    - `$ git push heroku <your branch to deploy>:master`
    
-#### Tests
+### Tests
 ##### Run the test suite and display test coverage stats
 -  `$ npm run test-coverage`
 
