@@ -17,9 +17,7 @@ jobs:
       run: npm install
     - name: tsc
       uses: icrawl/action-tsc@v1
-    - name: tests
-      run: npm test
       env:
-        PASSPHRASE:  ${{ secrets.PASSPHRASE }}
+        PASSPHRASE: ${{ secrets.PASSPHRASE }}
         PASSWORD_RECOVERY_EXPIRY_MINUTES: ${{ secrets.PASSWORD_RECOVERY_EXPIRY_MINUTES }}
         CI: true

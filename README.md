@@ -1,5 +1,5 @@
 ![Typescript compiler](https://github.com/chingu-voyages/v25-bears-team-05-repo2/workflows/Typescript%20compiler/badge.svg)
-
+[![codecov](https://codecov.io/gh/chingu-voyages/v25-bears-team-05-repo2/branch/main/graph/badge.svg?token=LLDWZZ5PDA)](https://codecov.io/gh/chingu-voyages/v25-bears-team-05-repo2)
 # [![SyncedUp](./assets/logo-dark.svg)](https://syncedup.live/) | SyncedUp API
 
 ### About
