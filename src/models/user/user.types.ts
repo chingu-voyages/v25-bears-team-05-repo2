@@ -23,6 +23,7 @@ export interface IUserThread {
   shared: { [keyof: string]: IThreadShare };
 }
 export interface IUser {
+  _id?: string | number | any;
   firstName: string;
   lastName: string;
   jobTitle?: string;

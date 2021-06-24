@@ -9,11 +9,20 @@ import assert from "assert";
 export function getEnvironmentVariable(input: {
   production: string;
   dev: string;
+  test: string;
 }) {
   const isProduction =
     process.env.NODE_ENV && process.env.NODE_ENV.match("production");
-  isProduction
-    ? assert(input.production, "a production environment variable is undefined")
-    : assert(input.dev, "a dev environment variable is undefined");
+  if (isProduction) {
+    assert(input.production, "a production environment variable is undefined");
+    return input.production;
+  }
+  const isTest = process.env.NODE_ENV && process.env.NODE_ENV.match("test");
+  console.log(process.env.NODE_ENV);
+  if (isTest) {
+    // assert(input.test, "test env variable not defined");
+    return input.test;
+  }
+
   return isProduction ? input.production : input.dev;
 }

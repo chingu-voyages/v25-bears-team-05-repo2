@@ -8,8 +8,8 @@ import threadsRoute from "./routes/threads";
 import commentsRoute from "./routes/comments";
 import feedRoute from "./routes/feed";
 import searchRouter from "./routes/search";
-import passwordRecoveryRouter from "./routes/recover"
-import requestRouter from "./routes/request"
+import passwordRecoveryRouter from "./routes/recover";
+import requestRouter from "./routes/request";
 import express from "express";
 import passport from "passport";
 import checkClientApiPass from "./middleware/check-client-api-pass";
@@ -26,8 +26,8 @@ const httpServer = createServer(app);
 export const io = new Server(httpServer, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
-  }
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  },
 });
 
 const isProduction =
@@ -49,7 +49,7 @@ app.use(
     keys: [process.env.COOKIE_KEY_1, process.env.COOKIE_KEY_2],
     domain: isProduction ? ".syncedup.live" : "localhost",
     // secure: isProduction
-  })
+  }),
 );
 
 app.use(passport.initialize());
@@ -82,16 +82,16 @@ app.get("/fail", (req, res) => {
     errors: [{ ...createError("google-oauth", "Authentication error", "na") }],
   });
 });
-const port = app.get("port");
+// const port = app.get("port");
 
-httpServer.listen(port, ()=> {
-  console.log(`http server listening on port ${port}`);
-})
+// httpServer.listen(port, ()=> {
+//   console.log(`http server listening on port ${port}`);
+// })
 
 io.on("connection", (socket) => {
   socket.on("myId", (data)=> {
     socket.join(data);
-  })
-})
+  });
+});
 
 export default httpServer;

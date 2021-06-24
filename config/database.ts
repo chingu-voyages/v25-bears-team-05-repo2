@@ -7,11 +7,12 @@ const connectDB = async () => {
     const mongoURI = getEnvironmentVariable({
       production: process.env.PRODUCTION_MONGO_DB_URI,
       dev: process.env.DEV_MONGO_DB_URI,
+      test: process.env.TEST_MONGO_DB_URI,
     });
 
     assert(
       mongoURI,
-      "Mongo connection URI is not defined. Check environment variables"
+      "Mongo connection URI is not defined. Check environment variables",
     );
     const options: ConnectionOptions = {
       useNewUrlParser: true,
@@ -21,7 +22,7 @@ const connectDB = async () => {
     };
     await connect(mongoURI, options);
     console.log(
-      `MongoDB Connected... ${getEnvironmentVariable({ production: "production", dev: "development" })}`
+      `MongoDB Connected... ${getEnvironmentVariable({ production: "production", dev: "development", test: "test" })}`,
     );
   } catch (err) {
     console.error(err.message);
