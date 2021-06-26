@@ -33,6 +33,10 @@ jobs:
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         DEV_CAPTCHA_SECRET_KEY: ${{ secrets.DEV_CAPTCHA_SECRET_KEY }}
+        MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
+        MAILER_ADMIN_EMAIL: ${{ secrets.MAILER_ADMIN_EMAIL }}
+        MAILER_DOMAIN: ${{ secrets.MAILER_DOMAIN }}
+        DEV_PASSWORD_RECOVERY_DOMAIN: ${{ secrets.DEV_PASSWORD_RECOVERY_DOMAIN }}
         CI: true
 
     - name: Upload coverage to Codecov
