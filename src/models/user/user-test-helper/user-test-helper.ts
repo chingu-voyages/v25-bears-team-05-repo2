@@ -2,7 +2,7 @@
 import { IUser } from "../user.types";
 import { encrypt } from "../../../utils/crypto";
 import assert from "assert";
-import mongoose from "mongoose";
+
 /**
  * @param numberOfUsers number of fake users to create for testing.
  */
