@@ -14,7 +14,6 @@ import express from "express";
 import passport from "passport";
 import checkClientApiPass from "./middleware/check-client-api-pass";
 
-import connectDB from "../config/database";
 import { createError } from "./utils/errors";
 const cookieSession = require("cookie-session");
 const app = express();
@@ -32,9 +31,6 @@ export const io = new Server(httpServer, {
 
 const isProduction =
   process.env.NODE_ENV && process.env.NODE_ENV.match("production");
-
-// Connect to MongoDB
-connectDB();
 
 // Express configuration
 app.set("port", process.env.PORT || 7000);

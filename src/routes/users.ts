@@ -69,7 +69,19 @@ router.get(
       return res.status(400).send({ errors: errors.array() });
     }
     if (req.params.id === "me") {
-      res.status(200).send(req.user.connections);
+      try {
+        return res.status(200).send(req.user.connections);
+      } catch (exception) {
+        return res.status(404).send({
+          errors: [
+            {
+              "location": "/users/:id/connections",
+              "msg": `req.user isn't defined (likely in test environment)`,
+              "param": "id",
+            },
+          ],
+        });
+      }
     } else {
       try {
         const otherUser = await UserModel.findById(req.params.id);
@@ -111,6 +123,11 @@ router.put(
     body("connectionRequestDocumentId").not().isEmpty().trim().escape(),
   ],
   async (req: any, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ errors: errors.array() });
+    }
+
     if (req.params.id === "me" || req.params.id === req.user.id) {
       return res.status(400).send({
         errors: [
@@ -122,11 +139,6 @@ router.put(
         ],
       });
     }
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).send({ errors: errors.array() });
-    }
-
     const connectionReqDocumentId = req.body.connectionRequestDocumentId;
 
     try {

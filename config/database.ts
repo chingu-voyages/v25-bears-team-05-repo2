@@ -2,12 +2,13 @@ require("dotenv").config();
 import { ConnectionOptions, connect } from "mongoose";
 import assert from "assert";
 import { getEnvironmentVariable } from "../src/utils/get-env-variable/get-env";
+
+// const isTest = process.env.NODE_ENV && process.env.
 const connectDB = async () => {
   try {
     const mongoURI = getEnvironmentVariable({
       production: process.env.PRODUCTION_MONGO_DB_URI,
       dev: process.env.DEV_MONGO_DB_URI,
-      test: process.env.TEST_MONGO_DB_URI,
     });
 
     assert(
@@ -22,7 +23,8 @@ const connectDB = async () => {
     };
     await connect(mongoURI, options);
     console.log(
-      `MongoDB Connected... ${getEnvironmentVariable({ production: "production", dev: "development", test: "test" })}`,
+      `MongoDB Connected... 
+      ${getEnvironmentVariable({ production: "production", dev: "development" })}`,
     );
   } catch (err) {
     console.error(err.message);

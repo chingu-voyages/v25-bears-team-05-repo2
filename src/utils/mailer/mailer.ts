@@ -8,7 +8,6 @@ const mg = mailgun.client({ username: "api", key: process.env.MAILGUN_API_KEY })
 const RECOVERY_LINKBACK_DOMAIN = getEnvironmentVariable({
   production: process.env.PRODUCTION_PASSWORD_RECOVERY_DOMAIN,
   dev: process.env.DEV_PASSWORD_RECOVERY_DOMAIN,
-  test: undefined,
 });
 
 export async function sendRecoveryEmail(data: {

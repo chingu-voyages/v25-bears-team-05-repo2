@@ -1,3 +1,4 @@
+require("dotenv").config;
 import * as express from "express";
 import { routeProtector } from "../middleware/route-protector";
 import { body, param, validationResult } from "express-validator/check";
@@ -23,8 +24,18 @@ router.post(
     }
 
     const approverId = req.params.id;
-    const requestorId = req.user.id;
-    const isTeamMate = req.body.isTeamMate;
+
+
+    let requestorId: any;
+
+    if (process.env.NODE_ENV && process.env.NODE_ENV.match("test")) {
+      requestorId = req.body.testRequestorId;
+    } else {
+      requestorId = req.user.id;
+    }
+
+    const { isTeamMate } = req.body;
+
     try {
       const connectionRequest =
         await ConnectionRequestModel.generateConnectionRequest({
@@ -49,7 +60,7 @@ router.post(
           io,
           notification,
         });
-        const refreshedUser = await UserModel.findById(req.user.id);
+        const refreshedUser = await UserModel.findById(requestorId);
         return res
           .status(200)
           .send([refreshedUser.connections, refreshedUser.connectionRequests]);
@@ -62,7 +73,7 @@ router.post(
           {
             ...createError(
               "unable to initiate connection request due to a server error",
-              `server error ${exception.text}`,
+              `server error ${exception.message}`,
               "n/a",
             ),
           },
