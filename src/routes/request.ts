@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 require("dotenv").config;
 import * as express from "express";
 import { routeProtector } from "../middleware/route-protector";
@@ -13,47 +14,68 @@ import { UserModel } from "../models/user/user.model";
 
 const router = express.Router();
 
+function validationRules() {
+  return [param("id").not().isEmpty().trim().escape()];
+}
+
+const validate = (req: any, res: any, next: any) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({ errors: errors.array() });
+  }
+  next();
+};
+
+const getRequestor = (req: any) => {
+  if (process.env.NODE_ENV && process.env.NODE_ENV.match("test")) {
+    return req.body.testRequestorId;
+  } else {
+    return req.user.id;
+  }
+};
+
+
+async function createConnectionRequest(
+  requestorId: string, approverId: string, isTeamMate: boolean) {
+  return ConnectionRequestModel.generateConnectionRequest({
+    requestorId,
+    approverId,
+    isTeamMate,
+  });
+}
+
+async function generateNotification(
+  requestorId: string,
+  approverId: string,
+  notificationType: NotificationType) {
+  return NotificationModel.generateNotificationDocument({
+    originatorId: requestorId,
+    targetUserId: approverId,
+    notificationType: notificationType,
+  });
+}
+
 router.post(
   "/connection/:id",
   routeProtector,
-  [param("id").not().isEmpty().trim().escape()],
+  validationRules(),
+  validate,
   async (req: any, res: any) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).send({ errors: errors.array() });
-    }
-
     const approverId = req.params.id;
-
-
-    let requestorId: any;
-
-    if (process.env.NODE_ENV && process.env.NODE_ENV.match("test")) {
-      requestorId = req.body.testRequestorId;
-    } else {
-      requestorId = req.user.id;
-    }
-
+    const requestorId = getRequestor(req);
     const { isTeamMate } = req.body;
 
     try {
       const connectionRequest =
-        await ConnectionRequestModel.generateConnectionRequest({
-          requestorId,
-          approverId,
-          isTeamMate,
-        });
+        await createConnectionRequest(requestorId, approverId, isTeamMate);
       if (
         connectionRequest &&
         connectionRequest.document &&
         connectionRequest.requestExists === false
       ) {
-        const notification =
-          await NotificationModel.generateNotificationDocument({
-            originatorId: requestorId,
-            targetUserId: approverId,
-            notificationType: NotificationType.ConnectionRequest,
-          });
+        const notification = await generateNotification(
+          requestorId, approverId, NotificationType.ConnectionRequest);
+
         const io = req.app.get("socketIo");
         dispatchNotificationToSocket({
           targetUserId: approverId,
