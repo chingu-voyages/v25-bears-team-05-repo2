@@ -101,14 +101,3 @@ test(`PUT /users/:id/connections - trigger a validation error`, async (done)=> {
   expect(res.statusCode).toBe(400);
   done();
 });
-
-test(`PUT /users/:id/connections`, async (done)=> {
-  // const res = await request.put(`/users/ /connections`);
-  // console.log(res.error);
-  // expect(res.statusCode).toBe(400);
-  const dummyUsers = createTestUsers({ numberOfUsers: 2 });
-  const testUsers = await UserModel.create(dummyUsers);
-  const targetUserDocument = await testUsers[0].addConnectionToUser(testUsers[1].id);
-  console.log(targetUserDocument);
-  done();
-});
