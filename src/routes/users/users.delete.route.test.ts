@@ -7,7 +7,6 @@ import httpServer from "../../server";
 import { createTestUsersInDB } from "../../models/user/user-test-helper/user-test-helper";
 
 import { ErrorObjectCollection, getErrorText } from "../utils";
-import { IUserDocument } from "../../models/user/user.types";
 const request = supertest(httpServer);
 
 const options: mongoose.ConnectionOptions = {

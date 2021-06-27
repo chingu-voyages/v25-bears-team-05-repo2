@@ -1,10 +1,15 @@
 import { getProfileById } from "../../../../db/utils/get-profile-by-id/get-profile-by-id";
 import { getReqUser } from "../../../utils";
 
-export const getUserById = async (req: any, res: any, next: any): Promise<void> => {
+export const getUserById = async (
+  req: any,
+  res: any,
+  next: any,
+): Promise<void> => {
   const userId = getReqUser(req);
-
-  if (!userId) return res.status(400).send({ error: "Cannot determine req.user.id" });
+  if (!userId) {
+    return res.status(400).send({ error: "Cannot determine req.user.id" });
+  }
 
   try {
     if (req.params.id === "me") {

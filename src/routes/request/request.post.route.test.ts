@@ -6,8 +6,6 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 let mongoServer: any;
 import httpServer from "../../server";
 import { createTestUsersInDB } from "../../models/user/user-test-helper/user-test-helper";
-import { ConnectionRequestModel } from "../../models/connection-request/connection-request.model";
-
 
 const request = supertest(httpServer);
 

@@ -1,20 +1,19 @@
-import { Response, Router } from "express";
+import { Router } from "express";
 import { routeProtector } from "../../middleware/route-protector";
 import { body, param, validationResult } from "express-validator/check";
-import { UserModel } from "../../models/user/user.model";
-import { IProfileData } from "../../models/user/user.types";
-import { decrypt } from "../../utils/crypto";
-import { getVisibleThreads }
-  from "../../db/utils/get-visible-threads/get-visible-threads";
 import { NotificationModel } from "../../models/notification/notification.model";
-import { deleteConnectionValidationRules, getUserValidationRules,
+import {
+  deleteConnectionValidationRules,
+  getUserValidationRules,
   patchUserValidationRules,
-  putUserConnectionsValidationRules } from "../middleware/users/validators/validators";
+  putUserConnectionsValidationRules,
+} from "../middleware/users/validators/validators";
 import { validate } from "../middleware/validator";
 import { getUserById } from "../middleware/users/get/get-user-by-id.controller";
 import { getUserConnectionsById }
   from "../middleware/users/get/get-connections-by-id.controller";
-import { addConnectionToUser,
+import {
+  addConnectionToUser,
   deleteConnectionRequest,
   dispatchNotification,
   finalizeAndSendRequestorConnections,
@@ -22,12 +21,22 @@ import { addConnectionToUser,
   getConnectionRequestDocument,
   validateApproverIsReqUser,
   validateParamIdIsConnectionRequestDocumentRequestor,
-  validateUserIsNotMeOrSelf }
-  from "../middleware/users/put/put-user-connections.controller";
-import { deleteConnectionFromReqUserAndReturn,
-  validateTargetIdNotMeOrTargetIsNotReqUser }
-  from "../middleware/users/delete/delete-connection.controller";
-import { updateUserProfile, validateReqParamsIdIsMeOrReqUser } from "../middleware/users/patch";
+  validateUserIsNotMeOrSelf,
+} from "../middleware/users/put/put-user-connections.controller";
+import {
+  deleteConnectionFromReqUserAndReturn,
+  validateTargetIdNotMeOrTargetIsNotReqUser,
+} from "../middleware/users/delete/delete-connection.controller";
+import {
+  updateUserProfile,
+  validateReqParamsIdIsMeOrReqUser,
+} from "../middleware/users/patch";
+import {
+  returnThreadsForParamIdMe,
+  returnThreadsForUserByParamId,
+} from "../middleware/users/get";
+import { getMyNotifications }
+  from "../middleware/users/get/get-me-notifications.controller";
 const router = Router();
 
 router.get(
@@ -45,7 +54,6 @@ router.get(
   validate,
   getUserConnectionsById,
 );
-
 
 // Handles connection request approval
 router.put(
@@ -84,74 +92,19 @@ router.patch(
 );
 
 /**
- * This gets threads object for user with id. If id=me, gets own thread object
+ * This gets threads object for user with id.
+ * If id=me, gets own thread object
  */
 router.get(
   "/:id/threads",
   routeProtector,
-  [param("id").not().isEmpty().trim().escape()],
-  async (req: any, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).send({ errors: errors.array() });
-    }
-
-    if (req.params.id === "me") {
-      return res
-        .status(200)
-        .send({ id: req.user.id, threads: req.user.threads });
-    }
-
-    try {
-      const targetUser = await UserModel.findById(req.params.id);
-      if (targetUser) {
-        // If user is a connection, return all threads
-        // If not a connection, only return threads with a "anyone" visibility
-        if (targetUser.connections[req.user.id] !== undefined) {
-          return res.status(200).send({
-            id: targetUser.id.toString(),
-            threads: targetUser.threads,
-          });
-        } else {
-          const onlyVisibleThreads = getVisibleThreads(targetUser.threads);
-          return res.status(200).send({
-            id: targetUser.id.toString(),
-            threads: onlyVisibleThreads,
-          });
-        }
-      } else {
-        return res.status(404).send({
-          errors: [
-            {
-              "location": "/users",
-              "msg": `User ${req.params.id} not found`,
-              "param": "id",
-            },
-          ],
-        });
-      }
-    } catch (err) {
-      return res.status(500).send({
-        errors: [
-          {
-            "location": "/users",
-            "msg": `${err.message}`,
-            "param": "unknown",
-          },
-        ],
-      });
-    }
-  },
+  getUserValidationRules(),
+  validate,
+  returnThreadsForParamIdMe,
+  returnThreadsForUserByParamId,
 );
 
-router.get("/me/notifications", routeProtector, async (req: any, res: any) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).send({ errors: errors.array() });
-  }
-  const notifications = await req.user.getNotifications();
-  return res.status(200).send(notifications);
-});
+router.get("/me/notifications", routeProtector, getMyNotifications);
 
 router.patch(
   "/me/notifications/:notificationId",
