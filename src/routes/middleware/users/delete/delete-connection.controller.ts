@@ -20,8 +20,9 @@ export const deleteConnectionFromReqUserAndReturn =
   async (req: any, res: any): Promise<void> => {
     try {
       const user = await UserModel.findById(res.locals.userId);
-      const refreshedUser = await user.deleteConnectionFromUser(req.params.targetId);
-      return res.status(200).send([refreshedUser.connections]);
+      console.log("res.locals.userId", res.locals.userId);
+      await user.deleteConnectionFromUser(req.params.targetId);
+      return res.status(200).send([user.connections]);
     } catch (exception) {
       if (exception.message.includes("is not a connection") ||
       exception.message.includes("User id not found")) {

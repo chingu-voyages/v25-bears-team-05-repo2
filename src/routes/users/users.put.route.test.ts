@@ -4,8 +4,7 @@ import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 let mongoServer: any;
 import httpServer from "../../server";
-import { createTestUsers } from "../../models/user/user-test-helper/user-test-helper";
-import { UserModel } from "../../models/user/user.model";
+import { createTestUsersInDB } from "../../models/user/user-test-helper/user-test-helper";
 
 import { getErrorText } from "../utils";
 const request = supertest(httpServer);
@@ -47,8 +46,7 @@ test(`PUT /users/:id/connections - trigger a validation error`, async (done)=> {
 test(`PUT /users/:id/connections
 - supply fake/invalid connectionRequestDocumentId in body
 - expect a 500 error`, async (done) => {
-  const dummyUsers = createTestUsers({ numberOfUsers: 2 });
-  const testUsers = await UserModel.create(dummyUsers);
+  const testUsers = await createTestUsersInDB(2);
 
   // Create a connection request
   await request.post(`/request/connection/${testUsers[1].id}`)
@@ -67,8 +65,7 @@ test(`PUT /users/:id/connections
 - approverID doesn't match req user id,
 expect 400 error`,
 async (done) => {
-  const dummyUsers = createTestUsers({ numberOfUsers: 2 });
-  const testUsers = await UserModel.create(dummyUsers);
+  const testUsers = await createTestUsersInDB(2);
 
   // Create a connection request
   const connectionResponse = await request.post(`/request/connection/${testUsers[1].id}`)
@@ -89,8 +86,7 @@ async (done) => {
 test(`PUT /users/:id/connections
   - connectionRequestDocument's requestorId does not match req.params.id
   - expect 400 response`, async (done) => {
-  const dummyUsers = createTestUsers({ numberOfUsers: 2 });
-  const testUsers = await UserModel.create(dummyUsers);
+  const testUsers = await createTestUsersInDB(2);
 
   // Create a connection request
   const connectionResponse = await request.post(`/request/connection/${testUsers[1].id}`)
@@ -113,8 +109,7 @@ test(`PUT /users/:id/connections
 
 test(`PUT /users/:id/connections
  - expect 200 response`, async (done) => {
-  const dummyUsers = createTestUsers({ numberOfUsers: 2 });
-  const testUsers = await UserModel.create(dummyUsers);
+  const testUsers = await createTestUsersInDB(2);
 
   // Create a connection request
   const connectionResponse = await request.post(`/request/connection/${testUsers[1].id}`)

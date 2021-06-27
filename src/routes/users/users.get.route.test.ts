@@ -4,9 +4,9 @@ import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 let mongoServer: any;
 import httpServer from "../../server";
-import { createTestUsers } from "../../models/user/user-test-helper/user-test-helper";
-import { UserModel } from "../../models/user/user.model";
+import { createTestUsersInDB } from "../../models/user/user-test-helper/user-test-helper";
 import { IUserConnection } from "../../models/user-connection/user-connection.types";
+import { getErrorText } from "../utils";
 const request = supertest(httpServer);
 
 const options: mongoose.ConnectionOptions = {
@@ -29,20 +29,27 @@ afterAll(async () => {
 });
 test("GET /users/:id expect 200 response", async (done)=> {
   // Create some test users
-  const dummyUsers = createTestUsers({ numberOfUsers: 1 });
-  const userDocuments = await UserModel.create(dummyUsers);
-  const res = await request.get(`/users/${userDocuments[0].id}`)
-    .send({ testRequestorId: userDocuments[0].id });
+  const userDocuments = await createTestUsersInDB(1);
+  const res = await request.get(`/users/${userDocuments[0]._id}`)
+    .send({ testRequestorId: userDocuments[0]._id });
+  expect(res.statusCode).toBe(200);
+  expect(res.body.firstName).toBe("testUser0FirstName");
+  done();
+});
+
+test(`GET /users/:id (ownId) expect 200 response`, async (done) => {
+  const userDocuments = await createTestUsersInDB(1);
+  const res = await request.get(`/users/${userDocuments[0]._id}`)
+    .send({ testRequestorId: userDocuments[0]._id });
   expect(res.statusCode).toBe(200);
   expect(res.body.firstName).toBe("testUser0FirstName");
   done();
 });
 
 test(`GET /users/me expect 200 response`, async (done) => {
-  const dummyUsers = createTestUsers({ numberOfUsers: 1 });
-  const userDocuments = await UserModel.create(dummyUsers);
-  const res = await request.get(`/users/${userDocuments[0].id}`)
-    .send({ testRequestorId: userDocuments[0].id });
+  const userDocuments = await createTestUsersInDB(1);
+  const res = await request.get(`/users/me`)
+    .send({ testRequestorId: userDocuments[0]._id });
   expect(res.statusCode).toBe(200);
   expect(res.body.firstName).toBe("testUser0FirstName");
   done();
@@ -52,6 +59,7 @@ test("returns an error 404 if user not found", async (done)=> {
   const invalidId = mongoose.Types.ObjectId();
   const res = await request.get(`/users/${invalidId}`)
     .send({ testRequestorId: invalidId });
+  console.log(getErrorText(res.error));
   expect(res.statusCode).toBe(404);
   done();
 });
@@ -67,8 +75,7 @@ test("returns 500 after some server error", async (done) => {
 
 test("GET /users/:id/connections - returns connections", async (done)=> {
   // Setup
-  const dummyUsers = createTestUsers({ numberOfUsers: 5 });
-  const userDocuments = await UserModel.create(dummyUsers);
+  const userDocuments = await createTestUsersInDB(5);
   await userDocuments[0].addConnectionToUser(userDocuments[1].id, true);
   await userDocuments[0].addConnectionToUser(userDocuments[2].id, false);
 

@@ -1,7 +1,8 @@
 /* eslint-disable require-jsdoc */
-import { IUser } from "../user.types";
+import { IUser, IUserDocument } from "../user.types";
 import { encrypt } from "../../../utils/crypto";
 import assert from "assert";
+import { UserModel } from "../user.model";
 
 /**
  * @param numberOfUsers number of fake users to create for testing.
@@ -40,3 +41,8 @@ export function createTestUsers(input: {
   }
   return fakeUsers;
 }
+
+export const createTestUsersInDB = async (count: number): Promise<IUserDocument[]> => {
+  const dummies = createTestUsers({ numberOfUsers: count });
+  return UserModel.create(dummies);
+};

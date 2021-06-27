@@ -10,7 +10,7 @@ import { dispatchNotificationToSocket } from "../../../../models/notification/no
 
 export const validateUserIsNotMeOrSelf = (req: any, res: any, next: any): void => {
   const userId = getReqUser(req);
-  if (!userId) return res.status(400).send("Cannot determine req.user.id");
+  if (!userId) return res.status(400).send({ error: "Cannot determine req.user.id" });
   res.locals.userId = userId;
   if (req.params.id === "me" || req.params.id === userId) {
     return res.status(400).send({

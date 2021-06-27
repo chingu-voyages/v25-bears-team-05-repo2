@@ -1,7 +1,6 @@
 import { Response, Router } from "express";
 import { routeProtector } from "../../middleware/route-protector";
 import { body, param, validationResult } from "express-validator/check";
-import { sanitizeBody } from "express-validator/filter";
 import { UserModel } from "../../models/user/user.model";
 import { IProfileData } from "../../models/user/user.types";
 import { decrypt } from "../../utils/crypto";
@@ -9,6 +8,7 @@ import { getVisibleThreads }
   from "../../db/utils/get-visible-threads/get-visible-threads";
 import { NotificationModel } from "../../models/notification/notification.model";
 import { deleteConnectionValidationRules, getUserValidationRules,
+  patchUserValidationRules,
   putUserConnectionsValidationRules } from "../middleware/users/validators/validators";
 import { validate } from "../middleware/validator";
 import { getUserById } from "../middleware/users/get/get-user-by-id.controller";
@@ -27,6 +27,7 @@ import { addConnectionToUser,
 import { deleteConnectionFromReqUserAndReturn,
   validateTargetIdNotMeOrTargetIsNotReqUser }
   from "../middleware/users/delete/delete-connection.controller";
+import { updateUserProfile, validateReqParamsIdIsMeOrReqUser } from "../middleware/users/patch";
 const router = Router();
 
 router.get(
@@ -76,72 +77,10 @@ router.delete(
 router.patch(
   "/:id",
   routeProtector,
-  [
-    body("firstName").trim().escape(),
-    body("lastName").trim().escape(),
-    body("avatar").custom((value) => {
-      if (value) {
-        try {
-          new URL(value);
-          return true;
-        } catch (err) {
-          return false;
-        }
-      } else {
-        return true;
-      }
-    }),
-    sanitizeBody("avatar").customSanitizer((value) => {
-      return value.trim();
-    }),
-    body("jobTitle").trim().escape(),
-    param("id").not().isEmpty().trim().escape(),
-  ],
-  async (req: any, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).send({ errors: errors.array() });
-    }
-
-    if (req.params.id !== "me") {
-      return res.status(400).send({
-        errors: [
-          {
-            "location": "/users",
-            "msg": `Id must be 'me'`,
-            "param": "id",
-          },
-        ],
-      });
-    }
-    const profileUpdateRequest: IProfileData = {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      jobTitle: req.body.jobTitle,
-      avatarUrl: req.body.avatar,
-    };
-
-    try {
-      await req.user.updateUserProfile(profileUpdateRequest);
-      return res.status(200).send({
-        firstName: req.user.firstName,
-        lastName: req.user.lastName,
-        jobTitle: req.user.jobTitle,
-        avatar: req.body.avatar,
-        email: decrypt(req.user.auth.email),
-      });
-    } catch (err) {
-      return res.status(500).send({
-        errors: [
-          {
-            "location": "/users",
-            "msg": `Unable to complete. ${err.message}`,
-            "param": "null",
-          },
-        ],
-      });
-    }
-  },
+  patchUserValidationRules(),
+  validate,
+  validateReqParamsIdIsMeOrReqUser,
+  updateUserProfile,
 );
 
 /**
