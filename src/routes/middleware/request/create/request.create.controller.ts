@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 
-import { getRequestor } from "../get-requestor";
+
 import { ConnectionRequestModel }
   from "../../../../models/connection-request/connection-request.model";
 
@@ -8,10 +8,11 @@ import { NotificationModel } from "../../../../models/notification/notification.
 import { NotificationType } from "../../../../models/notification/notification.types";
 import { dispatchNotificationToSocket } from "../../../../models/notification/notification.methods";
 import { UserModel } from "../../../../models/user/user.model";
+import { getReqUser } from "../../../utils";
 
 export const getCreateRequestRequestorApprover = (req: any, res: any, next: any):void => {
   res.locals.approverId = req.params.id;
-  res.locals.requestorId = getRequestor(req);
+  res.locals.requestorId = getReqUser(req);
   res.locals.isTeamMate = req.body.isTeamMate;
   next();
 };

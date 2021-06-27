@@ -3,14 +3,11 @@ const supertest = require("supertest");
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 let mongoServer: any;
-import httpServer from "../server";
-import { createTestUsers } from "../models/user/user-test-helper/user-test-helper";
-import { UserModel } from "../models/user/user.model";
-import { getErrorText } from "./utils";
+import httpServer from "../../server";
+import { createTestUsers } from "../../models/user/user-test-helper/user-test-helper";
+import { UserModel } from "../../models/user/user.model";
+import { getErrorText } from "../utils";
 
-// import { createTestUsers } from "../models/user/user-test-helper/user-test-helper";
-// import { UserModel } from "../models/user/user.model";
-// import { IUserConnection } from "../models/user-connection/user-connection.types";
 const request = supertest(httpServer);
 
 const options: mongoose.ConnectionOptions = {
@@ -23,7 +20,7 @@ const options: mongoose.ConnectionOptions = {
 beforeAll(async ()=> {
   mongoServer = new MongoMemoryServer();
   const mongoUri = await mongoServer.getUri();
-  await mongoose.connect(mongoUri, options, (err) => {
+  mongoose.connect(mongoUri, options, (err) => {
     if (err) console.error(err);
   });
 });
@@ -32,50 +29,6 @@ afterAll(async () => {
   await mongoServer.stop();
 });
 
-test("POST /request/connection - id missing: expect validation error", async (done) => {
-  const res = await request.post("/request/connection/ /");
-  expect(res.statusCode).toBe(400);
-  done();
-});
-
-test(`POST /request/connection/:id 
-- invalid requestor id, expect 500 response`, async (done)=> {
-  const dummyUsers = createTestUsers({ numberOfUsers: 2 });
-  const testUsers = await UserModel.create(dummyUsers);
-  const dummyId = mongoose.Types.ObjectId();
-  const res = await request.post(`/request/connection/${testUsers[1].id}`)
-    .send({ testRequestorId: dummyId, isTeamMate: true });
-  expect(res.statusCode).toBe(500);
-  done();
-});
-test(`POST /request/connection/:id 
-  - creates a request. Expect 200 response`, async (done) => {
-  const dummyUsers = createTestUsers({ numberOfUsers: 2 });
-  const testUsers = await UserModel.create(dummyUsers);
-
-  const res = await request.post(`/request/connection/${testUsers[1].id}`)
-    .send({ testRequestorId: testUsers[0].id, isTeamMate: true });
-
-  const body = res.body as Array<{ [keyof: string]: string}>;
-
-  expect(res.statusCode).toBe(200);
-  expect(Object.keys(body[1])[0]).toBe(testUsers[1].id);
-  done();
-});
-
-test(`/POST /request/connection/:id
-- Check for error message that request already exists`, async (done) => {
-  const dummyUsers = createTestUsers({ numberOfUsers: 2 });
-  const testUsers = await UserModel.create(dummyUsers);
-  await request.post(`/request/connection/${testUsers[1].id}`)
-    .send({ testRequestorId: testUsers[0].id, isTeamMate: true });
-
-  // Send the same request again - we should get a 400 error
-  const res = await request.post(`/request/connection/${testUsers[1].id}`)
-    .send({ testRequestorId: testUsers[0].id, isTeamMate: true });
-  expect(res.statusCode).toBe(400);
-  done();
-});
 
 test(`DELETE /request/connection/:id 
  req.body.origin and param id are missing, expect 400 error`,

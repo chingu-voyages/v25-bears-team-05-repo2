@@ -1,21 +1,22 @@
 /* eslint-disable require-jsdoc */
 require("dotenv").config;
 import * as express from "express";
-import { routeProtector } from "../middleware/route-protector";
+import { routeProtector } from "../../middleware/route-protector";
 
 import { createConnectionRequest,
   dispatchNotification,
   generateNotification,
   getCreateRequestRequestorApprover,
   refreshAndSendFinalResponseToRequestor }
-  from "./middleware/request/create";
+  from "../middleware/request/create";
 
 import {
   createConnectionRequestValidationRules,
   deleteConnectionRequestValidationRules,
-  validate }
-  from "./middleware/request/validators/validators";
-import { deleteRequest, getDeleteRequestorApprover } from "./middleware/request/delete";
+}
+  from "../middleware/request/validators/validators";
+import { deleteRequest, getDeleteRequestorApprover } from "../middleware/request/delete";
+import { validate } from "../middleware/validator";
 
 const router = express.Router();
 

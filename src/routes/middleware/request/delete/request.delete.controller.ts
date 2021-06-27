@@ -1,15 +1,15 @@
 /* eslint-disable max-len */
-import { getRequestor } from "../get-requestor";
 import { ConnectionRequestModel }
   from "../../../../models/connection-request/connection-request.model";
+import { getReqUser } from "../../../utils";
 
 export const getDeleteRequestorApprover = (req: any, res: any, next: any): void => {
   if (req.body.origin === "requestor") {
-    res.locals.requestorId = getRequestor(req);
+    res.locals.requestorId = getReqUser(req);
     res.locals.approverId = req.params.id;
   } else if (req.body.origin === "approver") {
     res.locals.requestorId = req.params.id;
-    res.locals.approverId = getRequestor(req);
+    res.locals.approverId = getReqUser(req);
   } else {
     return res
       .status(400)
