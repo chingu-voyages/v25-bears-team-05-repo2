@@ -266,6 +266,5 @@ test(`GET /users/me/notifications`, async (done) => {
 
   expect(res.statusCode).toBe(200);
   expect(res.body.length).toBe(2);
-  console.log("notifications", res.body);
   done();
 });

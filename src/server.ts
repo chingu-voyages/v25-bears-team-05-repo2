@@ -78,11 +78,6 @@ app.get("/fail", (req, res) => {
     errors: [{ ...createError("google-oauth", "Authentication error", "na") }],
   });
 });
-// const port = app.get("port");
-
-// httpServer.listen(port, ()=> {
-//   console.log(`http server listening on port ${port}`);
-// })
 
 io.on("connection", (socket) => {
   socket.on("myId", (data)=> {

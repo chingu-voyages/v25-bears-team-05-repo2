@@ -7,6 +7,8 @@ import httpServer from "../../server";
 import { createTestUsersInDB } from "../../models/user/user-test-helper/user-test-helper";
 
 import { ErrorObjectCollection, getErrorText } from "../utils";
+import { NotificationModel } from "../../models/notification/notification.model";
+import { NotificationType } from "../../models/notification/notification.types";
 const request = supertest(httpServer);
 
 const options: mongoose.ConnectionOptions = {
@@ -75,6 +77,67 @@ test(`DELETE /users/me/connections/:targetId
   expect(connectionObjects.length).toBe(2);
   expect(connectionObjects.some((obj: any) =>
     obj.userId === testUsers[2].id )).toBe(true);
+  expect(res.statusCode).toBe(200);
+  done();
+});
+
+
+test(`DELETE /users/me/notifications/:notificationId
+- :notificationId is missing
+- expect 400 error`, async (done) => {
+  const testUser = await createTestUsersInDB(1);
+  const res = await request.delete(`/users/me/notifications/ /`)
+    .send({ testRequestorId: testUser[0].id });
+  expect(res.statusCode).toBe(400);
+  done();
+});
+
+test(`DELETE /users/me/notifications/:notifications
+- the requestor is wrong user
+(user attempting to dismiss a 
+  notification that doesn't belong to them)`, async (done) => {
+  const testUsers = await createTestUsersInDB(3);
+  const notificationDocument = await NotificationModel.generateNotificationDocument({
+    originatorId: testUsers[1].id,
+    targetUserId: testUsers[0].id,
+    notificationType: NotificationType.ConnectionRequest,
+  });
+
+  const res = await request.delete(`/users/me/notifications/${notificationDocument.id}/`)
+    .send({ testRequestorId: testUsers[2].id });
+  expect(getErrorText(res.error))
+    .toBe("Dismiss notifications: illegal operation - targetId and userId don't match");
+  expect(res.statusCode).toBe(500);
+  done();
+});
+test(`DELETE /users/me/notifications/:notifications
+- fake notificationId - expect 500 error`, async (done) => {
+  const testUsers = await createTestUsersInDB(2);
+  await NotificationModel.generateNotificationDocument({
+    originatorId: testUsers[1].id,
+    targetUserId: testUsers[0].id,
+    notificationType: NotificationType.ConnectionRequest,
+  });
+  const fakeNotificationId = mongoose.Types.ObjectId();
+  const res = await request.delete(`/users/me/notifications/${fakeNotificationId}/`)
+    .send({ testRequestorId: testUsers[0].id });
+  expect(getErrorText(res.error))
+    .toBe("Unable to find notification by id");
+  expect(res.statusCode).toBe(500);
+  done();
+});
+
+test(`DELETE /users/me/notifications/:notifications
+- should dismiss properly`, async (done) => {
+  const testUsers = await createTestUsersInDB(2);
+  const notification = await NotificationModel.generateNotificationDocument({
+    originatorId: testUsers[1].id,
+    targetUserId: testUsers[0].id,
+    notificationType: NotificationType.ConnectionRequest,
+  });
+
+  const res = await request.delete(`/users/me/notifications/${notification.id}/`)
+    .send({ testRequestorId: testUsers[0].id });
   expect(res.statusCode).toBe(200);
   done();
 });

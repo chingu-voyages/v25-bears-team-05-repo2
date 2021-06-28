@@ -2,7 +2,7 @@ import { body, param } from "express-validator/check";
 import { sanitizeBody } from "express-validator/filter";
 import { isURLValid } from "../../../../utils/url-validation";
 
-export const getUserValidationRules = (): any[] => {
+export const userValidationRules = (): any[] => {
   return [param("id").not().isEmpty().trim().escape()];
 };
 
@@ -24,7 +24,6 @@ export const patchUserValidationRules = (): any[] => {
     body("avatar").custom((value) => {
       if (value) {
         try {
-          console.log("27", value);
           return isURLValid(value);
         } catch (err) {
           return false;
@@ -39,4 +38,15 @@ export const patchUserValidationRules = (): any[] => {
     body("jobTitle").trim().escape(),
     param("id").not().isEmpty().trim().escape(),
   ];
+};
+
+export const patchNotificationsValidationRules = (): any[] => {
+  return [
+    param("notificationId").not().isEmpty().trim().escape(),
+    body("read").not().isEmpty().isBoolean(),
+  ];
+};
+
+export const deleteNotificationValidationRules = (): any[] => {
+  return [param("notificationId").not().isEmpty().trim().escape()];
 };

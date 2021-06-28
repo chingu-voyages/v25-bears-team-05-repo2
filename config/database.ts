@@ -3,7 +3,6 @@ import { ConnectionOptions, connect } from "mongoose";
 import assert from "assert";
 import { getEnvironmentVariable } from "../src/utils/get-env-variable/get-env";
 
-// const isTest = process.env.NODE_ENV && process.env.
 const connectDB = async () => {
   try {
     const mongoURI = getEnvironmentVariable({

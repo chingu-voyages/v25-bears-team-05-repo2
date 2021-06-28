@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { routeProtector } from "../../middleware/route-protector";
-import { body, param, validationResult } from "express-validator/check";
-import { NotificationModel } from "../../models/notification/notification.model";
 import {
   deleteConnectionValidationRules,
-  getUserValidationRules,
+  userValidationRules,
+  patchNotificationsValidationRules,
   patchUserValidationRules,
   putUserConnectionsValidationRules,
+  deleteNotificationValidationRules,
 } from "../middleware/users/validators/validators";
 import { validate } from "../middleware/validator";
 import { getUserById } from "../middleware/users/get/get-user-by-id.controller";
@@ -37,12 +37,18 @@ import {
 } from "../middleware/users/get";
 import { getMyNotifications }
   from "../middleware/users/get/get-me-notifications.controller";
+import { findAndMarkNotificationAsRead,
+  refreshAndSendNotificationsToReqUser }
+  from "../middleware/users/patch/patch-notifications.controller";
+import { dismissNotification,
+  refreshAndSendUpdatedNotifications }
+  from "../middleware/users/delete/delete-user-notifications.controller";
 const router = Router();
 
 router.get(
   "/:id",
   routeProtector,
-  getUserValidationRules(),
+  userValidationRules(),
   validate,
   getUserById,
 );
@@ -50,7 +56,7 @@ router.get(
 router.get(
   "/:id/connections",
   routeProtector,
-  getUserValidationRules(),
+  userValidationRules(),
   validate,
   getUserConnectionsById,
 );
@@ -98,7 +104,7 @@ router.patch(
 router.get(
   "/:id/threads",
   routeProtector,
-  getUserValidationRules(),
+  userValidationRules(),
   validate,
   returnThreadsForParamIdMe,
   returnThreadsForUserByParamId,
@@ -109,62 +115,19 @@ router.get("/me/notifications", routeProtector, getMyNotifications);
 router.patch(
   "/me/notifications/:notificationId",
   routeProtector,
-  [
-    param("notificationId").not().isEmpty().trim().escape(),
-    body("read").not().isEmpty().isBoolean(),
-  ],
-  async (req: any, res: any) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).send({ errors: errors.array() });
-    }
-    const { read } = req.body;
-    try {
-      await NotificationModel.findByIdAndMarkAsRead({
-        notificationId: req.params.notificationId,
-        read,
-      });
-      const updatedNotifications = await req.user.getNotifications();
-      return res.status(200).send(updatedNotifications);
-    } catch (exception) {
-      return res.status(500).send({
-        errors: [
-          {
-            "location": "/users/notifications",
-            "msg": `Server error/ invalid notification id`,
-            "param": "id",
-          },
-        ],
-      });
-    }
-  },
+  patchNotificationsValidationRules(),
+  validate,
+  findAndMarkNotificationAsRead,
+  refreshAndSendNotificationsToReqUser,
 );
 
 router.delete(
   "/me/notifications/:notificationId",
   routeProtector,
-  [param("notificationId").not().isEmpty().trim().escape()],
-  async (req: any, res: any) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).send({ errors: errors.array() });
-    }
-    try {
-      await req.user.dismissNotification(req.params.notificationId);
-      const updatedNotifications = await req.user.getNotifications();
-      return res.status(200).send(updatedNotifications);
-    } catch (exception) {
-      return res.status(500).send({
-        errors: [
-          {
-            "location": "/users/notifications",
-            "msg": `${exception}`,
-            "param": "id",
-          },
-        ],
-      });
-    }
-  },
+  deleteNotificationValidationRules(),
+  validate,
+  dismissNotification,
+  refreshAndSendUpdatedNotifications,
 );
 
 export default router;
