@@ -36,6 +36,7 @@ test("GET /users/:id expect 200 response", async (done)=> {
     .send({ testRequestorId: userDocuments[0]._id });
   expect(res.statusCode).toBe(200);
   expect(res.body.firstName).toBe("testUser0FirstName");
+  console.log(res.body);
   done();
 });
 
