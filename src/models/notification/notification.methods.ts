@@ -87,12 +87,16 @@ export function dispatchNotificationToSocket(data: {
 export async function findByIdAndMarkAsRead(
   this: INotificationModel,
   data: {
+    targetUserId: string;
     notificationId: string,
     read: boolean,
   },
 ): Promise<INotificationDocument> {
   const notification = await NotificationModel.findById(data.notificationId);
   if (notification) {
+    if (notification.targetId !== data.targetUserId) {
+      throw new Error("The targetUserId doesn't match the notification's targetUser");
+    }
     notification.read = data.read;
     await notification.save();
     return notification;

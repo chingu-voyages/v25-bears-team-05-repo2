@@ -2,6 +2,7 @@ require("dotenv").config();
 import { ConnectionOptions, connect } from "mongoose";
 import assert from "assert";
 import { getEnvironmentVariable } from "../src/utils/get-env-variable/get-env";
+
 const connectDB = async () => {
   try {
     const mongoURI = getEnvironmentVariable({
@@ -11,7 +12,7 @@ const connectDB = async () => {
 
     assert(
       mongoURI,
-      "Mongo connection URI is not defined. Check environment variables"
+      "Mongo connection URI is not defined. Check environment variables",
     );
     const options: ConnectionOptions = {
       useNewUrlParser: true,
@@ -21,7 +22,8 @@ const connectDB = async () => {
     };
     await connect(mongoURI, options);
     console.log(
-      `MongoDB Connected... ${getEnvironmentVariable({ production: "production", dev: "development" })}`
+      `MongoDB Connected... 
+      ${getEnvironmentVariable({ production: "production", dev: "development" })}`,
     );
   } catch (err) {
     console.error(err.message);

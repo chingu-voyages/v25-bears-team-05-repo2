@@ -3,18 +3,17 @@ import bodyParser from "body-parser";
 import authRouter from "./routes/auth";
 import localRegistrationRouter from "./routes/register-local";
 import logOutRouter from "./routes/logout";
-import usersRoute from "./routes/users";
+import usersRoute from "./routes/users/users";
 import threadsRoute from "./routes/threads";
 import commentsRoute from "./routes/comments";
 import feedRoute from "./routes/feed";
 import searchRouter from "./routes/search";
-import passwordRecoveryRouter from "./routes/recover"
-import requestRouter from "./routes/request"
+import passwordRecoveryRouter from "./routes/recover";
+import requestRouter from "./routes/request/request";
 import express from "express";
 import passport from "passport";
 import checkClientApiPass from "./middleware/check-client-api-pass";
 
-import connectDB from "../config/database";
 import { createError } from "./utils/errors";
 const cookieSession = require("cookie-session");
 const app = express();
@@ -26,15 +25,12 @@ const httpServer = createServer(app);
 export const io = new Server(httpServer, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
-  }
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  },
 });
 
 const isProduction =
   process.env.NODE_ENV && process.env.NODE_ENV.match("production");
-
-// Connect to MongoDB
-connectDB();
 
 // Express configuration
 app.set("port", process.env.PORT || 7000);
@@ -49,7 +45,7 @@ app.use(
     keys: [process.env.COOKIE_KEY_1, process.env.COOKIE_KEY_2],
     domain: isProduction ? ".syncedup.live" : "localhost",
     // secure: isProduction
-  })
+  }),
 );
 
 app.use(passport.initialize());
@@ -82,16 +78,11 @@ app.get("/fail", (req, res) => {
     errors: [{ ...createError("google-oauth", "Authentication error", "na") }],
   });
 });
-const port = app.get("port");
-
-httpServer.listen(port, ()=> {
-  console.log(`http server listening on port ${port}`);
-})
 
 io.on("connection", (socket) => {
   socket.on("myId", (data)=> {
     socket.join(data);
-  })
-})
+  });
+});
 
 export default httpServer;

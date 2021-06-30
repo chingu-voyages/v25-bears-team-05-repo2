@@ -104,7 +104,8 @@ describe("notification request tests", () => {
         });
       const markedAsReadNotification =
         await NotificationModel
-          .findByIdAndMarkAsRead({ notificationId: firstTestNotification.id,
+          .findByIdAndMarkAsRead({ targetUserId: dummyUserDocuments[1].id,
+            notificationId: firstTestNotification.id,
             read: true });
       expect(markedAsReadNotification.read).toBe(true);
     });

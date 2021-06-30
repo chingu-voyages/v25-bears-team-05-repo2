@@ -12,8 +12,10 @@ export function getEnvironmentVariable(input: {
 }) {
   const isProduction =
     process.env.NODE_ENV && process.env.NODE_ENV.match("production");
-  isProduction
-    ? assert(input.production, "a production environment variable is undefined")
-    : assert(input.dev, "a dev environment variable is undefined");
+  if (isProduction) {
+    assert(input.production, "a production environment variable is undefined");
+    return input.production;
+  }
+
   return isProduction ? input.production : input.dev;
 }
