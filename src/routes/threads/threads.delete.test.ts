@@ -6,8 +6,6 @@ let mongoServer: any;
 import httpServer from "../../server";
 import { createTestUsersInDB } from "../../models/user/user-test-helper/user-test-helper";
 
-import { getErrorText } from "../utils";
-
 import { ThreadVisibility } from "../../models/thread/thread.types";
 const request = supertest(httpServer);
 
