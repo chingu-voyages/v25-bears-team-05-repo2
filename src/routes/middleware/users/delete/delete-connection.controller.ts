@@ -1,13 +1,8 @@
 import { UserModel } from "../../../../models/user/user.model";
-import { getReqUser } from "../../../utils";
 
 export const validateTargetIdNotMeOrTargetIsNotReqUser =
   (req: any, res: any, next: any): void => {
-    const userId = getReqUser(req);
-    if (!userId) return res.status(500).send({ error: "Unable to get req.user.id " });
-    res.locals.userId = userId;
-
-    if (req.params.targetId === "me" || req.params.targetId === userId) {
+    if (req.params.targetId === "me" || req.params.targetId === res.locals.userId) {
       return res.status(400).send({
         error:
          "Can't use 'me' or own id in this type of request",

@@ -1,21 +1,15 @@
 import { UserModel } from "../../../../models/user/user.model";
 import { NotificationModel } from "../../../../models/notification/notification.model";
-import { getReqUser } from "../../../utils";
 
 export const findAndMarkNotificationAsRead = async (
   req: any,
   res: any,
   next: any,
 ): Promise<void> => {
-  const userId = getReqUser(req);
-  if (!userId) {
-    return res.status(400).send({ error: "Cannot determine req.user.id" });
-  }
-  res.locals.userId = userId;
   const { read } = req.body;
   try {
     await NotificationModel.findByIdAndMarkAsRead({
-      targetUserId: userId,
+      targetUserId: res.locals.userId,
       notificationId: req.params.notificationId,
       read,
     });

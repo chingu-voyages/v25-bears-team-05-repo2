@@ -1,3 +1,7 @@
+/* eslint-disable max-len */
+/* eslint-disable no-invalid-this */
+/* eslint-disable require-jsdoc */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { IUserDocument } from "../user.types";
 import { UserModel } from "../user.model";
 import {
@@ -26,7 +30,7 @@ import { getThreadById } from "../../../db/utils/get-thread-by-id/get-thread-by-
  */
 export async function createAndPostThread(
   this: IUserDocument,
-  threadDetails: IThreadPostDetails
+  threadDetails: IThreadPostDetails,
 ) {
   const userThread: IThread = {
     threadType: threadDetails.threadType,
@@ -58,7 +62,7 @@ export async function createAndPostThread(
 
 export async function deleteThread(
   this: IUserDocument,
-  threadDetails: { targetThreadId: string }
+  threadDetails: { targetThreadId: string },
 ) {
   // Rules: user can only delete a thread they started.
   if (this.threads.started[threadDetails.targetThreadId]) {
@@ -71,7 +75,7 @@ export async function deleteThread(
     return this.threads.started;
   } else {
     throw new Error(
-      `Thread not found on user object with id: ${threadDetails.targetThreadId}: unable to delete`
+      `Thread not found on user object with id: ${threadDetails.targetThreadId}: unable to delete`,
     );
   }
 }
@@ -80,7 +84,7 @@ export async function deleteThread(
  * return a sorted list (by date latest) of threads from source user's connections
  */
 export async function getConnectionThreads(
-  this: IUserDocument
+  this: IUserDocument,
 ): Promise<Array<IThread>> {
   // Get an array of userIds for this.connections
   const connectionUserIds = [...Object.keys(this.connections), this.id];
@@ -94,10 +98,10 @@ export async function getConnectionThreads(
 
   await Promise.all(users.map(async (user) => {
     for (const [_, value] of Object.entries(user.threads.started)) {
-      const threadData = await getThreadById({ threadId: value._id })
+      const threadData = await getThreadById({ threadId: value._id });
       threads.push(threadData);
     }
-    return 
+    return;
   }));
 
   return threads.sort((a, b) => b.createdAt.valueOf() - a.createdAt.valueOf());
@@ -105,7 +109,7 @@ export async function getConnectionThreads(
 
 export async function addLikeToThread(
   this: IUserDocument,
-  data: { targetThreadId: string; title: string }
+  data: { targetThreadId: string; title: string },
 ) {
   // Find the thread
   // Create the like object
@@ -136,12 +140,14 @@ export async function addLikeToThread(
       updatedThread: threadDoc,
       threadLikeDocument: threadLikeDocument,
     };
+  } else {
+    throw new Error(`Cannot find thread by id ${data.targetThreadId}`);
   }
 }
 
 export async function deleteLikeFromThread(
   this: IUserDocument,
-  data: { targetThreadId: string; targetLikeId: string }
+  data: { targetThreadId: string; targetLikeId: string },
 ): Promise<{ updatedThread: IThreadDocument }> {
   // Find the thread
   const targetThread = await ThreadModel.findById(data.targetThreadId);
@@ -166,7 +172,7 @@ export async function deleteLikeFromThread(
       throw new Error("ThreadLike id not found");
     }
   } else {
-    throw new Error("Unable to delete like from thread.");
+    throw new Error("Internal error: deleteLikeFromThread method.");
   }
 }
 
@@ -183,7 +189,7 @@ export async function addThreadComment(
       content: string;
       attachments?: Array<IAttachmentType>;
     };
-  }
+  },
 ) {
   const targetThread = await ThreadModel.findById(data.targetThreadId);
 
@@ -207,7 +213,7 @@ export async function addThreadComment(
 
     // Update the User of the creator of the parent thread
     const sourceUser = await UserModel.findById(
-      targetThread.postedByUserId.toString()
+      targetThread.postedByUserId.toString(),
     );
     if (sourceUser) {
       sourceUser.threads.started[targetThread._id.toString()]["comments"] = {
@@ -248,7 +254,7 @@ export async function addThreadComment(
  */
 export async function deleteThreadComment(
   this: IUserDocument,
-  data: { targetThreadCommentId: string }
+  data: { targetThreadCommentId: string },
 ) {
   const deletedCommentDocument = await ThreadCommentModel.findByIdAndDelete(data.targetThreadCommentId);
 
@@ -289,7 +295,7 @@ export async function shareThread(
     sourceUserId: string;
     threadShareType: ThreadType;
     visibility?: ThreadVisibility;
-  }
+  },
 ) {
   // The targetThreadId has to exist on the source user.
   // The targetThreadId must be a public thread (cannot share private)
@@ -297,7 +303,7 @@ export async function shareThread(
 
   // First find the thread in the collection
   const targetThreadFromCollection = await ThreadModel.findById(
-    data.targetThreadId.toString()
+    data.targetThreadId.toString(),
   );
   if (!targetThreadFromCollection) {
     throw new Error("Target thread not found in collection");
@@ -352,7 +358,7 @@ export async function shareThread(
     };
   } else {
     throw new Error(
-      `Thread with id ${targetThreadFromCollection.id.toString()} does not exist on user's threads.started object`
+      `Thread with id ${targetThreadFromCollection.id.toString()} does not exist on user's threads.started object`,
     );
   }
 }
@@ -364,7 +370,7 @@ export async function shareThread(
  */
 export async function deleteThreadShare(
   this: IUserDocument,
-  data: { targetThreadShareId: string }
+  data: { targetThreadShareId: string },
 ) {
   // Get all needed objects
   const sourceThread = await ThreadModel.findById(data.targetThreadShareId);
