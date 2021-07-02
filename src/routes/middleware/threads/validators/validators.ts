@@ -78,3 +78,7 @@ export const deleteThreadLikeValidator = (): any[] => {
     }),
     body("threadLikeId").exists().trim().escape()];
 };
+
+export const deleteThreadByIdValidator = (): any[] => {
+  return [param("thread_id").exists().trim().escape()];
+};
