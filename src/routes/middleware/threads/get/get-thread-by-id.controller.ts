@@ -1,6 +1,6 @@
 import { getThreadById } from "../../../../db/utils/get-thread-by-id/get-thread-by-id";
 
-export const fetchThreadsById = async (req: any, res: any): void => {
+export const fetchThreadsById = async (req: any, res: any): Promise<void> => {
   try {
     const threadData = await getThreadById({ threadId: req.params.id });
     if (threadData) {

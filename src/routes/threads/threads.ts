@@ -109,4 +109,4 @@ router.delete("/:thread_id", routeProtector,
 //         "Error") }] });
 //     }
 //   });
-// export default router;
+export default router;

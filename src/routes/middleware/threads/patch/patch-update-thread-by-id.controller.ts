@@ -15,7 +15,7 @@ export const gatherPatchUpdates =(req: any, res: any, next: any): void => {
   next();
 };
 
-export const completePatchOperation = async (req: any, res: any): void => {
+export const completePatchOperation = async (req: any, res: any): Promise<void> => {
   try {
     const patchedThread = await ThreadModel.patchThread(res.locals.threadPatchUpdates);
     res.status(200).send({ patchedThread });
