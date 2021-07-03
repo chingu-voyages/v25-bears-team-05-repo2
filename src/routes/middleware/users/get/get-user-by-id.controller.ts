@@ -1,19 +1,14 @@
 import { getProfileById } from "../../../../db/utils/get-profile-by-id/get-profile-by-id";
-import { getReqUser } from "../../../utils";
+
 
 export const getUserById = async (
   req: any,
   res: any,
   next: any,
 ): Promise<void> => {
-  const userId = getReqUser(req);
-  if (!userId) {
-    return res.status(400).send({ error: "Cannot determine req.user.id" });
-  }
-
   try {
     if (req.params.id === "me") {
-      const homeProfileData = await getProfileById(userId);
+      const homeProfileData = await getProfileById(res.locals.userId);
       return res.status(200).send(homeProfileData);
     } else {
       const otherUserData = await getProfileById(req.params.id);

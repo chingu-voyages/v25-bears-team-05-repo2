@@ -1,15 +1,11 @@
 import { UserModel } from "../../../../models/user/user.model";
 import { IProfileData } from "../../../../models/user/user.types";
 import { decrypt } from "../../../../utils/crypto";
-import { getReqUser } from "../../../utils";
 
 export const validateReqParamsIdIsMeOrReqUser = (req: any,
   res: any,
   next: any): void => {
-  const userId = getReqUser(req);
-  if (!userId) return res.status(400).send({ error: "Cannot determine req.user.id" });
-  res.locals.userId = userId;
-  if (req.params.id !== "me" && req.params.id !== userId) {
+  if (req.params.id !== "me" && req.params.id !== res.locals.userId) {
     return res.status(400).send({
       errors: [
         {

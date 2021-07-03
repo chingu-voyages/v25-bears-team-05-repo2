@@ -43,6 +43,7 @@ import { findAndMarkNotificationAsRead,
 import { dismissNotification,
   refreshAndSendUpdatedNotifications }
   from "../middleware/users/delete/delete-user-notifications.controller";
+import { getUserContext } from "../middleware/get-user-context";
 const router = Router();
 
 router.get(
@@ -50,6 +51,7 @@ router.get(
   routeProtector,
   userValidationRules(),
   validate,
+  getUserContext,
   getUserById,
 );
 
@@ -58,6 +60,7 @@ router.get(
   routeProtector,
   userValidationRules(),
   validate,
+  getUserContext,
   getUserConnectionsById,
 );
 
@@ -67,6 +70,7 @@ router.put(
   routeProtector,
   putUserConnectionsValidationRules(),
   validate,
+  getUserContext,
   validateUserIsNotMeOrSelf,
   getConnectionRequestDocument,
   validateApproverIsReqUser,
@@ -84,6 +88,7 @@ router.delete(
   routeProtector,
   deleteConnectionValidationRules(),
   validate,
+  getUserContext,
   validateTargetIdNotMeOrTargetIsNotReqUser,
   deleteConnectionFromReqUserAndReturn,
 );
@@ -93,6 +98,7 @@ router.patch(
   routeProtector,
   patchUserValidationRules(),
   validate,
+  getUserContext,
   validateReqParamsIdIsMeOrReqUser,
   updateUserProfile,
 );
@@ -106,6 +112,7 @@ router.get(
   routeProtector,
   userValidationRules(),
   validate,
+  getUserContext,
   returnThreadsForParamIdMe,
   returnThreadsForUserByParamId,
 );
@@ -117,6 +124,7 @@ router.patch(
   routeProtector,
   patchNotificationsValidationRules(),
   validate,
+  getUserContext,
   findAndMarkNotificationAsRead,
   refreshAndSendNotificationsToReqUser,
 );
@@ -126,6 +134,7 @@ router.delete(
   routeProtector,
   deleteNotificationValidationRules(),
   validate,
+  getUserContext,
   dismissNotification,
   refreshAndSendUpdatedNotifications,
 );

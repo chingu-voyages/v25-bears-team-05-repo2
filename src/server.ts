@@ -4,7 +4,7 @@ import authRouter from "./routes/auth";
 import localRegistrationRouter from "./routes/register-local";
 import logOutRouter from "./routes/logout";
 import usersRoute from "./routes/users/users";
-import threadsRoute from "./routes/threads";
+import threadsRoute from "./routes/threads/threads";
 import commentsRoute from "./routes/comments";
 import feedRoute from "./routes/feed";
 import searchRouter from "./routes/search";
