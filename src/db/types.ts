@@ -1,7 +1,4 @@
-import { IThreadComment } from "../models/thread-comment/thread-comment.types";
-import { IThreadLike } from "../models/thread-like/thread-like.types";
-import { IThreadShare } from "../models/thread-share/thread-share.types";
-import { IThread } from "../models/thread/thread.types";
+import { IUserThread } from "../models/user/user.types";
 
 export interface IProfile {
   firstName: string;
@@ -9,12 +6,7 @@ export interface IProfile {
   jobTitle: string;
   avatar: Array<{ url: string}>;
   connections: any;
-  connectionOf: any;
-  threads: {
-    started: { [keyof: string]: IThread },
-    commented: { [keyof: string]: IThreadComment },
-    liked: { [keyof: string]: IThreadLike },
-    shared: { [keyof: string]: IThreadShare },
-  };
+  connectionRequests: any;
+  threads: IUserThread;
   id: string;
 }

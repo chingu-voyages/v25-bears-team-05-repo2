@@ -3,6 +3,7 @@ import { createTestUsers } from "../user-test-helper/user-test-helper";
 import { UserModel } from "../user.model";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 let mongoServer: any;
 
 const options: mongoose.ConnectionOptions = {
@@ -26,8 +27,8 @@ afterEach(async () => {
 });
 
 describe("find by encrypted email function tests", () => {
-  test("Function works", async() => {
-    const dummyUsers = createTestUsers(150, undefined, undefined);
+  test("Function works", async () => {
+    const dummyUsers = createTestUsers({ numberOfUsers: 150 });
     const encryptedEmail = dummyUsers[0].auth.email; // This should be encrypted
     await UserModel.create(dummyUsers);
     const result = await UserModel.findByEncryptedEmail(encryptedEmail);
@@ -38,8 +39,8 @@ describe("find by encrypted email function tests", () => {
 });
 
 describe("findOneByEncryptedEmail function tests", () => {
-  test("function returns a single object", async() => {
-    const dummyUsers = createTestUsers(10, undefined, undefined);
+  test("function returns a single object", async () => {
+    const dummyUsers = createTestUsers({ numberOfUsers: 10 });
     const encryptedEmail = dummyUsers[1].auth.email; // This should be encrypted
     await UserModel.create(dummyUsers);
     const result = await UserModel.findOneByEncryptedEmail(encryptedEmail);
@@ -50,11 +51,32 @@ describe("findOneByEncryptedEmail function tests", () => {
   });
 
   test("function returns undefined because no e-mail exists", async () => {
-    const dummyUsers = createTestUsers(5, undefined, undefined);
+    const dummyUsers = createTestUsers({ numberOfUsers: 5 });
     const encryptedEmail = encrypt("someOtherEmail@test.com");
     await UserModel.create(dummyUsers);
     const result = await UserModel.findOneByEncryptedEmail(encryptedEmail);
 
     expect(result).toBeUndefined();
+  });
+});
+
+describe("change password tests", () => {
+  test("changes password correctly", async () => {
+    const testUsersDocuments = createTestUsers({
+      numberOfUsers: 1,
+      plainTextPasswords: ["Somepassword$123"],
+    });
+    const userDocuments = await UserModel.create(testUsersDocuments);
+    expect(userDocuments[0].auth.password).toBe("Somepassword$123");
+
+    await userDocuments[0].changePassword("someNewPassword$123");
+    const encryptedEmail = encrypt("testUser0@test.com");
+    const updatedUser = await UserModel.findByEncryptedEmail(encryptedEmail);
+    expect(
+      bcrypt.compareSync("someNewPassword$123", updatedUser[0].auth.password)
+    ).toBe(true);
+    expect(
+      bcrypt.compareSync("someNewPassword$124", updatedUser[0].auth.password)
+    ).toBe(false);
   });
 });

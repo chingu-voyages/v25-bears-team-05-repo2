@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 import { createTestUsers } from "../../../models/user/user-test-helper/user-test-helper";
-import { ThreadType, ThreadVisibility } from "../../../models/thread/thread.types";
+import { IThreadDocument, ThreadType, ThreadVisibility } from "../../../models/thread/thread.types";
 import { getVisibleThreads } from "./get-visible-threads";
 
 describe("getVisibleThread db tests", () => {
   test("correctly excludes the threads visible to only connections", () => {
     // Create some sample thread objects
-    const dummyUser = createTestUsers(1, [undefined]);
+    const dummyUser = createTestUsers({ numberOfUsers: 1 });
     dummyUser[0].threads.started = {
       "thread_1": {
         postedByUserId: mongoose.Types.ObjectId(),
@@ -22,7 +22,7 @@ describe("getVisibleThread db tests", () => {
         shares: { },
         createdAt: new Date(),
         updatedAt: new Date()
-      },
+      } as IThreadDocument,
       "thread_2": {
         postedByUserId: mongoose.Types.ObjectId(),
         threadType: ThreadType.Article,
@@ -37,7 +37,7 @@ describe("getVisibleThread db tests", () => {
         shares: { },
         createdAt: new Date(),
         updatedAt: new Date()
-      },
+      } as IThreadDocument,
       "thread_3": {
         postedByUserId: mongoose.Types.ObjectId(),
         threadType: ThreadType.Article,
@@ -52,7 +52,7 @@ describe("getVisibleThread db tests", () => {
         shares: { },
         createdAt: new Date(),
         updatedAt: new Date()
-      },
+      } as IThreadDocument,
       "thread_4": {
         postedByUserId: mongoose.Types.ObjectId(),
         threadType: ThreadType.Article,
@@ -67,7 +67,7 @@ describe("getVisibleThread db tests", () => {
         shares: { },
         createdAt: new Date(),
         updatedAt: new Date()
-      }
+      } as IThreadDocument
     };
 
     const result = getVisibleThreads(dummyUser[0].threads);

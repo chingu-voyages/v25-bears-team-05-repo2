@@ -1,19 +1,19 @@
 import { Document, Model } from "mongoose";
 import { IThreadComment } from "../thread-comment/thread-comment.types";
 import { IThreadLikeDocument } from "../thread-like/thread-like.types";
-import { IThreadShare } from "../thread-share/thread-share.types";
 import mongoose from "mongoose";
+import { IThreadShare } from "../thread-share/thread-share.types";
 
 export enum ThreadType {
-  Post = 0,
-  Photo = 1,
-  Job = 2,
-  Article = 3
+  Post = "post",
+  Photo = "photo",
+  Job = "job",
+  Article = "article",
 }
 
 export enum ThreadVisibility {
   Anyone = 0,
-  Connections = 1
+  Connections = 1,
 }
 
 export interface IThreadPostDetails {
@@ -29,9 +29,11 @@ export interface IThread {
   threadType: ThreadType;
   visibility: ThreadVisibility;
   content: {
-    html: string,
-    hashTags: Array<string>,
-    attachments: Array<string>
+    html: string;
+    hashTags: Array<string>;
+    attachments: Array<string>;
+    readonly createdAt: Date;
+    updatedAt: Date;
   };
   comments: { [keyof: string]: IThreadComment };
   likes: { [keyof: string]: IThreadLikeDocument };
@@ -50,8 +52,14 @@ export interface IThreadPatchData {
   attachments?: Array<string>;
 }
 
-export interface IThreadDocument extends IThread, Document { }
+export interface IThreadDocument extends IThread, Document {}
 export interface IThreadModel extends Model<IThreadDocument> {
-  getAllPublicThreads: (this: IThreadModel, excludeUserIds?: string[]) => Promise<IThreadDocument[]>;
-  patchThread: (this: IThreadModel, data: IThreadPatchData) => Promise<IThreadDocument>;
+  getAllPublicThreads: (
+    this: IThreadModel,
+    excludeUserIds?: string[]
+  ) => Promise<IThreadDocument[]>;
+  patchThread: (
+    this: IThreadModel,
+    data: IThreadPatchData
+  ) => Promise<IThreadDocument>;
 }

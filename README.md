@@ -1,5 +1,5 @@
 ![Typescript compiler](https://github.com/chingu-voyages/v25-bears-team-05-repo2/workflows/Typescript%20compiler/badge.svg)
-
+[![codecov](https://codecov.io/gh/chingu-voyages/v25-bears-team-05-repo2/branch/main/graph/badge.svg?token=LLDWZZ5PDA)](https://codecov.io/gh/chingu-voyages/v25-bears-team-05-repo2)
 # [![SyncedUp](./assets/logo-dark.svg)](https://syncedup.live/) | SyncedUp API
 
 ### About
@@ -8,19 +8,26 @@ This is the API portion of the SyncedUp project (a full-stack LinkedIn clone). T
 
 ### Features
 
+#### Authentication
 - Register for an account using local authentication (email/password), or using their Google account with Google oAuth.
-
 - Sign-in to the service.
-- Add/remove connections to your profile.
-- Create posts
+- Log out of the service
+
+#### Account Features
+- Update user avatar
+- Password recovery
+#### Social Media Features
+- Add and remove users to and from your social network.
+- Create and reply to posts
 - View posts from connections.
 - Receive connection suggestions
 
-- Log out of the service
+#### Search
+- Use keyword search to find users and user posts
+#### Notifications
+- Receive notifications like connection requests
+### Future features
 
-### Future features (nice to haves)
-
-- Push notifications
 - Private messaging
 - Job posts
 - Event listings
@@ -57,11 +64,19 @@ Other tools:
 5. Create a `.env` file using the `sample.env` file
    provided as a model. Fill in the details.
 
-### Running the app and tests
+#### Google reCaptcha v2
+1. Visit [Google reCaptcha console](https://www.google.com/recaptcha/) to register the app and obtain secret keys.
+   - Ensure you are registering for version `v2` of reCaptcha
+2. The console should generate two keys:
+   - The `Site key` (`REACT_APP_DEV_CAPTCHA_SITE_KEY`) is for use with the *front end* to generate the reCaptcha
+   - The `Secret key` (`DEV_CAPTCHA_SECRET_KEY`) is used for in the Syncedup api to communicate with Google's 
+      reCaptcha verification server
+3. In the console, ensure to add `localhost` to the list of domains so you can     
+   locally test the reCaptcha
 
-- Run `npm start` to start the server
-- Run `npm t` to run jest unit tests
+### Running the app in development mode
 
+- Run `npm run dev` to start the server
 ### Building the app
 
 - Run `npm run tsc` to compile
@@ -87,72 +102,10 @@ Other tools:
    - `$ heroku config:set $(<.env)`
 1. Deploy a branch to heroku master
    - `$ git push heroku <your branch to deploy>:master`
+   
+### Tests
+##### Run the test suite and display test coverage stats
+-  `$ npm run test-coverage`
 
-## API Routes
-
-### <b>Feed</b>
-
-Method: GET <br>
-Endpoint: `/feed`<br>
-Description: returns threads authored by connections, connection suggestions and public posts
-
-### <b>Threads</b>
-
-Method: POST <br>
-Endpoint: `/threads` <br>
-Body: `htmlContent`, `threadType`, `visibility`, `hashTags`, `attachments`<br>
-Description: Creates a thread for the requester's profile
-
-### <b>Users</b>
-
-Method: GET<br>
-Endpoint: `/users/:id` <br>
-Description: Get requester's profile data <br>
-Parameter: userId of requester
-
-Method: GET<br>
-Endpoint: `/users/:id/connections` <br>
-Description: Gets user's connections <br>
-Parameter: userId of requester
-
-Method: PUT<br>
-Endpoint: `/users/connections/:id` <br>
-Description: Adds connection requester's profile <br>
-Parameter: userId to add as connection
-
-Method: DELETE<br>
-Endpoint: `/users/connections/:id` <br>
-Description: Deletes a connection from requester's profile<br>
-Parameter: userId to delete from connection
-
-Method: PATCH <br>
-Endpoint: `/users/:id` <br>
-Description: Update requester's profile details <br>
-Body: optional parameters: `firstName`, `lastName` `avatar`, `jobTitle`
-
-Method: GET <br>
-Endpoint: `/users/:id/threads` <br>
-Description: Gets a user's threads <br>
-Params: `id` is either `me` referring to requester's own profile, or the profile `id` of another user.
-
-### <b>Auth</b>
-
-Method: GET <br>
-Endpoint: `/auth/google/callback`<br>
-Description: Google oAuth route
-
-Method: POST <br>
-Endpoint: `/auth/local`<br>
-Description: local login (with e-mail and password)
-
-### <b>Logout</b>
-
-Method: POST<br>
-Endpoint: `/logout`<br>
-Description: log out of service and expire cookie
-
-### <b>Register-local</b>
-
-Method: POST<br>
-Endpoint: `/register/local`<br>
-Description: log-in using local authentication<br>
+##### Test-build the typescript
+- `$ npm run test-build`

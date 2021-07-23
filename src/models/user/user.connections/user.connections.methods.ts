@@ -1,78 +1,104 @@
+/* eslint-disable max-len */
+/* eslint-disable no-invalid-this */
 import { IUserConnection } from "../../user-connection/user-connection.types";
 import { UserModel } from "../user.model";
 import { IUserDocument } from "../user.types";
-
+import isEmpty from "lodash/isEmpty";
 /**
- *  Adds a connection object to user's profile and updates the connectionOf property
+ *  Adds a connection object to user's profile and updates the connections property
  * on the target.
- * @param this *
- * @param objId object id
+ * @param {object} this the source users to which we add the connection
+ * @param {string} objId object id id of user to add to the source user's connections object
+ * @param {boolean} isTeamMate indicates if team mate
+ * @return {Promise<IUserDocument>}
  */
-export async function addConnectionToUser(this: IUserDocument, objId: string, isTeamMate?: boolean): Promise<IUserDocument> {
-  // This assumes we already have the home user document in context with "this"
-  try {
-    const targetUser = await UserModel.findById(objId);
-    if (targetUser) {
-      const targetUserConnection = transformUserDataToConnection(targetUser, isTeamMate); // Adds to originator's connections object
-      const originatorConnection = transformUserDataToConnection(this, isTeamMate); // Adds to target;s connectionsOf object
+export async function addConnectionToUser(
+  this: IUserDocument,
+  objId: string,
+  isTeamMate?: boolean,
+): Promise<IUserDocument> {
+  const targetUser = await UserModel.findById(objId);
+  if (targetUser) {
+    const targetUserConnection = transformUserDataToConnection(
+      targetUser,
+      isTeamMate,
+    ); // Adds to originator's connections object
+    const originatorConnection = transformUserDataToConnection(
+      this,
+      isTeamMate,
+    ); // Adds to target;s connectionsOf object
 
-      this["connections"][targetUser._id] = targetUserConnection;
-      targetUser["connectionOf"][this._id] = originatorConnection;
-
-      this.markModified("connections");
-      targetUser.markModified("connectionOf");
-      // Saves the changes
-      await this.save();
-      await targetUser.save();
-      return targetUser;
-    } else {
-      throw new Error("User id not found");
+    if (this["connections"][targetUser._id]) {
+      throw new Error(
+        ` Target user ${targetUser._id} already exists in ${this._id} connections object`,
+      );
     }
-  } catch (err) {
-    console.log(err);
+
+    if (targetUser["connections"][this._id]) {
+      throw new Error(
+        `${this._id} already exists in ${targetUser._id} connections object`,
+      );
+    }
+
+    this["connections"][targetUser._id] = targetUserConnection;
+    targetUser["connections"][this._id] = originatorConnection;
+
+    this.markModified("connections");
+    targetUser.markModified("connections");
+
+    await this.save();
+    await targetUser.save();
+    return targetUser;
+  } else {
+    throw new Error("User id not found");
   }
 }
 
 /**
  * Removes connection from user and any subsequent users affected.
- * @param this
- * @param objId
+ * @param {object} this
+ * @param {string} objId
  */
-export async function deleteConnectionFromUser(this: IUserDocument, objId: string): Promise<IUserDocument> {
-  try {
-    const targetUser = await UserModel.findById(objId);
-    if (targetUser) {
-      delete this["connections"][targetUser._id];
-      delete targetUser["connectionOf"][this._id];
-
-      this.markModified("connections");
-      targetUser.markModified("connectionOf");
-
-      await this.save();
-      await targetUser.save();
-      return targetUser;
-    } else {
-      throw new Error("User id not found");
-    }
-  } catch (err) {
-    console.log(err);
+export async function deleteConnectionFromUser(
+  this: IUserDocument,
+  objId: string,
+): Promise<IUserDocument> {
+  if (!this["connections"][objId]) {
+    throw new Error(`User is not a connection`);
+  }
+  delete this["connections"][objId];
+  const targetUser = await UserModel.findById(objId);
+  if (targetUser) {
+    delete targetUser["connections"][this._id];
+    this.markModified("connections");
+    targetUser.markModified("connections");
+    await this.save();
+    await targetUser.save();
+    return targetUser;
+  } else {
+    throw new Error("User id not found");
   }
 }
 
 /**
  * Goes through source the connectionsOf object of the source user's connections.
- * @param this instance of user making the request
+ * @param {object} this instance of user making the request
  */
-export async function getConnectionOfFromConnections(this: IUserDocument): Promise<IUserConnection[]> {
+export async function getSecondTierConnections(
+  this: IUserDocument,
+): Promise<IUserConnection[]> {
   // Get an array of userIds for this.connections
   const connectionUserIds = Object.keys(this.connections);
 
   // Find user documents that match the ids in the above array
-  const users = await UserModel.find().where("_id").in(connectionUserIds).exec();
+  const users = await UserModel.find()
+    .where("_id")
+    .in(connectionUserIds)
+    .exec();
   const connectionsOf: IUserConnection[] = [];
-  const uniqueIds: any = { };
+  const uniqueIds: any = {};
   users.forEach((user) => {
-    for (const [_, value] of Object.entries(user.connectionOf)) {
+    for (const [_, value] of Object.entries(user.connections)) {
       if (value.userId !== this.id) {
         if (!uniqueIds[value.userId.toString()]) {
           connectionsOf.push(value);
@@ -83,12 +109,33 @@ export async function getConnectionOfFromConnections(this: IUserDocument): Promi
   });
   return connectionsOf;
 }
+
+/**
+ *  Returns an array of IUserDocuments representing the users in the "connections" object
+ * on the source user
+ * @param {object} this instance of IUserDocument
+ */
+export async function getUserDocumentsFromConnections(
+  this: IUserDocument,
+): Promise<IUserDocument[]> {
+  if (!this.connections || isEmpty(this.connections)) {
+    return [];
+  }
+
+  const connectionsUserIds = Object.keys(this.connections);
+  return UserModel.find().where("_id").in(connectionsUserIds).exec();
+}
+
 /**
  *
- * @param userData A user document to transform
- * @param isTeamMate optional flag to indicate if teammate.
+ * @param {IUserDocument} userData A user document to transform
+ * @param {boolean} isTeamMate optional flag to indicate if teammate.
+ * @return {IUserConnection}
  */
-function transformUserDataToConnection(userData: IUserDocument, isTeamMate?: boolean): IUserConnection {
+function transformUserDataToConnection(
+  userData: IUserDocument,
+  isTeamMate?: boolean,
+): IUserConnection {
   return {
     firstName: userData.firstName,
     lastName: userData.lastName,

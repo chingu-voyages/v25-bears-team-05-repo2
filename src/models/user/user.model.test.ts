@@ -35,15 +35,14 @@ describe("CRUD operations for User model", () => {
       auth: {
         email: encrypt("test@test.com"),
       },
-      avatar: [ {url: "testUrl01"} ],
-      connections: {},
-      connectionOf: {},
+      avatar: [{ url: "testUrl01" }],
+      connections: { },
       threads: {
-        started: {},
-        commented: {},
-        liked: {},
-        shared: {},
-      }
+        started: { },
+        commented: { },
+        liked: { },
+        shared: { },
+      },
     };
     const result = await UserModel.create(testUserData);
     expect(decrypt(result.auth.email)).toBe("test@test.com");
@@ -52,7 +51,9 @@ describe("CRUD operations for User model", () => {
   });
 
   test("findOrCreate function returns user if found", async () => {
-    const [user1, user2] = createTestUsers(2, ["123456789", "987654321", "55544323"]);
+    const [user1, user2] = createTestUsers({
+      numberOfUsers: 2,
+      googleIds: ["123456789", "987654321", "55544323"] });
     // Put the test models in the collection.
     await UserModel.create([user1, user2]);
     const result = await UserModel.findOneOrCreateByGoogleId(user1);
@@ -60,29 +61,21 @@ describe("CRUD operations for User model", () => {
   });
 
   test("creates user in db if not found", async () => {
-    const [user1, user2] = createTestUsers(2, ["123456789", "987654321"]);
+    const [user1, user2] = createTestUsers({
+      numberOfUsers: 2,
+      googleIds: ["123456789", "987654321"] });
     // Put the test document in the collection.
     await UserModel.create(user1);
     const result = await UserModel.findOneOrCreateByGoogleId(user2);
     expect(result.auth.googleId).toBe("987654321");
   });
-
-  test("find user by googleId method retrieves a user", async() => {
-    // Create test users and put them in db
-    const [user1, user2] = createTestUsers(2, ["123456789", "987654321"]);
-    await UserModel.create([user1, user2]);
-
-    // Test the find by google id function
-    const result = await UserModel.findByGoogleId("123456789");
-    expect(result).toBeDefined();
-    expect(result.auth.googleId).toBe("123456789");
-    expect(result.auth.googleId).not.toBe("1234567891");
-  });
 });
 
 describe("register user tests", () => {
-  test("register user function throws error if duplicate email address", async() => {
-    const testUsers = createTestUsers(3, [], ["password0", "password1", "password2"]);
+  test("register user function throws error if duplicate email address", async () => {
+    const testUsers = createTestUsers({ numberOfUsers: 3,
+      googleIds: [],
+      plainTextPasswords: ["password0", "password1", "password2"] });
     await UserModel.create(testUsers);
 
     const newTestUser: IUserRegistrationDetails = {
@@ -94,8 +87,10 @@ describe("register user tests", () => {
     await expect(() => UserModel.registerUser(newTestUser)).rejects.toThrow();
   });
 
-  test("register user function does not throw if unique e-mail", async() => {
-    const testUsers = createTestUsers(3, [], ["password0", "password1", "password2"]);
+  test("register user function does not throw if unique e-mail", async () => {
+    const testUsers = createTestUsers({ numberOfUsers: 3,
+      googleIds: [],
+      plainTextPasswords: ["password0", "password1", "password2"] });
     await UserModel.create(testUsers);
 
     const newTestUser: IUserRegistrationDetails = {

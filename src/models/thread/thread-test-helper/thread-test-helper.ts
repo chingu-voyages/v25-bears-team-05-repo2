@@ -5,12 +5,12 @@ import mongoose from "mongoose";
 const lorem = new LoremIpsum({
   sentencesPerParagraph: {
     max: 8,
-    min: 4
+    min: 4,
   },
   wordsPerSentence: {
     max: 16,
-    min: 4
-  }
+    min: 4,
+  },
 });
 
 /**
@@ -18,7 +18,10 @@ const lorem = new LoremIpsum({
  * @param count number of users to create
  * @param forUserId userId
  */
-export function createDummyPublicThreads(count: number, forUserId: string): IThread[] {
+export function createDummyPublicThreads(
+  count: number,
+  forUserId: string
+): IThread[] {
   const createdThreads: IThread[] = [];
   for (let i = 0; i < count; i++) {
     createdThreads.push({
@@ -28,13 +31,15 @@ export function createDummyPublicThreads(count: number, forUserId: string): IThr
       content: {
         html: lorem.generateParagraphs(2),
         hashTags: [],
-        attachments: []
+        attachments: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
-      comments: { },
-      likes: { },
-      shares: { },
+      comments: {},
+      likes: {},
+      shares: {},
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
   }
   return createdThreads;

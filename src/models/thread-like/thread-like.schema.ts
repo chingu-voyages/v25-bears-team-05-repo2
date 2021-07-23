@@ -6,6 +6,6 @@ const ThreadLikeSchema: Schema = new Schema({
     type: String,
     required: true,
   }
-}, { timestamps: { }} );
+}, { timestamps: true} );
 
 export default ThreadLikeSchema;
